@@ -3,23 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
-import '../view_model/verify_code_viewmodel.dart';
+import '../view_model/verify_phone_number_view_model.dart';
 import '../widget/custom_appbar.dart';
 
-class VerifyCodeScreen extends StatelessWidget {
+class VerifyPhoneNumberScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => VerifyCodeViewModel(),
-      child: VerifyCodeScreenContent(),
+      create: (context) => VerifyPhoneNumberViewModel(),
+      child: VerifyPhoneNumberScreenContent(),
     );
   }
 }
 
-class VerifyCodeScreenContent extends StatelessWidget {
+class VerifyPhoneNumberScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<VerifyCodeViewModel>(context);
+    final viewModel = Provider.of<VerifyPhoneNumberViewModel>(context);
 
     return Scaffold(
       body: SafeArea(
@@ -29,7 +29,7 @@ class VerifyCodeScreenContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 30),
-              CustomAppbar(title: 'Xác Minh Mã'),
+              CustomAppbar(title: 'Xác thực OTP'),
               const SizedBox(height: 20),
               const Text(
                 'Vui lòng nhập mã OTP được gửi đến số điện thoại của bạn.',
@@ -56,11 +56,11 @@ class VerifyCodeScreenContent extends StatelessWidget {
                 onCompleted: (value) {
                   // Xử lý khi nhập đủ mã
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Center(child: Text('Mã xác minh hợp lệ!')),
+                    content: Center(child: Text('Đăng ký tài khoản thành công')),
                     duration: Duration(seconds: 2),
                   ));
                   // Hiển thị giao diện thay đổi mật khẩu
-                  Navigator.of(context).pushNamed('/change-pass');
+                  Navigator.of(context).pushNamed('/login');
                 },
                 onChanged: (value) {
                   // Xử lý khi thay đổi mã

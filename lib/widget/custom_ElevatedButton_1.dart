@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class CustomElavatedButton_1 extends StatelessWidget {
   final String text;
-  final dynamic Function() onPressed;
+  final VoidCallback? onPressed;
 
   const CustomElavatedButton_1({
     Key? key,
@@ -15,12 +15,7 @@ class CustomElavatedButton_1 extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
         child: ElevatedButton(
-            onPressed: (){
-              // Gọi hàm onPressed và lấy giá trị trả về
-              final result = onPressed();
-              // Xử lý kết quả (nếu cần)
-              print('Result: $result');
-            },
+            onPressed: onPressed,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.deepPurpleAccent,
               fixedSize: Size(360, 50),

@@ -1,35 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import thư viện cloud_firestore
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../data/category_item.dart';
 
 class IncomeCategoryAddScreen extends StatefulWidget {
+  final CategoryItem? category;
+  const IncomeCategoryAddScreen({super.key, this.category});
+
   @override
   State<IncomeCategoryAddScreen> createState() => _IncomeCategoryAddScreenState();
 }
 
 class _IncomeCategoryAddScreenState extends State<IncomeCategoryAddScreen> {
   int _selectedCategoryIndex = -1;
-  List<CategoryItem> categories = []; // Danh sách danh mục hiện tại
+  List<CategoryItem> categories = [];
 
   @override
   void initState() {
     super.initState();
-    // Gọi hàm để lấy danh sách danh mục từ Cloud Firestore
-    _fetchCategories();
+    categories = List.from(incomeCategories); // Sử dụng bản sao của danh sách danh mục ban đầu
+    if (widget.category != null) {
+      categories.add(widget.category!); // Thêm danh mục mới vào danh sách nếu nó không null
+    }
   }
 
-  // Hàm để lấy danh sách danh mục từ Cloud Firestore
-  void _fetchCategories() async {
-    // Tham chiếu đến collection "categories" trong Cloud Firestore
-    var snapshot = await FirebaseFirestore.instance.collection('categories').get();
-    // Xử lý kết quả trả về
+  // void _selectCategory(CategoryItem_2 selectedCategory) {
+  //   if (isCategoryExist(selectedCategory)) {
+  //     Navigator.pop(context, selectedCategory);
+  //   } else {
+  //     Navigator.pop(context, null); // Tránh thêm danh mục vào danh sách của màn hình IncomeCategoryAddScreen
+  //     Navigator.pop(context, selectedCategory); // Chuyển dữ liệu về màn hình AddTransactionScreen
+  //   }
+  // }
+  void _selectCategory(CategoryItem selectedCategory) {
+    if (isCategoryExist(selectedCategory)) {
+      // Nếu danh mục đã tồn tại, chỉ đơn giản pop màn hình và trả về danh mục đã chọn
+      Navigator.pop(context, selectedCategory);
+    } else {
+      // Nếu danh mục chưa tồn tại, thêm vào danh sách và sau đó pop màn hình
+      categories.add(selectedCategory);
+      Navigator.pop(context, selectedCategory);
+    }
+    // Gọi setState để cập nhật lại giao diện với việc chọn danh mục mới
     setState(() {
-      // Chuyển đổi dữ liệu từ snapshot thành danh sách các đối tượng CategoryItem
-      categories = snapshot.docs.map((doc) => CategoryItem.fromMap(doc.data())).toList();
+      _selectedCategoryIndex = categories.indexOf(selectedCategory);
     });
   }
+
+
+  bool isCategoryExist(CategoryItem category) {
+    for (CategoryItem existingCategory in categories) {
+      if (existingCategory.name == category.name) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +78,7 @@ class _IncomeCategoryAddScreenState extends State<IncomeCategoryAddScreen> {
                   setState(() {
                     _selectedCategoryIndex = index;
                   });
-                  // Xử lý khi chọn danh mục
+                  _selectCategory(category); // Chọn danh mục và xử lý
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -69,7 +96,7 @@ class _IncomeCategoryAddScreenState extends State<IncomeCategoryAddScreen> {
                           color: category.color,
                         ),
                         child: Icon(
-                          IconData(int.parse(category.icon), fontFamily: 'FontAwesome'), // Chuyển đổi icon từ mã sang IconData
+                          category.icon,
                           color: Colors.white,
                           size: 40,
                         ),

@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expense_management/UI/onboarding_screen.dart';
 import 'package:expense_management/UI/splash_screen.dart';
 import 'package:expense_management/routes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'UI/transaction/catalog_creation_screen.dart';
-import 'UI/transaction/income_category_add_screen.dart';
+import 'UI/phone_number_screen.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -35,8 +33,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      // routes: routes,
-      home:  IncomeCategoryAddScreen(),
+      routes: routes,
+      home:  PhoneVerificationPage(),
     );
   }
 }

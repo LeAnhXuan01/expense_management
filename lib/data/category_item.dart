@@ -143,65 +143,53 @@ List<IconItem> icons = [
   //Thêm các đầu mục danh mục khác ở đây
 ];
 
-// class CategoryItem {
-//   final String name;
-//   final IconData icon;
-//   final Color color;
-//
-//   CategoryItem({
-//     required this.name,
-//     required this.icon,
-//     required this.color
-//   });
-// }
-
 class CategoryItem {
   final String name;
-  final String icon; // Thay đổi kiểu dữ liệu của icon thành String
-  final Color? color; // Thay đổi kiểu dữ liệu của color thành String
+  final IconData icon; // Thay đổi kiểu dữ liệu của icon thành String
+  final Color color; // Thay đổi kiểu dữ liệu của color thành String
 
   CategoryItem({
     required this.name,
     required this.icon,
     required this.color,
   });
-
-  // Phương thức tạo từ dữ liệu Map
-  CategoryItem.fromMap(Map<String, dynamic> map)
-      : name = map['name'],
-        icon = map['icon'],
-        color = map['color'] != null ? Color(int.parse(map['color'])) : null;
-
-  // Phương thức chuyển đổi sang dữ liệu Map
-  Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'icon': icon,
-      'color': color != null ? color!.value.toString() : null, // Chuyển đổi Color sang chuỗi màu
-    };
-  }
 }
 
+  List<CategoryItem> incomeCategories = [
+    CategoryItem(
+        name: 'Lương', icon: FontAwesomeIcons.moneyBillAlt, color: Colors.red),
+    CategoryItem(
+        name: 'Tiền thưởng', icon: FontAwesomeIcons.gift, color: Colors.blue),
+    CategoryItem(
+        name: 'hỏi', icon: FontAwesomeIcons.moneyBillAlt, color: Colors.yellow),
+    CategoryItem(
+        name: 'chấm', icon: FontAwesomeIcons.gift, color: Colors.black),
+    CategoryItem(name: '?', icon: FontAwesomeIcons.gift, color: Colors.green),
+    CategoryItem(name: 'lol',
+        icon: FontAwesomeIcons.car,
+        color: Colors.deepPurpleAccent),
+    CategoryItem(
+        name: 'xuan', icon: FontAwesomeIcons.airbnb, color: Colors.green),
+    CategoryItem(name: 'huy',
+        icon: FontAwesomeIcons.addressBook,
+        color: Colors.deepPurpleAccent),
+    // Thêm các danh mục thu nhập khác tại đây
+  ];
 
-// List<CategoryItem> incomeCategories = [
-//   CategoryItem(name: 'Lương', icon: FontAwesomeIcons.moneyBillAlt, color: Colors.red),
-//   CategoryItem(name: 'Tiền thưởng', icon: FontAwesomeIcons.gift,  color: Colors.blue),
-//   CategoryItem(name: 'hỏi', icon: FontAwesomeIcons.moneyBillAlt, color: Colors.yellow),
-//   CategoryItem(name: 'chấm', icon: FontAwesomeIcons.gift, color: Colors.black),
-//   CategoryItem(name: '?', icon: FontAwesomeIcons.gift, color: Colors.green),
-//   CategoryItem(name: 'lol', icon: FontAwesomeIcons.car, color: Colors.deepPurpleAccent),
-//   CategoryItem(name: 'xuan', icon: FontAwesomeIcons.airbnb, color: Colors.green),
-//   CategoryItem(name: 'huy', icon: FontAwesomeIcons.addressBook, color: Colors.deepPurpleAccent),
-//   // Thêm các danh mục thu nhập khác tại đây
-// ];
-//
-// List<CategoryItem> expenseCategories = [
-//   CategoryItem(name: 'Ăn uống', icon: FontAwesomeIcons.utensils, color: Colors.red),
-//   CategoryItem(name: 'Di chuyển', icon: FontAwesomeIcons.car, color: Colors.blue),
-//   CategoryItem(name: 'chơi game', icon: FontAwesomeIcons.utensils, color: Colors.yellow),
-//   CategoryItem(name: 'bay lak', icon: FontAwesomeIcons.car, color: Colors.green),
-//   CategoryItem(name: 'xam', icon: FontAwesomeIcons.utensils, color: Colors.deepPurpleAccent),
-//   CategoryItem(name: 'lol', icon: FontAwesomeIcons.car, color: Colors.black),
-//   // Thêm các danh mục chi tiêu khác tại đây
-// ];
+  List<CategoryItem> expenseCategories = [
+    CategoryItem(
+        name: 'Ăn uống', icon: FontAwesomeIcons.utensils, color: Colors.red),
+    CategoryItem(
+        name: 'Di chuyển', icon: FontAwesomeIcons.car, color: Colors.blue),
+    CategoryItem(name: 'chơi game',
+        icon: FontAwesomeIcons.utensils,
+        color: Colors.yellow),
+    CategoryItem(
+        name: 'bay lak', icon: FontAwesomeIcons.car, color: Colors.green),
+    CategoryItem(name: 'xam',
+        icon: FontAwesomeIcons.utensils,
+        color: Colors.deepPurpleAccent),
+    CategoryItem(name: 'lol', icon: FontAwesomeIcons.car, color: Colors.black),
+    // Thêm các danh mục chi tiêu khác tại đây
+  ];
 

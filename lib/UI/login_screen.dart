@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../view_model/login_view_model.dart';
@@ -36,9 +38,10 @@ class LoginScreenContent extends StatelessWidget {
                 SizedBox(height: 80,),
                 TextField(
                   keyboardType: TextInputType.name,
-                  onChanged: (value) => viewModel.setUsername(value), // Cập nhật tên
+                  onChanged: (value) => viewModel.setName(value), // Cập nhật tên
                   decoration: InputDecoration(
-                      labelText: 'Tên',
+                      prefixIcon: Icon(Icons.phone),
+                      labelText: 'Số điện thoại',
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(20))
                       )
@@ -49,6 +52,7 @@ class LoginScreenContent extends StatelessWidget {
                   obscureText: viewModel.obscurePassword,
                   onChanged: (value) => viewModel.setPassword(value), // Cập nhật mật khẩu
                   decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.lock),
                       labelText: 'Mật khẩu',
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(20))
@@ -79,10 +83,10 @@ class LoginScreenContent extends StatelessWidget {
                     Navigator.of(context).pushNamed('/bottom');
                   },
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Image.asset('assets/images/google.png', width: 24, height: 24,),
-                      SizedBox(width: 10),
+                      SizedBox(width: 20),
                       Text(
                         'Đăng nhập với Google',
                         style: TextStyle(

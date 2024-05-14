@@ -32,7 +32,7 @@ class ForgotPassScreenContent extends StatelessWidget {
                 CustomAppbar(title: 'Quên Mật Khẩu'),
                 const SizedBox(height: 80,),
                 const Text(
-                  'Đừng lo lắng.\nHãy nhập email của bạn và chúng tôi sẽ gửi cho bạn một liên kết để đặt lại mật khẩu của bạn.',
+                  'Đừng lo lắng.\nHãy nhập số điện thoại của bạn và chúng tôi sẽ gửi cho bạn một mã OTP để đặt lại mật khẩu của bạn.',
                   style: TextStyle(
                     fontSize: 26,
                     color: Colors.black,
@@ -41,10 +41,11 @@ class ForgotPassScreenContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 20,),
                 TextField(
-                  keyboardType: TextInputType.emailAddress,
+                  keyboardType: TextInputType.number,
                   onChanged: (value) => viewModel.setEmail(value),
                   decoration: InputDecoration(
-                    labelText: 'E-mail',
+                    prefixIcon: Icon(Icons.phone),
+                    labelText: 'Số điện thoại',
                     border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))), // Sử dụng OutlineInputBorder để có khung viền xung quanh
                   ),
                 ),

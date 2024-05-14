@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
 class LoginViewModel extends ChangeNotifier {
-  String _username = '';
+  String _name = '';
   String _password = '';
   bool _obscurePassword = true;
 
-  String get username => _username;
+  String get name => _name;
   String get password => _password;
   bool get obscurePassword => _obscurePassword;
 
-  void setUsername(String value) {
-    _username = value;
+
+  void setName(String value) {
+    _name = value;
     notifyListeners();
   }
 
