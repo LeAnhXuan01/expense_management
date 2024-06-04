@@ -1,108 +1,166 @@
-import 'package:flutter/material.dart';
+  import 'package:cloud_firestore/cloud_firestore.dart';
+  import 'package:firebase_auth/firebase_auth.dart';
+  import 'package:flutter/cupertino.dart';
 
-class RegisterViewModel extends ChangeNotifier {
-  String _name = '';
-  String _phone = '';
-  String _verificationId = '';
-  String _password = '';
-  String _confirmPassword = '';
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-  bool _isValid = false;
+  class RegisterViewModel extends ChangeNotifier {
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+    final TextEditingController confirmPasswordController = TextEditingController();
 
-  String get name => _name;
-  String get phone => _phone;
-  String get password => _password;
-  String get confirmPassword => _confirmPassword;
-  bool get obscurePassword => _obscurePassword;
-  bool get obscureConfirmPassword => _obscureConfirmPassword;
-  bool get isValid => _isValid;
+    bool isPasswordVisible = false;
+    bool isPasswordChanged = false;
+    bool isConfirmPasswordVisible = false;
 
+    String emailError = '';
+    String passwordError = '';
+    String confirmPasswordError = '';
 
-  String? get nameError {
-    if (_name.isNotEmpty && _name.length > 20) {
-      return 'Tên đăng nhập không được quá 20 kí tự';
-    } else if (_name.isEmpty) {
-
-    } else if (_name.contains(RegExp(r'[!@#%^&*(),.?":{}|<>]'))) {
-      return 'Tên đăng nhập không được có kí tự đặc biệt';
-    } else if (_name.trim() != _name) {
-      return 'Tên đăng nhập không được có dấu cách';
+    RegisterViewModel() {
+      emailController.addListener(() {
+        if (validateEmail(emailController.text)) {
+          emailError = '';
+          notifyListeners();
+        }
+      });
+      passwordController.addListener(() {
+        if (validatePassword(passwordController.text)) {
+          passwordError = '';
+          notifyListeners();
+        }
+      });
+      confirmPasswordController.addListener(() {
+        if (confirmPasswordController.text == passwordController.text) {
+          confirmPasswordError = '';
+          notifyListeners();
+        }
+      });
     }
-    return null;
-  }
 
-  String? get phoneError {
-    if (_phone.isEmpty) {
-
-    } else if (_phone.length != 10) {
-      return 'Số điện thoại phải đủ 10 số';
+    void togglePasswordVisibility() {
+      isPasswordVisible = !isPasswordVisible;
+      notifyListeners();
     }
-    return null;
-  }
 
-  String? get passwordError {
-    if (_password.isEmpty) {
-
-    } else if (_password.length < 6) {
-      return 'Mật khẩu phải từ 6 kí tự trở lên';
-    } else if (_password.length > 20) {
-      return 'Mật khẩu không được quá 20 kí tự';
+    void toggleConfirmPasswordVisibility() {
+      isConfirmPasswordVisible = !isConfirmPasswordVisible;
+      notifyListeners();
     }
-    return null;
-  }
 
-  String? get confirmPasswordError {
-    if (_confirmPassword.isEmpty) {
-
-    } else if (_confirmPassword != _password) {
-      return 'Xác nhận mật khẩu không khớp';
+    void togglePasswordChanged() {
+      isPasswordChanged = true;
+      notifyListeners();
     }
-    return null;
-  }
 
-  void setName(String value) {
-    _name = value.trim(); // remove leading and trailing whitespaces
-    validateInputs();
-    notifyListeners();
-  }
+    bool validateEmail(String email) {
+      if (email.isEmpty) {
+        emailError = 'Vui lòng nhập email.';
+        return false;
+      }
+      if (email.contains('@gmail.com')) {
+        emailError = 'Không cần nhập đuôi @gmail.com.';
+        return false;
+      }
+      if (email.contains(RegExp(r'[!#$%^&*(),?":{}|<>]'))) {
+        emailError = 'Email không được chứa ký tự đặc biệt.';
+        return false;
+      }
+      emailError = '';
+      return true;
+    }
 
-  void setPhone(String value) {
-    _phone = value.trim(); // remove leading and trailing whitespaces
-    validateInputs();
-    notifyListeners();
-  }
+    bool validatePassword(String password) {
+      if(isPasswordChanged){
+        if (password.isEmpty) {
+          passwordError = 'Vui lòng nhập mật khẩu.';
+          return false;
+        }
+        if (password.length < 8) {
+          passwordError = 'Mật khẩu phải dài tối thiểu 8 ký tự.';
+          return false;
+        }
+        if (password.length > 30) {
+          passwordError = 'Mật khẩu dài không vượt quá 30 ký tự.';
+          return false;
+        }
+        int criteriaCount = 0;
+        if (password.contains(RegExp(r'[A-Z]'))) criteriaCount++;
+        if (password.contains(RegExp(r'[a-z]'))) criteriaCount++;
+        if (password.contains(RegExp(r'[0-9]'))) criteriaCount++;
+        if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) criteriaCount++;
 
-  void setPassword(String value) {
-    _password = value.trim(); // remove leading and trailing whitespaces
-    validateInputs();
-    notifyListeners();
-  }
+        if (criteriaCount < 3) {
+          passwordError = 'Mật khẩu phải bao gồm ít nhất 3 trong 4 nhóm ký tự sau:\n- Chữ cái VIẾT HOA\n- Chữ cái viết thường\n- Chữ số\n- Ký tự đặc biệt';
+          return false;
+        }
+      }
+      passwordError = '';
+      return true;
+    }
 
-  void setConfirmPassword(String value) {
-    _confirmPassword = value.trim(); // remove leading and trailing whitespaces
-    validateInputs();
-    notifyListeners();
-  }
+    Future<bool> register() async {
+      final email = emailController.text;
+      final newPassword = passwordController.text;
+      final confirmPassword = confirmPasswordController.text;
 
-  void togglePasswordVisibility() {
-    _obscurePassword = !_obscurePassword;
-    notifyListeners();
-  }
+      if (!validateEmail(email) ||
+          !validatePassword(newPassword) ||
+          newPassword != confirmPassword) {
+        if (newPassword != confirmPassword) {
+          confirmPasswordError = 'Mật khẩu và xác nhận mật khẩu không khớp.';
+        }
+        notifyListeners();
+        return false;
+      }
 
-  void toggleConfirmPasswordVisibility() {
-    _obscureConfirmPassword = !_obscureConfirmPassword;
-    notifyListeners();
-  }
+      try {
+        // Tạo tài khoản mới với Firebase Authentication
+        UserCredential userCredential =
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: email + '@gmail.com',
+          password: newPassword,
+        );
 
-  void validateInputs() {
-    // Check if all conditions are met for validity
-    _isValid =
-        // _name.isNotEmpty &&
-        _phone.length == 10 &&
-        _password.isNotEmpty &&
-        _password == _confirmPassword;
-        // _name.length <= 20 &&
-        // !_name.contains(RegExp(r'[!@#%^&*(),.?":{}|<>]')); // Regex to check for special characters
+        // Gửi email xác thực
+        await userCredential.user!.sendEmailVerification();
+
+        // Chờ người dùng xác thực email
+        // Gọi monitorEmailVerification sau khi đăng ký thành công
+        // bool isVerified = await monitorEmailVerification(userCredential.user!);
+        //
+        // return isVerified;
+        return true;
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'email-already-in-use') {
+          emailError = 'Email này đã được sử dụng.';
+        } else if (e.code == 'invalid-email') {
+          emailError = 'Email không hợp lệ.';
+        } else if (e.code == 'weak-password') {
+          passwordError = 'Mật khẩu quá yếu.';
+        }
+        notifyListeners();
+        return false;
+      } catch (e) {
+        print(e);
+        return false;
+      }
+    }
+
+    Future<bool> monitorEmailVerification(User user, String password) async {
+      await user.reload();
+      if (user.emailVerified) {
+        // Lấy user ID từ Firebase Authentication
+        String userId = user.uid;
+
+        // Lưu thông tin người dùng vào Firestore
+        await FirebaseFirestore.instance.collection('users').doc(userId).set({
+          'userId': userId,
+          'email': user.email,
+          'password': password,
+        });
+
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
-}

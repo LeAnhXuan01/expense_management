@@ -5,16 +5,6 @@ import 'package:provider/provider.dart';
 import '../view_model/onboarding_view_model.dart';
 
 class OnboardingScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => OnboardingViewModel(),
-      child: OnboardingScreenContent(),
-    );
-  }
-}
-
-class OnboardingScreenContent extends StatelessWidget {
   final List<PageViewModel> pages = [
     PageViewModel(
         title: 'Giành quyền kiểm soát hoàn toàn tiền của bạn',
@@ -50,23 +40,29 @@ class OnboardingScreenContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<OnboardingViewModel>(context);
-
-    return IntroductionScreen(
-      pages: pages,
-      done: Text('Bắt đầu'),
-      onDone: () => Navigator.of(context).pushNamed('/login'),
-      next: Text('Tiếp theo'),
-      skip: Text('Bỏ qua'),
-      showSkipButton: true,
-      onSkip: () => Navigator.of(context).pushNamed('/login'),
-      dotsDecorator: DotsDecorator(
-        color:  Color(0xFFBDBDBD), // Màu sắc của dấu chấm
-        activeColor: Colors.deepPurpleAccent, // Màu sắc của dấu chấm đang hoạt động
+    return Scaffold(
+      body: Consumer<OnboardingViewModel>(
+        builder: (context, viewModel, child) {
+          return IntroductionScreen(
+            pages: pages,
+            done: Text('Bắt đầu'),
+            onDone: () => Navigator.of(context).pushNamed('/login'),
+            next: Text('Tiếp theo'),
+            skip: Text('Bỏ qua'),
+            showSkipButton: true,
+            onSkip: () => Navigator.of(context).pushNamed('/login'),
+            dotsDecorator: DotsDecorator(
+              color:  Color(0xFFBDBDBD), // Màu sắc của dấu chấm
+              activeColor: Colors.deepPurpleAccent, // Màu sắc của dấu chấm đang hoạt động
+            ),
+            onChange: (index) {
+              viewModel.setCurrentPageIndex(index);
+            },
+          );
+        },
       ),
-      onChange: (index) {
-        viewModel.setCurrentPageIndex(index);
-      },
     );
   }
 }
+
+

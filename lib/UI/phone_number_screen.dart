@@ -71,6 +71,7 @@ class _PhoneVerificationPageState extends State<PhoneVerificationPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
+              keyboardType: TextInputType.phone,
               controller: _phoneNumberController,
               decoration: InputDecoration(labelText: 'Phone Number'),
             ),

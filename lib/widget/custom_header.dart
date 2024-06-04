@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class CustomHeader extends StatelessWidget {
   final String title;
-
-  const CustomHeader({Key? key, required this.title}) : super(key: key);
+  final List<Widget> actions;
+  const CustomHeader({Key? key, required this.title, this.actions = const [],}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +37,8 @@ class CustomHeader extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
+            Spacer(), // Đẩy các actions sang bên phải
+            ...actions, // Hiển thị các actions
           ],
         ),
       ),

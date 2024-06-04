@@ -59,7 +59,6 @@ class VerifyPhoneNumberScreenContent extends StatelessWidget {
                     content: Center(child: Text('Đăng ký tài khoản thành công')),
                     duration: Duration(seconds: 2),
                   ));
-                  // Hiển thị giao diện thay đổi mật khẩu
                   Navigator.of(context).pushNamed('/login');
                 },
                 onChanged: (value) {

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import '../../data/category_item.dart';
+import '../../model/category_model.dart';
 
 class IncomeCategoryAddViewModel extends ChangeNotifier {
-  late List<CategoryItem> categories;
+  late List<Category> categories;
   int _selectedCategoryIndex = -1;
 
   int get selectedCategoryIndex => _selectedCategoryIndex;
 
-  CategoryItem? _newlyAddedCategory;
-  CategoryItem? get  newlyAddedCategory => _newlyAddedCategory;
+  Category? _newlyAddedCategory;
+  Category? get  newlyAddedCategory => _newlyAddedCategory;
 
 
-  void init(List<CategoryItem> incomeCategories) {
+  void init(List<Category> incomeCategories) {
     categories = List.from(incomeCategories);
   }
 
@@ -20,7 +20,7 @@ class IncomeCategoryAddViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addCategory(CategoryItem newCategory) {
+  void addCategory(Category newCategory) {
     categories.add(newCategory);
     _newlyAddedCategory = newCategory;
     notifyListeners();

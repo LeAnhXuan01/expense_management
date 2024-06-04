@@ -24,7 +24,6 @@ class CustomAppbar extends StatelessWidget {
           ),
         ),
       actions: actions,
-      automaticallyImplyLeading: false,
       centerTitle: true,
       );
   }

@@ -1,439 +1,507 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../data/category_item.dart';
-import '../../widget/custom_ElevatedButton_2.dart';
-import 'expense_category_add_screen.dart';
-import 'income_category_add_screen.dart';
-
-class AddTransactionScreen extends StatefulWidget {
-  @override
-  _AddTransactionScreenState createState() => _AddTransactionScreenState();
-}
-
-class _AddTransactionScreenState extends State<AddTransactionScreen> {
-  bool _isIncomeTabSelected = true; // default to income tab
-  DateTime _selectedDate = DateTime.now(); // default to current date
-  // Tạo một biến để theo dõi danh mục được chọn
-  int _selectedCategoryIndex = -1; // Không có danh mục nào được chọn ban đầu
-  double _amount = 0.0; // Biến để lưu số tiền
-  bool _isButtonEnabled = false; // Biến để kiểm tra xem nút "Lưu" có được kích hoạt hay không
-
-  bool isCategoryExist(CategoryItem category) {
-    List<CategoryItem> targetList = _isIncomeTabSelected ? incomeCategories : expenseCategories;
-    for (CategoryItem existingCategory in targetList) {
-      if (existingCategory.name == category.name) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-
-  // Hàm kiểm tra điều kiện để kích hoạt nút "Lưu"
-  void _checkButtonStatus() {
-    setState(() {
-      // Kích hoạt nút "Lưu" nếu số tiền lớn hơn 0 và đã chọn danh mục
-      _isButtonEnabled = _amount > 0 && _selectedCategoryIndex != -1;
-    });
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2000), // Chỉ định ngày bắt đầu là năm 2000
-      lastDate: DateTime.now(), // Chỉ định ngày kết thúc là ngày hiện tại
-    );
-    if (picked != null && picked != _selectedDate)
-      setState(() {
-        _selectedDate = picked;
-      });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Container(
-                  width: double.infinity,
-                  height: 130,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
-                    color: Colors.deepPurpleAccent,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 35, left: 20, right: 20),
-                    child: Column(
-                      children: [
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              GestureDetector(
-                                onTap: (){
-
-                                },
-                                child: Icon(
-                                  Icons.list_alt_outlined,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                'Thêm giao dịch',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: (){
-                                  Navigator.of(context).pop;
-                                },
-                                child: Icon(
-                                  Icons.delete,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ]
-                        ),
-                        SizedBox(height: 5),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _isIncomeTabSelected = true;
-                                  _selectedCategoryIndex = -1; // Reset selected category index
-                                  _checkButtonStatus(); // Kiểm tra điều kiện để kích hoạt nút "Lưu"
-                                });
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: _isIncomeTabSelected ? Colors.white : Colors.transparent,
-                                      width: 2,
-                                    ),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Thu nhập',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: _isIncomeTabSelected ? FontWeight.bold : FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 50),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _isIncomeTabSelected = false;
-                                  _selectedCategoryIndex = -1; // Reset selected category index
-                                  _checkButtonStatus(); // Kiểm tra điều kiện để kích hoạt nút "Lưu"
-                                });
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: !_isIncomeTabSelected ? Colors.white : Colors.transparent,
-                                      width: 2,
-                                    ),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Chi tiêu',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: !_isIncomeTabSelected ? FontWeight.bold : FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  )
-              ),
-
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextField(
-                          onChanged: (value){
-                            setState(() {
-                              // Cập nhật giá trị của số tiền khi người dùng thay đổi
-                              _amount = double.tryParse(value) ?? 0.0;
-                              // Kiểm tra điều kiện để kích hoạt nút "Lưu"
-                              _checkButtonStatus();
-                            });
-                          },
-                          decoration: InputDecoration(
-                            labelText: 'Số tiền',
-                          ),
-                          keyboardType: TextInputType.number,
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          'Danh mục',
-                          style: TextStyle(fontSize: 16, color: Colors.black.withOpacity(0.7)),
-                        ),
-                        Container(
-                          height: 270, // Adjust height according to your needs
-                          child: GridView.builder(
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                            ),
-                            // itemCount: categories.length >= 5 ? 6 : categories.length + 1,
-                            // itemCount: _isIncomeTabSelected ? incomeCategories.length : expenseCategories.length,
-                            itemCount: _isIncomeTabSelected ? (incomeCategories.length > 5 ? 6 : incomeCategories.length) : (expenseCategories.length > 5 ? 6 : expenseCategories.length),
-                            itemBuilder: (BuildContext context, int index) {
-                              if (index < 5) {
-                                // final category = categories[index];
-                                final category = _isIncomeTabSelected ? incomeCategories[index] : expenseCategories[index];
-                                return GestureDetector(
-                                  onTap: () {
-                                    // Xử lý khi nhấn vào một danh mụct
-                                    setState(() {
-                                      _selectedCategoryIndex = index; // Cập nhật chỉ mục của danh mục được chọn
-                                      _checkButtonStatus();
-                                    });
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: _selectedCategoryIndex == index ? category.color : null, // Đặt màu nền của container tùy thuộc vào danh mục có được chọn hay không
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          width: 60,
-                                          height: 60,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: category.color,
-                                          ),
-                                          child: Icon(
-                                            category.icon,
-                                            color: Colors.white,
-                                            size: 40,
-                                          ),
-                                        ),
-                                        SizedBox(height: 3),
-                                        Text(
-                                          category.name,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(fontSize: 14, color: _selectedCategoryIndex == index ? Colors.white : Colors.black),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                return GestureDetector(
-                                  // onTap: () {
-                                  //   //Xử lý khi nhấn nút "Add"
-                                  //   // Kiểm tra tab hiện tại là tab thu nhập hay tab chi tiêu
-                                  //   Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //       builder: (context) => _isIncomeTabSelected == true
-                                  //           ? IncomeCategoryAddScreen()
-                                  //           : ExpenseCategoryAddScreen(),
-                                  //     )
-                                  //   );
-                                  //   // Navigator.of(context).pushNamed('/creat-categories');
-                                  //
-                                  // },
-                                  onTap: () async {
-                                    //Xử lý khi nhấn nút "Add"
-                                    // Kiểm tra tab hiện tại là tab thu nhập hay tab chi tiêu
-                                    final selectedCategory = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => _isIncomeTabSelected ? IncomeCategoryAddScreen() : ExpenseCategoryAddScreen(),
-                                      ),
-                                    );
-
-                                    if (selectedCategory != null) {
-                                      // Kiểm tra xem danh mục đã tồn tại trong danh sách của AddTransaction chưa
-                                      bool isExistInAddTransaction = isCategoryExist(selectedCategory);
-
-                                      // Nếu danh mục đã tồn tại trong danh sách của AddTransaction
-                                      if (isExistInAddTransaction) {
-                                        setState(() {
-                                          if (_isIncomeTabSelected) {
-                                            // Lấy danh mục vị trí đầu tiên trong danh sách AddTransaction
-                                            CategoryItem firstCategory = incomeCategories[0];
-                                            // Loại bỏ danh mục trùng lặp trong danh sách AddTransaction
-                                            incomeCategories.remove(selectedCategory);
-                                            // Thêm danh mục mới vào đầu danh sách AddTransaction
-                                            incomeCategories.insert(0, selectedCategory);
-                                            // Nếu danh mục vị trí đầu tiên trong danh sách AddTransaction trùng với danh mục được chọn, không cần cập nhật chỉ mục
-                                            if (firstCategory != selectedCategory) {
-                                              _selectedCategoryIndex = 0;
-                                            }
-                                          } else {
-                                            CategoryItem firstCategory = expenseCategories[0];
-                                            expenseCategories.remove(selectedCategory);
-                                            expenseCategories.insert(0, selectedCategory);
-                                            if (firstCategory != selectedCategory) {
-                                              _selectedCategoryIndex = 0;
-                                            }
-                                          }
-                                          _checkButtonStatus(); // Kiểm tra điều kiện để kích hoạt nút "Lưu"
-                                        });
-                                      }
-                                      // Nếu danh mục không tồn tại trong danh sách của AddTransaction
-                                      else {
-                                        setState(() {
-                                          if (_isIncomeTabSelected) {
-                                            // Chèn danh mục mới vào vị trí đầu tiên của danh sách AddTransaction
-                                            incomeCategories.insert(0, selectedCategory);
-                                          } else {
-                                            expenseCategories.insert(0, selectedCategory);
-                                          }
-                                          _selectedCategoryIndex = 0;
-                                          _checkButtonStatus(); // Kiểm tra điều kiện để kích hoạt nút "Lưu"
-                                        });
-                                      }
-                                    }
-
-
-
-                                  },
-
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 40, top: 25),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.blueGrey.shade200,
-                                      ),
-                                      child: Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 40,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () => _selectDate(context),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'Chọn ngày:',
-                                    style: TextStyle(fontSize: 16, color: Colors.black.withOpacity(0.7)),
-                                  ),
-                                  SizedBox(width: 5),
-                                  Text(
-                                    "${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                  SizedBox(width: 5),
-                                  Icon(Icons.calendar_today),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        TextField(
-                          maxLines: null, // Allow multiline input
-                          maxLength: 4000,
-                          decoration: InputDecoration(
-                            labelText: 'Ghi chú',
-                          ),
-                        ),
-                        Text('Ảnh', style: TextStyle(fontSize: 16, color: Colors.black.withOpacity(0.7)),),
-                        SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.grey
-                              ),
-                              child: Icon(FontAwesomeIcons.plus, color: Colors.white, size: 30,),                        ),
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.grey
-                              ),
-                              child: Icon(FontAwesomeIcons.plus, color: Colors.white, size: 30,),                        ),
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.grey
-                              ),
-                              child: Icon(FontAwesomeIcons.plus, color: Colors.white, size: 30,),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 80),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Positioned(
-            bottom: 30, // Điều chỉnh vị trí của nút "Lưu" ở đáy màn hình
-            left: 0,
-            right: 0,
-            child: CustomElevatedButton_2(
-              text: 'Lưu',
-              onPressed: _isButtonEnabled ? () {
-// Thực hiện hành động khi nút "Lưu" được kích hoạt
-              } : null,
-            )
-          ),
-        ],
-      )
-    );
-  }
-}
-
-
-
-
+// import 'dart:io';
+//
+// import 'package:expense_management/UI/transaction/transaction_history/transaction_history_screen.dart';
+// import 'package:flutter/material.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// import '../../model/category_model.dart';
+// import '../../model/transaction_model.dart';
+// import '../../services/transaction_service.dart';
+// import '../../widget/custom_ElevatedButton_2.dart';
+// import 'component/image_detail_screen.dart';
+// import 'expense_category_add_screen.dart';
+// import 'income_category_add_screen.dart';
+// import 'package:image_picker/image_picker.dart';
+//
+// class AddTransactionScreen extends StatefulWidget {
+//   final Category? selectedCategory;
+//   final bool isIncomeTabSelected;
+//
+//   AddTransactionScreen({this.selectedCategory, this.isIncomeTabSelected = true});
+//
+//   @override
+//   _AddTransactionScreenState createState() => _AddTransactionScreenState();
+// }
+//
+// class _AddTransactionScreenState extends State<AddTransactionScreen> {
+//   late bool _isIncomeTabSelected;
+//   DateTime _selectedDate = DateTime.now();
+//   double _amount = 0.0;
+//   final TextEditingController _noteController = TextEditingController();
+//   bool _isButtonEnabled = false;
+//   Category? _selectedCategory;
+//   List<XFile> _images = [];
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _isIncomeTabSelected = widget.isIncomeTabSelected;
+//     _selectedCategory = widget.selectedCategory;
+//     _checkButtonStatus();
+//   }
+//
+//   void _checkButtonStatus() {
+//     setState(() {
+//       _isButtonEnabled = _amount > 0 && _selectedCategory != null;
+//     });
+//   }
+//
+//   Future<void> _selectDate(BuildContext context) async {
+//     final DateTime? picked = await showDatePicker(
+//       context: context,
+//       initialDate: _selectedDate,
+//       firstDate: DateTime(2000),
+//       lastDate: DateTime.now(),
+//     );
+//     if (picked != null && picked != _selectedDate)
+//       setState(() {
+//         _selectedDate = picked;
+//       });
+//   }
+//
+//   Future<void> _addCategory() async {
+//     final selectedCategory = await Navigator.push(
+//       context,
+//       MaterialPageRoute(
+//         builder: (context) => _isIncomeTabSelected
+//             ? IncomeCategoryAddScreen()
+//             : ExpenseCategoryAddScreen(),
+//       ),
+//     );
+//
+//     if (selectedCategory != null) {
+//       setState(() {
+//         _selectedCategory = selectedCategory;
+//         _checkButtonStatus();
+//       });
+//     }
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//         body: Stack(
+//           children: [
+//             Column(
+//               children: [
+//                 Container(
+//                     width: double.infinity,
+//                     height: 130,
+//                     decoration: BoxDecoration(
+//                       borderRadius: BorderRadius.only(
+//                           bottomLeft: Radius.circular(20),
+//                           bottomRight: Radius.circular(20)),
+//                       color: Colors.deepPurpleAccent,
+//                     ),
+//                     child: Padding(
+//                       padding: const EdgeInsets.only(top: 35, left: 20, right: 20),
+//                       child: Column(
+//                         children: [
+//                           Row(
+//                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                               crossAxisAlignment: CrossAxisAlignment.start,
+//                               children: [
+//                                 GestureDetector(
+//                                   onTap: () {},
+//                                   child: Icon(
+//                                     Icons.list_alt_outlined,
+//                                     color: Colors.white,
+//                                   ),
+//                                 ),
+//                                 Text(
+//                                   'Thêm giao dịch',
+//                                   style: TextStyle(
+//                                     fontSize: 20,
+//                                     fontWeight: FontWeight.w600,
+//                                     color: Colors.white,
+//                                   ),
+//                                 ),
+//                                 GestureDetector(
+//                                   onTap: () {
+//                                     Navigator.of(context).pop();
+//                                   },
+//                                   child: Icon(
+//                                     Icons.delete,
+//                                     color: Colors.white,
+//                                   ),
+//                                 ),
+//                               ]),
+//                           SizedBox(height: 5),
+//                           Row(
+//                             mainAxisAlignment: MainAxisAlignment.center,
+//                             crossAxisAlignment: CrossAxisAlignment.center,
+//                             children: [
+//                               GestureDetector(
+//                                 onTap: () {
+//                                   setState(() {
+//                                     _isIncomeTabSelected = true;
+//                                     _selectedCategory = null;
+//                                     _checkButtonStatus();
+//                                   });
+//                                 },
+//                                 child: Container(
+//                                   padding: EdgeInsets.symmetric(
+//                                       vertical: 10, horizontal: 20),
+//                                   decoration: BoxDecoration(
+//                                     border: Border(
+//                                       bottom: BorderSide(
+//                                         color: _isIncomeTabSelected
+//                                             ? Colors.white
+//                                             : Colors.transparent,
+//                                         width: 2,
+//                                       ),
+//                                     ),
+//                                   ),
+//                                   child: Text(
+//                                     'Thu nhập',
+//                                     style: TextStyle(
+//                                       fontSize: 18,
+//                                       fontWeight: _isIncomeTabSelected
+//                                           ? FontWeight.bold
+//                                           : FontWeight.normal,
+//                                       color: Colors.white,
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ),
+//                               SizedBox(width: 50),
+//                               GestureDetector(
+//                                 onTap: () {
+//                                   setState(() {
+//                                     _isIncomeTabSelected = false;
+//                                     _selectedCategory = null;
+//                                     _checkButtonStatus();
+//                                   });
+//                                 },
+//                                 child: Container(
+//                                   padding: EdgeInsets.symmetric(
+//                                       vertical: 10, horizontal: 20),
+//                                   decoration: BoxDecoration(
+//                                     border: Border(
+//                                       bottom: BorderSide(
+//                                         color: !_isIncomeTabSelected
+//                                             ? Colors.white
+//                                             : Colors.transparent,
+//                                         width: 2,
+//                                       ),
+//                                     ),
+//                                   ),
+//                                   child: Text(
+//                                     'Chi tiêu',
+//                                     style: TextStyle(
+//                                       fontSize: 18,
+//                                       fontWeight: !_isIncomeTabSelected
+//                                           ? FontWeight.bold
+//                                           : FontWeight.normal,
+//                                       color: Colors.white,
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ),
+//                             ],
+//                           ),
+//                         ],
+//                       ),
+//                     )),
+//                 Expanded(
+//                   child: SingleChildScrollView(
+//                     child: Padding(
+//                       padding: EdgeInsets.all(20),
+//                       child: Column(
+//                         crossAxisAlignment: CrossAxisAlignment.stretch,
+//                         children: [
+//                           TextField(
+//                             onChanged: (value) {
+//                               setState(() {
+//                                 _amount = double.tryParse(value) ?? 0.0;
+//                                 _checkButtonStatus();
+//                               });
+//                             },
+//                             decoration: InputDecoration(
+//                               labelText: 'Số tiền',
+//                             ),
+//                             keyboardType: TextInputType.number,
+//                           ),
+//                           SizedBox(height: 20),
+//                           Row(
+//                             children: [
+//                               Text(
+//                                 'Danh mục:',
+//                                 style: TextStyle(
+//                                     fontSize: 16, color: Colors.black.withOpacity(0.7)),
+//                               ),
+//                               SizedBox(width: 30),
+//                               GestureDetector(
+//                                 onTap: _addCategory,
+//                                 child: _selectedCategory == null
+//                                     ? Container(
+//                                   width: 60,
+//                                   height: 60,
+//                                   decoration: BoxDecoration(
+//                                     shape: BoxShape.circle,
+//                                     color: Colors.blueGrey.shade200,
+//                                   ),
+//                                   child: Icon(
+//                                     Icons.add,
+//                                     color: Colors.white,
+//                                     size: 40,
+//                                   ),
+//                                 )
+//                                     : Column(
+//                                   mainAxisAlignment: MainAxisAlignment.center,
+//                                   children: [
+//                                     Container(
+//                                       width: 60,
+//                                       height: 60,
+//                                       decoration: BoxDecoration(
+//                                         shape: BoxShape.circle,
+//                                         color: _selectedCategory != null ? Color(int.parse(_selectedCategory!.color!)) : null,
+//                                       ),
+//                                       child: _selectedCategory != null ? Icon(
+//                                         IconData(int.parse(_selectedCategory!.icon!),
+//                                           fontFamily: 'FontAwesomeSolid',
+//                                           fontPackage: 'font_awesome_flutter',
+//                                         ),
+//                                         color: Colors.white,
+//                                         size: 40,
+//                                       ) : null,
+//                                     ),
+//                                     SizedBox(height: 3),
+//                                     Text(
+//                                       _selectedCategory!.name!,
+//                                       textAlign: TextAlign.center,
+//                                       style: TextStyle(
+//                                           fontSize: 14,
+//                                           color: Colors.black),
+//                                     ),
+//                                   ],
+//                                 ),
+//                               ),
+//                             ],
+//                           ),
+//                           SizedBox(height: 20),
+//                           Row(
+//                             children: [
+//                               GestureDetector(
+//                                 onTap: () => _selectDate(context),
+//                                 child: Row(
+//                                   children: [
+//                                     Text(
+//                                       'Chọn ngày:',
+//                                       style: TextStyle(
+//                                           fontSize: 16,
+//                                           color: Colors.black.withOpacity(0.7)),
+//                                     ),
+//                                     SizedBox(width: 5),
+//                                     Text(
+//                                       "${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}",
+//                                       style: TextStyle(
+//                                         fontSize: 16,
+//                                         fontWeight: FontWeight.w400,
+//                                       ),
+//                                     ),
+//                                     SizedBox(width: 5),
+//                                     Icon(Icons.calendar_today),
+//                                   ],
+//                                 ),
+//                               ),
+//                             ],
+//                           ),
+//                           SizedBox(height: 20),
+//                           TextField(
+//                             maxLines: null,
+//                             maxLength: 4000,
+//                             decoration: InputDecoration(
+//                               labelText: 'Ghi chú',
+//                             ),
+//                           ),
+//                           Text(
+//                             'Ảnh',
+//                             style: TextStyle(
+//                                 fontSize: 16, color: Colors.black.withOpacity(0.7)),
+//                           ),
+//                           SizedBox(height: 10),
+//                           Row(
+//                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: [
+//                               for (var i = 0; i < 3; i++)
+//                                 buildContainer(context, i < _images.length ? _images[i].path : null),
+//                             ],
+//                           ),
+//
+//                           SizedBox(height: 80),
+//                         ],
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//             Positioned(
+//               bottom: 30,
+//               left: 0,
+//               right: 0,
+//               child: CustomElevatedButton_2(
+//                 text: 'Lưu',
+//                 onPressed: _isButtonEnabled
+//                     ? () async {
+//                   print('oke');
+//                   // Create a new transaction
+//                   if (_selectedCategory != null) {
+//                     Transaction newTransaction = Transaction(
+//                       type: _isIncomeTabSelected ? 'income' : 'expense',
+//                       amount: _amount,
+//                       categoryId: _selectedCategory!.id, // Đảm bảo _selectedCategory không null
+//                       dateTime: _selectedDate.toIso8601String(),
+//                       note: _noteController.text,
+//                       image: _images.isNotEmpty ? _images.first.path : null,
+//                     );
+//                     // Save to database
+//                     TransactionService transactionService = TransactionService();
+//                     await transactionService.createTransaction(newTransaction);
+//                     // Navigator.pop(context, newTransaction);
+//
+//                     // Navigate to the transaction history screen
+//                     // Navigator.popUntil(context, (route) => route.isFirst);
+//                     Navigator.push(
+//                       context,
+//                       MaterialPageRoute(
+//                         builder: (context) => TransactionHistoryScreen(transactions: [newTransaction]),
+//                       ),
+//                     );
+//                   } else {
+//                     // Xử lý khi _selectedCategory là null (nếu cần)
+//                   }
+//
+//
+//                 }
+//                     : null,
+//               )
+//
+//             ),
+//           ],
+//         ));
+//   }
+//
+//   // Trong phương thức buildContainer
+//   GestureDetector buildContainer(BuildContext context, String? imagePath) {
+//     return GestureDetector(
+//       onTap: () {
+//         if (imagePath != null && imagePath.isNotEmpty) {
+//           Navigator.push(
+//             context,
+//             MaterialPageRoute(
+//               builder: (context) => ImageDetailScreen(imagePath: imagePath),
+//             ),
+//           );
+//         } else {
+//           showDialog(
+//             context: context,
+//             builder: (BuildContext context) {
+//               return AlertDialog(
+//                 title: Text('Thêm ảnh'),
+//                 content: SingleChildScrollView(
+//                   child: ListBody(
+//                     children: <Widget>[
+//                       GestureDetector(
+//                         child: Text('Chụp ảnh'),
+//                         onTap: () {
+//                           Navigator.of(context).pop();
+//                           captureImage(context);
+//                         },
+//                       ),
+//                       Padding(padding: EdgeInsets.all(8.0)),
+//                       GestureDetector(
+//                         child: Text('Thêm ảnh từ thư viện'),
+//                         onTap: () {
+//                           Navigator.of(context).pop();
+//                           pickImageFromGallery(context);
+//                         },
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               );
+//             },
+//           );
+//         }
+//       },
+//       child: Stack(
+//         children: [
+//           Container(
+//             width: 100,
+//             height: 100,
+//             decoration: BoxDecoration(
+//               borderRadius: BorderRadius.circular(20),
+//               color: imagePath != null && imagePath.isNotEmpty
+//                   ? null
+//                   : Colors.grey, // Tránh việc màu nền bị che khuất bởi ảnh
+//               image: imagePath != null && imagePath.isNotEmpty
+//                   ? DecorationImage(
+//                 image: FileImage(File(imagePath!)),
+//                 fit: BoxFit.cover,
+//               )
+//                   : null, // Tránh việc hiển thị ảnh mặc định khi không có ảnh
+//             ),
+//             child: imagePath != null && imagePath.isNotEmpty
+//                 ? null // Không cần hiển thị biểu tượng plus khi đã có ảnh
+//                 : Icon(
+//               FontAwesomeIcons.plus,
+//               color: Colors.white,
+//               size: 30,
+//             ),
+//           ),
+//           if (imagePath != null && imagePath.isNotEmpty) // Hiển thị biểu tượng "x" nếu có ảnh
+//             Positioned(
+//               top: 0,
+//               right: 0,
+//               child: GestureDetector(
+//                 onTap: () {
+//                   setState(() {
+//                     _images.removeWhere((element) => element.path == imagePath);
+//                   });
+//                 },
+//                 child: Container(
+//                   width: 30,
+//                   height: 30,
+//                   decoration: BoxDecoration(
+//                     color: Colors.red,
+//                     shape: BoxShape.circle,
+//                   ),
+//                   child: Center(
+//                     child: Icon(
+//                       Icons.close,
+//                       color: Colors.white,
+//                       size: 20,
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             ),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Future<void> captureImage(BuildContext context) async {
+//     final ImagePicker _picker = ImagePicker();
+//     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+//
+//     if (image != null) {
+//       setState(() {
+//         _images.add(image);
+//       });
+//     }
+//   }
+//
+//   Future<void> pickImageFromGallery(BuildContext context) async {
+//     final ImagePicker _picker = ImagePicker();
+//     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+//
+//     if (image != null) {
+//       setState(() {
+//         _images.add(image);
+//       });
+//     }
+//   }
+// }

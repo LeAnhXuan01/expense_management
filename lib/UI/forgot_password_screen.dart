@@ -8,60 +8,59 @@ import '../widget/custom_appbar.dart';
 class ForgotPasswordScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ForgotPasswordViewModel(),
-      child: ForgotPassScreenContent(),
-    );
-  }
-}
-
-class ForgotPassScreenContent extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final viewModel = Provider.of<ForgotPasswordViewModel>(context);
-
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: SingleChildScrollView(
+      body: Consumer<ForgotPasswordViewModel>(
+        builder: (context, viewModel, child) {
+          return SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 30),
-                CustomAppbar(title: 'Quên Mật Khẩu'),
-                const SizedBox(height: 80,),
-                const Text(
-                  'Đừng lo lắng.\nHãy nhập số điện thoại của bạn và chúng tôi sẽ gửi cho bạn một mã OTP để đặt lại mật khẩu của bạn.',
-                  style: TextStyle(
-                    fontSize: 26,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
+                SizedBox(height: 20),
+                CustomAppbar(title: 'Quên mật khẩu'),
+                SizedBox(height: 50),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Đừng lo lắng.\nHãy nhập E-mail của bạn và chúng tôi sẽ gửi cho bạn một mã xác minh tới E-mail của bạn để đặt lại mật khẩu của bạn.',
+                        style: TextStyle(
+                          fontSize: 26,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 20,),
+                      TextField(
+                        controller: viewModel.emailController,
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.email),
+                          labelText: 'E-mail',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))), // Sử dụng OutlineInputBorder để có khung viền xung quanh
+                          suffixText: '@gmail.com',
+                          errorText: viewModel.emailError.isNotEmpty ? viewModel.emailError : null,
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      CustomElavatedButton_1(
+                        text: 'Tiếp tục',
+                        onPressed: (){
+                          // Logic xác nhận email và chuyển sang màn hình xác minh mã
+                          if(viewModel.next()){
+                            Navigator.of(context).pushNamed('/verify-code');
+                          }
+                        },
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 20,),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) => viewModel.setEmail(value),
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.phone),
-                    labelText: 'Số điện thoại',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))), // Sử dụng OutlineInputBorder để có khung viền xung quanh
-                  ),
-                ),
-                const SizedBox(height: 30),
-                CustomElavatedButton_1(
-                  text: 'Tiếp tục',
-                  onPressed: (){
-                    // Logic xác nhận email và chuyển sang màn hình xác minh mã
-                    Navigator.of(context).pushNamed('/verify-code');
-                  },
                 ),
               ],
             ),
-          ),
-        ),
+          );
+        }
       ),
     );
   }
 }
+
+

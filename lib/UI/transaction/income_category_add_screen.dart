@@ -1,127 +1,206 @@
-import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-import '../../data/category_item.dart';
-
-class IncomeCategoryAddScreen extends StatefulWidget {
-  final CategoryItem? category;
-  const IncomeCategoryAddScreen({super.key, this.category});
-
-  @override
-  State<IncomeCategoryAddScreen> createState() => _IncomeCategoryAddScreenState();
-}
-
-class _IncomeCategoryAddScreenState extends State<IncomeCategoryAddScreen> {
-  int _selectedCategoryIndex = -1;
-  List<CategoryItem> categories = [];
-
-  @override
-  void initState() {
-    super.initState();
-    categories = List.from(incomeCategories); // Sử dụng bản sao của danh sách danh mục ban đầu
-    if (widget.category != null) {
-      categories.add(widget.category!); // Thêm danh mục mới vào danh sách nếu nó không null
-    }
-  }
-
-  // void _selectCategory(CategoryItem_2 selectedCategory) {
-  //   if (isCategoryExist(selectedCategory)) {
-  //     Navigator.pop(context, selectedCategory);
-  //   } else {
-  //     Navigator.pop(context, null); // Tránh thêm danh mục vào danh sách của màn hình IncomeCategoryAddScreen
-  //     Navigator.pop(context, selectedCategory); // Chuyển dữ liệu về màn hình AddTransactionScreen
-  //   }
-  // }
-  void _selectCategory(CategoryItem selectedCategory) {
-    if (isCategoryExist(selectedCategory)) {
-      // Nếu danh mục đã tồn tại, chỉ đơn giản pop màn hình và trả về danh mục đã chọn
-      Navigator.pop(context, selectedCategory);
-    } else {
-      // Nếu danh mục chưa tồn tại, thêm vào danh sách và sau đó pop màn hình
-      categories.add(selectedCategory);
-      Navigator.pop(context, selectedCategory);
-    }
-    // Gọi setState để cập nhật lại giao diện với việc chọn danh mục mới
-    setState(() {
-      _selectedCategoryIndex = categories.indexOf(selectedCategory);
-    });
-  }
-
-
-  bool isCategoryExist(CategoryItem category) {
-    for (CategoryItem existingCategory in categories) {
-      if (existingCategory.name == category.name) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('Income Categories'),
-        ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: GridView.builder(
-            itemCount: categories.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3, // Số lượng cột trong GridView
-            ),
-            itemBuilder: (context, index) {
-              final category = categories[index];
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedCategoryIndex = index;
-                  });
-                  _selectCategory(category); // Chọn danh mục và xử lý
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: _selectedCategoryIndex == index ? category.color : null, // Đặt màu nền của container tùy thuộc vào danh mục có được chọn hay không
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: category.color,
-                        ),
-                        child: Icon(
-                          category.icon,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                      SizedBox(height: 3),
-                      Text(
-                        category.name,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14, color: _selectedCategoryIndex == index ? Colors.white : Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // Navigate to Create Categories screen
-            Navigator.pushNamed(context, '/creat-categories');
-          },
-          child: Icon(FontAwesomeIcons.plus),
-        )
-    );
-  }
-}
+// import 'package:flutter/material.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// import '../../model/category_model.dart';
+// import '../../services/category_service.dart';
+// import 'edit_category_screen.dart';
+//
+// class IncomeCategoryAddScreen extends StatefulWidget {
+//   const IncomeCategoryAddScreen({Key? key}) : super(key: key);
+//
+//   @override
+//   State<IncomeCategoryAddScreen> createState() => _IncomeCategoryAddScreenState();
+// }
+//
+// class _IncomeCategoryAddScreenState extends State<IncomeCategoryAddScreen> {
+//   late List<Category> categories = [];
+//   int _selectedCategoryIndex = -1;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _fetchCategories();
+//   }
+//
+//   void _fetchCategories() async {
+//     final fetchedCategories = await CategoryService().getIncomeCategories();
+//     setState(() {
+//       categories = fetchedCategories;
+//     });
+//   }
+//
+//   void _selectCategory(Category selectedCategory) {
+//     Navigator.pop(context, selectedCategory);
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Danh mục thu nhập'),
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 20),
+//         child: GridView.builder(
+//           itemCount: categories.length,
+//           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+//             crossAxisCount: 3,
+//           ),
+//           itemBuilder: (context, index) {
+//             final category = categories[index];
+//             return GestureDetector(
+//               onTap: () {
+//                 setState(() {
+//                   _selectedCategoryIndex = index;
+//                 });
+//                 _selectCategory(category);
+//               },
+//               onLongPress: () {
+//                 _showOptionsDialog(context, category);
+//               },
+//               child: Container(
+//                 decoration: BoxDecoration(
+//                   borderRadius: BorderRadius.circular(20),
+//                   color: _selectedCategoryIndex == index ? Color(int.parse(category.color!)) : null,
+//                 ),
+//                 child: Column(
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   children: [
+//                     Container(
+//                       width: 65,
+//                       height: 65,
+//                       decoration: BoxDecoration(
+//                         shape: BoxShape.circle,
+//                         color: Color(int.parse(category.color!)),
+//                       ),
+//                       child: Icon(
+//                         IconData(
+//                           int.parse(category.icon!),
+//                           fontFamily: 'FontAwesomeSolid', // Đảm bảo fontFamily phù hợp với FontAwesome
+//                           fontPackage: 'font_awesome_flutter',
+//                         ), // Chuyển đổi mã điểm thành IconData
+//                         color: Colors.white,
+//                         size: 40,
+//                       ),
+//                     ),
+//                     const SizedBox(height: 3),
+//                     Text(
+//                       category.name!,
+//                       textAlign: TextAlign.center,
+//                       style: TextStyle(
+//                         fontSize: 14,
+//                         color: _selectedCategoryIndex == index ? Colors.white : Colors.black,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             );
+//           },
+//         ),
+//       ),
+//       floatingActionButton: FloatingActionButton(
+//         onPressed: () async {
+//           final newCategory = await Navigator.pushNamed(context, '/creat-categories');
+//           if (newCategory != null && newCategory is Category) {
+//             setState(() {
+//               categories.add(newCategory);
+//             });
+//           }
+//         },
+//         child: const Icon(FontAwesomeIcons.plus),
+//       ),
+//     );
+//   }
+//
+//   void _showOptionsDialog(BuildContext context, Category category) {
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return AlertDialog(
+//           title: Text('Lựa chọn cho: ${category.name}'),
+//           actions: [
+//             Row(
+//               children: [
+//                 Expanded(
+//                   flex: 1,
+//                   child: Container(
+//                     decoration: BoxDecoration(
+//                         borderRadius: BorderRadius.circular(10),
+//                         color: Colors.grey.shade300,
+//                         border: Border.all(color: Colors.deepPurpleAccent)),
+//                     child: TextButton(
+//                       onPressed: () {
+//                         Navigator.pop(context);
+//                         _editCategory(category);
+//                       },
+//                       child: Text(
+//                         'Sửa',
+//                         style: TextStyle(
+//                           color: Colors.black,
+//                           fontWeight: FontWeight.w500,
+//                           fontSize: 18,
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//                 const SizedBox(width: 10),
+//                 Expanded(
+//                   flex: 1,
+//                   child: Container(
+//                     decoration: BoxDecoration(
+//                         borderRadius: BorderRadius.circular(10),
+//                         color: Colors.grey.shade300,
+//                         border: Border.all(color: Colors.deepPurpleAccent)),
+//                     child: TextButton(
+//                       onPressed: () {
+//                         Navigator.pop(context);
+//                         _deleteCategory(category);
+//                       },
+//                       child: const Text(
+//                         'Xóa',
+//                         style: TextStyle(
+//                           color: Colors.black,
+//                           fontWeight: FontWeight.w500,
+//                           fontSize: 18,
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
+//
+// void _editCategory(Category category) async {
+//   final editedCategory = await Navigator.push<Category>(
+//     context,
+//     MaterialPageRoute(
+//       builder: (context) => EditCategoryScreen(category: category),
+//     ),
+//   );
+//
+//   if (editedCategory != null) {
+//     setState(() {
+//       final index = categories.indexWhere((c) => c.id == editedCategory.id);
+//       if (index != -1) {
+//         categories[index] = editedCategory;
+//       }
+//     });
+//   }
+// }
+//
+//   void _deleteCategory(Category category) async {
+//     final rowsAffected = await CategoryService().deleteCategory(category.id!);
+//     if (rowsAffected > 0) {
+//       setState(() {
+//         categories.removeWhere((c) => c.id == category.id);
+//       });
+//     }
+//   }
+//
+// }

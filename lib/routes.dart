@@ -1,6 +1,7 @@
 import 'package:expense_management/widget/bottom_navigatorbar.dart';
 import 'package:flutter/material.dart';
 import 'UI/change_password_screen.dart';
+import 'UI/password_retrieval_screen.dart';
 import 'UI/forgot_password_screen.dart';
 import 'UI/home_screen.dart';
 import 'UI/login_screen.dart';
@@ -23,15 +24,16 @@ Map<String, WidgetBuilder> routes = {
   '/forgot-pass': (context) =>  ForgotPasswordScreen(),
   '/verify-code': (context) =>  VerifyCodeScreen(),
   '/verify-phone-number': (context) =>  VerifyPhoneNumberScreen(),
-  '/change-pass': (context) =>  ChangePasswordScreen(),
+  '/password-retrieval': (context) =>  PasswordRetrievalScreen(),
+  '/change-password': (context) =>  ChangePasswordScreen(),
   '/home': (context) =>  HomeScreen(),
-  '/add-transaction': (context) =>  AddTransactionScreen(),
-  '/creat-categories': (context) =>  CreatCategoriesScreen(),
-  '/income-category-add': (context) =>  IncomeCategoryAddScreen(),
-  '/expense-category-add': (context) =>  ExpenseCategoryAddScreen(),
+  // '/add-transaction': (context) =>  AddTransactionScreen(),
+  // '/creat-categories': (context) =>  CreatCategoriesScreen(),
+  // '/income-category-add': (context) =>  IncomeCategoryAddScreen(),
+  // '/expense-category-add': (context) =>  ExpenseCategoryAddScreen(),
   '/icon-category': (context) =>  IconCategoryScreen(),
   // '/catalog-color': (context) =>  CatalogColorScreen(colors: [],),
-  '/transaction-history': (context) =>  TransactionHistoryScreen(transactions: [],),
+  // '/transaction-history': (context) =>  TransactionHistoryScreen(transactions: [],),
   '/profile': (context) =>  ProfileScreen(),
   '/bottom': (context) =>  Bottom(),
 };

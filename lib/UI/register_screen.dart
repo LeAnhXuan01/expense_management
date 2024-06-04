@@ -1,145 +1,151 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:expense_management/UI/verify_email_screen.dart';
+import 'package:expense_management/widget/custom_ElevatedButton_1.dart';
+import 'package:expense_management/widget/custom_appbar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../view_model/register_view_model.dart';
-import '../widget/custom_ElevatedButton_1.dart';
-import '../widget/custom_appbar.dart';
 
-class RegisterScreen extends StatelessWidget {
+
+class RegisterScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => RegisterViewModel(),
-      child: RegisterScreenContent(),
-    );
-  }
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class RegisterScreenContent extends StatelessWidget {
+class _RegisterScreenState extends State<RegisterScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Xóa dữ liệu từ các controller mỗi khi màn hình được rebuild
+    Provider.of<RegisterViewModel>(context, listen: false)
+      ..emailController.clear()
+      ..passwordController.clear()
+      ..confirmPasswordController.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<RegisterViewModel>(context);
-
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 30),
-                CustomAppbar(title: 'Đăng Ký'),
-                const SizedBox(height: 80),
-                // TextField(
-                //   keyboardType: TextInputType.name,
-                //   onChanged: (value) => viewModel.setName(value),
-                //   decoration: InputDecoration(
-                //     labelText: 'Tên đăng nhập',
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.all(Radius.circular(20)),
-                //     ),
-                //     errorText: viewModel.nameError,
-                //   ),
-                // ),
-                // SizedBox(height: 16),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) => viewModel.setPhone(value),
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.phone),
-                    labelText: 'Số điện thoại',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
-                    errorText: viewModel.phoneError,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  obscureText: viewModel.obscurePassword,
-                  onChanged: (value) => viewModel.setPassword(value),
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.lock),
-                    labelText: 'Mật khẩu',
-                    border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        viewModel.togglePasswordVisibility();
-                      },
-                      icon: Icon(
-                        viewModel.obscurePassword ? Icons.visibility_off : Icons.visibility,
-                      ),
-                    ),
-                    errorText: viewModel.passwordError,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  obscureText: viewModel.obscureConfirmPassword,
-                  onChanged: (value) => viewModel.setConfirmPassword(value),
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.lock),
-                    labelText: 'Xác nhận mật khẩu',
-                    border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        viewModel.toggleConfirmPasswordVisibility();
-                      },
-                      icon: Icon(
-                        viewModel.obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
-                      ),
-                    ),
-                    errorText: viewModel.confirmPasswordError,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                CustomElavatedButton_1(
-                  text: 'Đăng ký',
-                  onPressed: viewModel.isValid
-                      ? () {
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //   SnackBar(content: Center(child: Text('Đăng ký thành công')))
-                    // );
-                    Navigator.of(context).pushNamed('/verify-phone-number');
-                    // Gửi mã OTP khi người dùng nhấn nút đăng ký
-
-                  }
-                      : null, // Disable button if not valid
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: GestureDetector(
-                    child: RichText(
-                      text: TextSpan(
+        body: Consumer<RegisterViewModel>(
+          builder: (context, viewModel, child) {
+            return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    CustomAppbar(title: 'Đăng Ký'),
+                    SizedBox(height: 50),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const TextSpan(
-                              text: 'Đã có một tài khoản? ',
-                              style: TextStyle(color: Colors.black, fontSize: 15)),
-                          TextSpan(
-                            text: 'Đăng nhập',
-                            style: const TextStyle(
-                              color: Colors.deepPurpleAccent,
-                              decoration: TextDecoration.underline,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: viewModel.emailController,
+                                  decoration: InputDecoration(
+                                    prefixIcon: Icon(FontAwesomeIcons.solidEnvelope),
+                                    labelText: 'Email',
+                                    border: OutlineInputBorder(
+                                        borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                    errorText: viewModel.emailError.isNotEmpty ? viewModel.emailError : null,
+                                    suffixText: '@gmail.com',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          TextField(
+                            controller: viewModel.passwordController,
+                            obscureText: !viewModel.isPasswordVisible,
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(FontAwesomeIcons.lock),
+                              labelText: 'Mật khẩu',
+                              border: OutlineInputBorder(
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(20))),
+                              suffixIcon: IconButton(
+                                icon: Icon(viewModel.isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+                                onPressed: viewModel.togglePasswordVisibility,
+                              ),
+                              errorText: viewModel.passwordError.isNotEmpty ? viewModel.passwordError : null,
                             ),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                Navigator.of(context).pushNamed('/login');
-                              },
+                          ),
+                          SizedBox(height: 20),
+                          TextField(
+                            controller: viewModel.confirmPasswordController,
+                            obscureText: !viewModel.isConfirmPasswordVisible,
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(FontAwesomeIcons.lock),
+                              labelText: 'Nhập lại mật khẩu',
+                              border: OutlineInputBorder(
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(20))),
+                              suffixIcon: IconButton(
+                                icon: Icon(viewModel.isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off),
+                                onPressed: viewModel.toggleConfirmPasswordVisibility,
+                              ),
+                              errorText: viewModel.confirmPasswordError.isNotEmpty ? viewModel.confirmPasswordError : null,
+                            ),
+                          ),
+                          SizedBox(height: 50),
+                          CustomElavatedButton_1(
+                            onPressed: () async {
+                              bool isRegistered = await viewModel.register();
+                              if (isRegistered) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Center(child: Text('Một email xác thực đã được gửi tới địa chỉ email của bạn.')),
+                                  ),
+                                );
+
+                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => VerifyEmailScreen()));
+                              }
+                            },
+                            text: 'Đăng ký',
+                          ),
+
+                          SizedBox(height: 16),
+                          Center(
+                            child: GestureDetector(
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                        text: 'Đã có tài khoản? ',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 15,
+                                        )),
+                                    TextSpan(
+                                      text: 'Đăng nhập',
+                                      style: const TextStyle(
+                                          color: Colors.deepPurpleAccent,
+                                          decoration: TextDecoration.underline,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          Navigator.of(context).pushNamed('/login');
+                                        },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              );
+          },
         ),
-      ),
-    );
+      );
   }
 }
+

@@ -1,8 +1,5 @@
-// // ViewModel
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import '../../data/category_item.dart';
+import '../../model/category_model.dart';
 
 class CreatCategoriesViewModel extends ChangeNotifier {
   int _selectedValue = 0; // 0: Thu, 1: Chi
@@ -10,7 +7,7 @@ class CreatCategoriesViewModel extends ChangeNotifier {
   IconData? _selectedIcon;
   int _selectedColorIndex = -1;
   Color? _selectedColor;
-  CategoryItem? _category;
+  Category? _category;
   final TextEditingController _nameCategory = TextEditingController();
 
   int get selectedValue => _selectedValue;
@@ -18,7 +15,7 @@ class CreatCategoriesViewModel extends ChangeNotifier {
   IconData? get selectedIcon => _selectedIcon;
   int get selectedColorIndex => _selectedColorIndex;
   Color? get selectedColor => _selectedColor;
-  CategoryItem? get category => _category;
+  Category? get category => _category;
   TextEditingController get nameCategory => _nameCategory;
 
   bool get isEmptyName => _nameCategory.text.isEmpty;
@@ -114,12 +111,12 @@ class CreatCategoriesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setCategory(CategoryItem category) {
+  void setCategory(Category category) {
     _category = category;
     notifyListeners();
   }
 
-  void updateCategory(CategoryItem category) {
+  void updateCategory(Category category) {
     _category = category;
     notifyListeners();
   }
@@ -138,18 +135,18 @@ class CreatCategoriesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<CategoryItem> _incomeCategories = [];
-  List<CategoryItem> _expenseCategories = [];
+  List<Category> _incomeCategories = [];
+  List<Category> _expenseCategories = [];
 
-  List<CategoryItem> get incomeCategories => _incomeCategories;
-  List<CategoryItem> get expenseCategories => _expenseCategories;
+  List<Category> get incomeCategories => _incomeCategories;
+  List<Category> get expenseCategories => _expenseCategories;
 
-  void addIncomeCategory(CategoryItem category) {
+  void addIncomeCategory(Category category) {
     _incomeCategories.add(category);
     notifyListeners();
   }
 
-  void addExpenseCategory(CategoryItem category) {
+  void addExpenseCategory(Category category) {
     _expenseCategories.add(category);
     notifyListeners();
   }

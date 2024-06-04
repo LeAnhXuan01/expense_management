@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import '../widget/custom_ElevatedButton_1.dart';
 import '../widget/custom_header.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -14,6 +14,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
+    String displayName = user != null ? user.email!.split('@')[0] : 'Người dùng';
     return Scaffold(
       body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,7 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               SizedBox(width: 20.0),
                               Text(
-                                'Lê Anh Xuân',
+                                '$displayName',
                                 style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                               ),
                               SizedBox(width: 50,),
@@ -54,7 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ListTile(
                             onTap: () {
                               // Navigate to Change Password screen
-                              Navigator.pushNamed(context, '/change-pass');
+                              Navigator.pushNamed(context, '/change-password');
                             },
                             leading: Icon(Icons.lock),
                             title: Text('Đổi mật khẩu'),
@@ -128,21 +130,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           SizedBox(
                             height: 50,
                             width: double.maxFinite,
-                            child: ElevatedButton(
-                              onPressed: () {
+                            child: CustomElavatedButton_1(
+                              text: 'Đăng xuất',
+                              onPressed: (){
+                                FirebaseAuth.instance.signOut();
                                 Navigator.of(context).pushNamed('/login');
                               },
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all<Color>(
-                                    Colors.deepPurple), // Đặt màu nền cho nút
-                              ),
-                              child: const Text(
-                                'Đăng xuất',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                ),
-                              ),
                             ),
                           ),
                         ],

@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import '../../data/transaction.dart';
+import '../model/transaction_model.dart';
 import '../view_model/home_viewmodel.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,29 +14,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Transaction> transactions = [
-    Transaction(
-      icon: FontAwesomeIcons.shoppingCart,
-      name: 'Mua sắm',
-      date: DateTime.now(),
-      amount: -3000000,
-      type: TransactionType.expense,
-    ),
-    Transaction(
-      icon: FontAwesomeIcons.moneyBillAlt,
-      name: 'Lương tháng 4',
-      date: DateTime.now().subtract(Duration(days: 2)),
-      amount: 5000000,
-      type: TransactionType.income,
-    ),
-    //Thêm các giao dịch khác nếu cần
-  ];
+  bool _isBalanceVisible = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ChangeNotifierProvider(
-        create: (context) => HomeScreenViewModel(transactions: transactions),
+        create: (context) => HomeScreenViewModel(),
         child: SafeArea(
           child: _buildBody(),
         ),
@@ -45,31 +31,30 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBody() {
     return Consumer<HomeScreenViewModel>(
       builder: (context, viewModel, _) {
-        return Stack(
-          children: [
-            Column(
+        return SingleChildScrollView(
+            child: Column(
               children: [
                 _buildHeader(viewModel),
-                Expanded(
-                    child: _buildRecentTransactions(viewModel),
-                ),
+                _buildUtilities(),
               ],
             ),
-          ],
-        );
+          );
       },
     );
   }
 
   Widget _buildHeader(HomeScreenViewModel viewModel) {
+    User? user = FirebaseAuth.instance.currentUser;
+    String displayName = user != null ? user.email!.split('@')[0] : 'Người dùng';
+
     return Container(
       width: double.infinity,
-      height: 300,
+      height: 230,
       decoration: const BoxDecoration(
-        color: Colors.deepPurpleAccent,
+        color: Colors.lightBlueAccent,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
+          bottomLeft: Radius.circular(25),
+          bottomRight: Radius.circular(25),
         ),
       ),
       child: Padding(
@@ -79,206 +64,162 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
                 children: [
                   Expanded(
+                    flex: 1,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(7),
                       child: Container(
-                        width: 60,
-                        height: 60,
+                        width: 70,
+                        height: 70,
                         child: Image.asset('assets/images/logo.png'),
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  SizedBox(width: 30),
                   Expanded(
                     flex: 3,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(7),
-                      child: Container(
-                        width: 250,
-                        height: 40,
-                        child: TextField(
-
-                          decoration: InputDecoration(
-                            fillColor: Colors.white,
-                            filled: true,
-                            hintText: 'Tìm kiếm ở đây',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(20)),
-                            ),
-                            suffixIcon: Icon(FontAwesomeIcons.search, color: Colors.deepPurple,),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
-                          ),
-                        ),
+                    child: Text(
+                        'Chào, $displayName!',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 25,
+                        fontWeight: FontWeight.w600
                       ),
                     ),
-                  ),
-                  Expanded(
-                      child: IconButton(
-                        onPressed: () {
-                          // Xử lý sự kiện khi nhấn vào biểu tượng thông báo
-                        },
-                        icon: Icon(
-                          FontAwesomeIcons.bell,
-                          size: 25,
-                          color: Colors.white,
-                        ),
-                      ),
                   ),
                 ],
               ),
             SizedBox(height: 20),
-            Container(
-              width: 320,
-              height: 180,
-              decoration: BoxDecoration(
-                color: Colors.deepPurple,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black45,
-                    offset: Offset(7, 5),
-                    blurRadius: 30,
-                    spreadRadius: 2,
-                  )
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Tổng số dư',
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      viewModel.totalBalance,
-                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(
-                                FontAwesomeIcons.arrowCircleUp,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(width: 5),
-                            Text(
-                              'Thu nhập:',
-                              style: TextStyle(color: Colors.white, fontSize: 15),
-                            ),
-                            SizedBox(width: 5),
-                            Text(
-                              viewModel.totalIncome,
-                              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 10,),
-                        Row(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(
-                                FontAwesomeIcons.arrowCircleDown,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(width: 5),
-                            Text(
-                              'Chi tiêu:',
-                              style: TextStyle(color: Colors.white, fontSize: 15),
-                            ),
-                            SizedBox(width: 5),
-                            Text(
-                              viewModel.totalExpense,
-                              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _buildBalance(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRecentTransactions(HomeScreenViewModel viewModel) {
+  Widget _buildBalance() {
+    String balance = _isBalanceVisible ? '10TR VNĐ' : '*****';
     return Container(
-        margin: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      width: 380,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black45,
+            offset: Offset(7, 5),
+            blurRadius: 30,
+            spreadRadius: 2,
+          )
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Giao dịch gần đây',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'Tổng số dư',
+                  style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.w400),
                 ),
-                TextButton(
-                  onPressed: () {
-                    // Xử lý khi nhấn vào nút 'Xem tất cả'
-                    Navigator.of(context).pushNamed('/transaction-history');
-                  },
-                  child: Text(
-                    'Xem tất cả',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                    ),
-                  ),
+                Text(
+                  balance,
+                  style: TextStyle(color: Colors.green, fontSize: 26, fontWeight: FontWeight.w900),
                 ),
               ],
             ),
-            SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: transactions.length,
-                itemBuilder: (context, index) {
-                  final transaction = transactions[index];
-                  return ListTile(
-                    leading: Icon(transaction.icon),
-                    title: Text(transaction.name),
-                    subtitle: Text(
-                      '${transaction.date.day}/${transaction.date.month}/${transaction.date.year}',
-                    ),
-                    trailing: Text(
-                      '${transaction.amount > 0 ? '+' : '-'}${transaction.amount.abs()} VNĐ',
-                      style: TextStyle(
-                        color: transaction.type == TransactionType.income
-                            ? Colors.green
-                            : Colors.red,
-                      ),
-                    ),
-                  );
-                },
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _isBalanceVisible = !_isBalanceVisible;
+                });
+              },
+              icon: Icon(
+                _isBalanceVisible ? Icons.visibility : Icons.visibility_off,
+                color: Colors.grey,
               ),
             ),
           ],
         ),
-      );
+      ),
+    );
+
 
   }
+
+
+  Widget _buildUtilities() {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+      child: GridView.count(
+        crossAxisCount: 2,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        crossAxisSpacing: 16.0,
+        mainAxisSpacing: 16.0,
+        children: [
+          _buildUtilityCard(
+            icon: Icons.receipt,
+            title: 'Quản lý hóa đơn',
+            onTap: () {
+              // Navigate to bill management screen
+            },
+          ),
+          _buildUtilityCard(
+            icon: Icons.category,
+            title: 'Quản lý danh mục',
+            onTap: () {
+              // Navigate to category management screen
+            },
+          ),
+          _buildUtilityCard(
+            icon: Icons.category,
+            title: 'Quản lý ví tiền',
+            onTap: () {
+              // Navigate to category management screen
+            },
+          ),
+          _buildUtilityCard(
+            icon: Icons.account_balance_wallet,
+            title: 'Lập hạn mức chi tiêu',
+            onTap: () {
+              // Navigate to budget management screen
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUtilityCard({required IconData icon, required String title, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 50, color: Colors.green),
+              SizedBox(height: 10),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
 }

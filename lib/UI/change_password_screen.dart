@@ -1,90 +1,124 @@
-import 'package:flutter/cupertino.dart';
+import 'package:expense_management/widget/custom_ElevatedButton_1.dart';
+import 'package:expense_management/widget/custom_header.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../view_model/change_password_viewmodel.dart';
-import '../widget/custom_ElevatedButton_1.dart';
-import '../widget/custom_appbar.dart';
+import '../view_model/change_password_view_model.dart';
 
 class ChangePasswordScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ChangePasswordViewModel(),
-      child: ChangePassScreenContent(),
-    );
-  }
-}
-
-class ChangePassScreenContent extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final viewModel = Provider.of<ChangePasswordViewModel>(context);
-
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 30),
-              CustomAppbar(title: 'Đổi Mật Khẩu'),
-              const SizedBox(height: 80),
-              TextField(
-                obscureText: viewModel.obscurePassword,
-                onChanged: (value) => viewModel.setNewPassword(value),
-                decoration: InputDecoration(
-                  labelText: 'Mật khẩu mới',
-                  border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      viewModel.togglePasswordVisibility();
-                    },
-                    icon: Icon(
-                      viewModel.obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
+        body: Consumer<ChangePasswordViewModel>(
+          builder: (context, viewModel, child) {
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  CustomHeader(title: 'Đổi mật khẩu'),
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextField(
+                          controller: viewModel.usernameController,
+                          decoration: InputDecoration(
+                            labelText: 'Tên đăng nhập',
+                            errorText: viewModel.usernameError.isNotEmpty
+                                ? viewModel.usernameError
+                                : null,
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        TextField(
+                          controller: viewModel.currentPasswordController,
+                          obscureText: !viewModel.isCurrentPasswordVisible,
+                          decoration: InputDecoration(
+                            labelText: 'Mật khẩu hiện tại',
+                            suffixIcon: IconButton(
+                              icon: Icon(viewModel.isCurrentPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off),
+                              onPressed:
+                                  viewModel.toggleCurrentPasswordVisibility,
+                            ),
+                            errorText: viewModel.currentPasswordError.isNotEmpty
+                                ? viewModel.currentPasswordError
+                                : null,
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        TextField(
+                          controller: viewModel.newPasswordController,
+                          obscureText: !viewModel.isNewPasswordVisible,
+                          decoration: InputDecoration(
+                            labelText: 'Mật khẩu mới',
+                            suffixIcon: IconButton(
+                              icon: Icon(viewModel.isNewPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off),
+                              onPressed: viewModel.toggleNewPasswordVisibility,
+                            ),
+                            errorText: viewModel.newPasswordError.isNotEmpty
+                                ? viewModel.newPasswordError
+                                : null,
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        TextField(
+                          controller: viewModel.confirmPasswordController,
+                          obscureText: !viewModel.isConfirmPasswordVisible,
+                          decoration: InputDecoration(
+                            labelText: 'Nhập lại mật khẩu mới',
+                            suffixIcon: IconButton(
+                              icon: Icon(viewModel.isConfirmPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off),
+                              onPressed:
+                                  viewModel.toggleConfirmPasswordVisibility,
+                            ),
+                            errorText: viewModel.confirmPasswordError.isNotEmpty
+                                ? viewModel.confirmPasswordError
+                                : null,
+                          ),
+                        ),
+                        SizedBox(height: 30),
+                        Text('Mật khẩu mới phải thỏa mãn các điều kiện sau:\n'
+                            '- Dài tối thiểu 8 ký tự\n'
+                            '- Bao gồm ít nhất 3 trong 4 nhóm ký tự sau:\n'
+                            '  + Chữ cái VIẾT HOA (từ A đến Z)\n'
+                            '  + Chữ cái viết thường (từ a đến z)\n'
+                            '  + Chữ số (từ 0 đến 9)\n'
+                            '  + Ký tự đặc biệt (ví dụ ., !, \$, #, %)\n'
+                            '- Mật khẩu mới không được đặt trùng với mật khẩu cũ',
+                          style: TextStyle(color:Colors.deepPurpleAccent, fontWeight: FontWeight.w500),
+                        ),
+                        SizedBox(height: 50),
+                        CustomElavatedButton_1(
+                          onPressed: () {
+                            if (viewModel.changePassword()) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Center(
+                                      child:
+                                          Text('Thay đổi mật khẩu thành công')),
+                                ),
+                              );
+                              Future.delayed(Duration(seconds: 2), () {
+                                Navigator.of(context).pop();
+                              });
+                            }
+                          },
+                          text: 'Lưu',
+                        ),
+                      ],
                     ),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 16),
-              TextField(
-                obscureText: viewModel.obscurePassword,
-                onChanged: (value) => viewModel.setConfirmPassword(value),
-                decoration: InputDecoration(
-                  labelText: 'Xác nhận mật khẩu mới',
-                  border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      viewModel.togglePasswordVisibility();
-                    },
-                    icon: Icon(
-                      viewModel.obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              CustomElavatedButton_1(
-                  text: 'Tiếp tục',
-                  onPressed: (){
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Center(child: Text('Thay đổi mật khẩu thành công')),
-                      duration: Duration(seconds: 2),
-                    ));
-                    // Hiển thị giao diện thay đổi mật khẩu
-                    Navigator.of(context).pushNamed('/login');}
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
+            );
+          },
         ),
-      ),
-    );
+      );
   }
 }
