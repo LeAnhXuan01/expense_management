@@ -23,7 +23,7 @@ class CustomElevatedButton_2 extends StatelessWidget {
           ),
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.deepPurpleAccent,
+            backgroundColor: Colors.green,
           ),
         ),
       ),

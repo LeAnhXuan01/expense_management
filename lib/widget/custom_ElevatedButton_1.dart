@@ -20,7 +20,7 @@ class CustomElavatedButton_1 extends StatelessWidget {
           child: ElevatedButton(
               onPressed: onPressed,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurpleAccent,
+                backgroundColor: Colors.green,
               ),
               child: Text(
                 text,

@@ -8,8 +8,6 @@ class Profile {
   Gender gender;
   String address;
   String profileImageUrl;
-  Language language;
-  Currency currency;
 
   Profile({
     required this.profileId,
@@ -19,8 +17,6 @@ class Profile {
     required this.gender,
     required this.address,
     required this.profileImageUrl,
-    required this.language,
-    required this.currency,
   });
 
   Map<String, dynamic> toMap() {
@@ -32,8 +28,6 @@ class Profile {
       'gender': gender.index,
       'address': address,
       'profileImageUrl': profileImageUrl,
-      'language': language.index,
-      'currency': currency.index,
     };
   }
 
@@ -46,8 +40,6 @@ class Profile {
       gender: Gender.values[map['gender']],
       address: map['address'],
       profileImageUrl: map['profileImageUrl'],
-      language: Language.values[map['language']],
-      currency: Currency.values[map['currency']],
     );
   }
 }

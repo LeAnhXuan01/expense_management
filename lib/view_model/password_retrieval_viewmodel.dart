@@ -81,15 +81,12 @@ class PasswordRetrievalViewModel extends ChangeNotifier {
       return false;
     }
 
-
-
     if (newPassword != confirmPassword) {
       confirmPasswordError = 'Mật khẩu mới và xác nhận mật khẩu mới không khớp.';
       notifyListeners();
       return false;
     }
 
-    // Lấy lại mật khẩu thành công
     return true;
   }
 }

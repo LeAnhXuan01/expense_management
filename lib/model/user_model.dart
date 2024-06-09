@@ -1,4 +1,4 @@
-class User {
+class User{
   String userId;
   String email;
   String password;

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../view/home_screen.dart';
+import '../view/statistics/statistics_screen.dart';
+import '../view/transaction/add_transaction_screen.dart';
+import '../view/transaction/transaction_history/transaction_history_screen.dart';
+import '../view/user/profile_screen.dart';
 
-import '../UI/home_screen.dart';
-import '../UI/profile_screen.dart';
-import '../UI/reminder/reminder_list_screen.dart';
-import '../UI/transaction/add_transaction_screen.dart';
 
 class Bottom extends StatefulWidget {
   const Bottom({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class Bottom extends StatefulWidget {
 class _BottomState extends State<Bottom> {
   int selectedIndex = 0;
 
-  final List<Widget> screens = [HomeScreen(), HomeScreen(), ProfileScreen(), ProfileScreen(), ProfileScreen()];
+  final List<Widget> screens = [HomeScreen(), TransactionHistoryScreen(transactions: [],), AddTransactionScreen(), StatisticsScreen(), ProfileScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +38,7 @@ class _BottomState extends State<Bottom> {
                 FontAwesomeIcons.plus,
                 color: Colors.white)
         ),
-        backgroundColor: selectedIndex == 2 ? Colors.deepPurpleAccent : Colors.grey,
+        backgroundColor: selectedIndex == 2 ? Colors.green : Colors.grey,
         shape: CircleBorder(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -49,7 +50,7 @@ class _BottomState extends State<Bottom> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildBottomNavigationBarItem(FontAwesomeIcons.house, 0),
-              _buildBottomNavigationBarItem(FontAwesomeIcons.solidBell, 1),
+              _buildBottomNavigationBarItem(FontAwesomeIcons.list, 1),
               SizedBox(width: 20),
               _buildBottomNavigationBarItem(FontAwesomeIcons.chartSimple, 3),
               _buildBottomNavigationBarItem(FontAwesomeIcons.user, 4),
@@ -72,7 +73,7 @@ class _BottomState extends State<Bottom> {
         opacity: selectedIndex == index ? 1.0 : 0.5,
         child: Icon(
           icon,
-          color: selectedIndex == index ? Colors.deepPurpleAccent : Colors.grey,
+          color: selectedIndex == index ? Colors.green : Colors.grey,
         ),
       ),
     );
