@@ -8,17 +8,21 @@ import 'package:expense_management/view/intro/onboarding_screen.dart';
 import 'package:expense_management/view/password_retrieval_screen.dart';
 import 'package:expense_management/view/statistics/statistics_screen.dart';
 import 'package:expense_management/view/transaction/add_transaction_screen.dart';
-import 'package:expense_management/view/transaction/creat_categories_screen.dart';
-import 'package:expense_management/view/transaction/expense_category_add_screen.dart';
-import 'package:expense_management/view/transaction/income_category_add_screen.dart';
+import 'package:expense_management/view/category/creat_categories_screen.dart';
+import 'package:expense_management/view/transaction/component/expense_category_screen.dart';
+import 'package:expense_management/view/transaction/component/income_category_screen.dart';
 import 'package:expense_management/view/transaction/transaction_history/transaction_history_screen.dart';
 import 'package:expense_management/view/user/change_password_screen.dart';
+import 'package:expense_management/view/user/edit_profile_screen.dart';
 import 'package:expense_management/view/user/forgot_password_screen.dart';
 import 'package:expense_management/view/user/login_screen.dart';
 import 'package:expense_management/view/user/profile_screen.dart';
 import 'package:expense_management/view/user/register_screen.dart';
 import 'package:expense_management/view/user/verify_email_pass_screen.dart';
 import 'package:expense_management/view/user/verify_email_screen.dart';
+import 'package:expense_management/view/transfer/create_transfer_screen.dart';
+import 'package:expense_management/view/wallet/create_wallet_screen.dart';
+import 'package:expense_management/view/transfer/transfer_history_screen.dart';
 import 'package:expense_management/view/wallet/wallets_screen.dart';
 import 'package:expense_management/widget/bottom_navigatorbar.dart';
 import 'package:flutter/material.dart';
@@ -34,11 +38,11 @@ Map<String, WidgetBuilder> routes = {
   '/home': (context) =>  HomeScreen(),
   '/add-transaction': (context) =>  AddTransactionScreen(),
   '/creat-categories': (context) =>  CreatCategoriesScreen(),
-  '/income-category-add': (context) =>  IncomeCategoryAddScreen(),
-  '/expense-category-add': (context) =>  ExpenseCategoryAddScreen(),
+  '/income-category': (context) =>  IncomeCategoryScreen(),
+  '/expense-category': (context) =>  ExpenseCategoryScreen(),
   '/transaction-history': (context) =>  TransactionHistoryScreen(transactions: [],),
   '/profile': (context) =>  ProfileScreen(),
-  '/bottom': (context) =>  Bottom(),
+  '/bottom-navigator': (context) =>  BottomNavigation(),
   '/wallets': (context) =>  WalletScreen(),
   '/bill-list': (context) =>  BillListScreen(),
   '/creat-bill': (context) =>  CreatBillScreen(),
@@ -48,5 +52,10 @@ Map<String, WidgetBuilder> routes = {
   '/category-list': (context) =>  CategoryListScreen(),
   '/verify-email-pass': (context) =>  VerifyEmailPassScreen(),
   '/verify-email': (context) =>  VerifyEmailScreen(),
+  '/edit-profile': (context) =>  EditProfileScreen(),
+  '/creat-wallet': (context) =>  CreateWalletScreen(),
+  '/creat-transfer': (context) =>  CreateTransferScreen(),
+  '/transfer-history': (context) =>  TransferHistoryScreen(),
+
 };
 

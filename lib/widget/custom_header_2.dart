@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 class CustomHeader_2 extends StatelessWidget {
   final String title;
-  final List<Widget> actions;
+  final Widget? leftAction;
+  final Widget? rightAction;
 
   const CustomHeader_2({
     Key? key,
     required this.title,
-    this.actions = const [],
+    this.leftAction,
+    this.rightAction,
   }) : super(key: key);
 
   @override
@@ -23,19 +25,31 @@ class CustomHeader_2 extends StatelessWidget {
         color: Colors.green,
       ),
       child: Padding(
-        padding: const EdgeInsets.only(left: 30, top: 30),
-        child: Row(
+        padding: const EdgeInsets.only(top: 30),
+        child: Stack(
           children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 23,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+            Center(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 23,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
               ),
             ),
-            Spacer(), // Đẩy các actions sang bên phải
-            ...actions, // Hiển thị các actions
+            if (leftAction != null)
+              Positioned(
+                left: 20,
+                bottom: 8,
+                child: leftAction!,
+              ),
+            if (rightAction != null)
+              Positioned(
+                right: 20,
+                bottom: 8,
+                child: rightAction!,
+              ),
           ],
         ),
       ),

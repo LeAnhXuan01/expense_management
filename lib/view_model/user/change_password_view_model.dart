@@ -13,7 +13,7 @@ class ChangePasswordViewModel extends ChangeNotifier {
   bool hasCurrentPassword = false;
   bool hasNewPassword = false;
   bool hasConfirmPassword = false;
-  bool isFormValid = false;
+  bool enableButton = false;
 
   String currentPasswordError = '';
   String newPasswordError = '';
@@ -89,7 +89,7 @@ class ChangePasswordViewModel extends ChangeNotifier {
   }
 
   void validateForm() {
-    isFormValid = currentPasswordController.text.isNotEmpty &&
+    enableButton = currentPasswordController.text.isNotEmpty &&
         newPasswordController.text.isNotEmpty &&
         confirmPasswordController.text.isNotEmpty &&
         !hasCurrentPassword &&
@@ -98,10 +98,20 @@ class ChangePasswordViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void resetFields() {
+    currentPasswordController.clear();
+    newPasswordController.clear();
+    confirmPasswordController.clear();
+    enableButton = false;
+    isCurrentPasswordVisible = false;
+    isNewPasswordVisible = false;
+    isConfirmPasswordVisible = false;
+    notifyListeners();
+  }
+
   Future<bool> changePassword(BuildContext context) async {
     final currentPassword = currentPasswordController.text;
     final newPassword = newPasswordController.text;
-    final confirmPassword = confirmPasswordController.text;
 
     final isCurrentPasswordValid = !hasCurrentPassword;
     final isNewPasswordValid = !hasNewPassword;
@@ -121,20 +131,12 @@ class ChangePasswordViewModel extends ChangeNotifier {
           password: currentPassword,
         );
         await user.reauthenticateWithCredential(credential);
-
         // Cập nhật mật khẩu mới
         await user.updatePassword(newPassword);
-
         // Cập nhật mật khẩu mới vào Firestore
         await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
           'password': newPassword,
         });
-
-        // Xóa các trường nhập liệu
-        currentPasswordController.clear();
-        newPasswordController.clear();
-        confirmPasswordController.clear();
-
         notifyListeners();
         return true;
       }
@@ -143,10 +145,12 @@ class ChangePasswordViewModel extends ChangeNotifier {
         currentPasswordError = 'Mật khẩu hiện tại không đúng.';
       } else {
         currentPasswordError = 'Đã xảy ra lỗi. Vui lòng thử lại.';
+        print('Error change password: $e');
       }
       notifyListeners();
     } catch (e) {
-      currentPasswordError = 'Đã xảy ra lỗi. Vui lòng thử lại.';
+      currentPasswordError = 'Đã xảy ra lỗi. Vui lòng thử lại sau.';
+      print('Error change password: $e');
       notifyListeners();
     }
     return false;

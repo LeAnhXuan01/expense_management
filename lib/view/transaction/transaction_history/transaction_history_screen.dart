@@ -2,8 +2,6 @@ import 'package:expense_management/widget/custom_header_2.dart';
 import 'package:flutter/material.dart';
 import '../../../model/transaction_model.dart';
 
-
-
 class TransactionHistoryScreen extends StatefulWidget {
   final List<Transaction> transactions;
 
@@ -28,27 +26,24 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       body: Column(
         children: [
           CustomHeader_2(
+            rightAction: IconButton(
+              icon: Icon(Icons.search, color: Colors.white),
+              onPressed: () {
+                // Handle search action
+              },
+            ),
             title: 'Lịch sử giao dịch',
-            actions: [
-              IconButton(
-                icon: Icon(Icons.search, color: Colors.white),
-                onPressed: () {
-                  // Handle search action
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.filter_list, color: Colors.white),
-                onPressed: () {
-                  _scaffoldKey.currentState?.openEndDrawer();
-                },
-              ),
-            ],
+            leftAction: IconButton(
+              icon: Icon(Icons.filter_list, color: Colors.white),
+              onPressed: () {
+                _scaffoldKey.currentState?.openEndDrawer();
+              },
+            ),
           ),
         ],
       ),
     );
   }
-
 
   Widget _buildFilterDrawer(BuildContext context) {
     return Drawer(

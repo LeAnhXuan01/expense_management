@@ -12,8 +12,7 @@ class RegisterViewModel extends ChangeNotifier {
   bool hasEmailError = false;
   bool hasPasswordError = false;
   bool hasConfirmPasswordError = false;
-  bool isFormValid = false;
-
+  bool enableButton = false;
 
   String emailError = '';
   String passwordError = '';
@@ -80,12 +79,22 @@ class RegisterViewModel extends ChangeNotifier {
   }
 
   void validateForm() {
-    isFormValid = emailController.text.isNotEmpty &&
+    enableButton = emailController.text.isNotEmpty &&
         passwordController.text.isNotEmpty &&
         confirmPasswordController.text.isNotEmpty &&
         !hasEmailError &&
         !hasPasswordError &&
         !hasConfirmPasswordError;
+    notifyListeners();
+  }
+
+  void resetFields() {
+    emailController.clear();
+    passwordController.clear();
+    confirmPasswordController.clear();
+    isPasswordVisible = false;
+    isConfirmPasswordVisible = false;
+    enableButton = false;
     notifyListeners();
   }
 
@@ -108,10 +117,8 @@ class RegisterViewModel extends ChangeNotifier {
         email: email + '@gmail.com',
         password: newPassword,
       );
-
       // Gửi email xác thực
       await userCredential.user!.sendEmailVerification();
-
       return true;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {

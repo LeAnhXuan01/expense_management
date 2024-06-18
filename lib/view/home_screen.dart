@@ -1,5 +1,12 @@
+import 'dart:io';
+
+import 'package:expense_management/view_model/user/edit_profile_view_model.dart';
+import 'package:expense_management/view_model/wallet/wallet_view_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../utils/utils.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key});
@@ -12,126 +19,137 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isBalanceVisible = true;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    late WalletViewModel walletViewModel = Provider.of<WalletViewModel>(context);
+    walletViewModel.loadWallets(); // Tải lại ví khi màn hình được hiển thị
+    final profileViewModel = Provider.of<EditProfileViewModel>(context);
+    profileViewModel.loadProfile();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-          child: _buildBody(),
-        ),
+      body: _buildBody(),
+
 
     );
   }
   Widget _buildBody() {
     return  SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildHeader(),
-                _buildUtilities(),
-              ],
-            ),
-          );
+      child: Column(
+        children: [
+          _buildHeader(),
+          _buildUtilities(),
+        ],
+      ),
+    );
   }
   Widget _buildHeader() {
-    User? user = FirebaseAuth.instance.currentUser;
-    String displayName = user != null ? user.email!.split('@')[0] : 'Người dùng';
+    return  Consumer<EditProfileViewModel>(
+        builder: (context, viewModel, child){
+          User? user = FirebaseAuth.instance.currentUser;
+          String displayName = viewModel.displayName ?? (user != null ? user.email!.split('@')[0] : 'Người dùng');
 
-    return Container(
-      width: double.infinity,
-      height: 230,
-      decoration: const BoxDecoration(
-        color: Colors.lightBlueAccent,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(25),
-          bottomRight: Radius.circular(25),
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-        child: Column(
-          children: [
-            Row(
+          return Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Colors.lightBlueAccent,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(25),
+                bottomRight: Radius.circular(25),
+              ),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 35, horizontal: 5),
+              child: Column(
                 children: [
-                  Expanded(
-                    flex: 1,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(7),
-                      child: Container(
-                        width: 70,
-                        height: 70,
-                        child: Image.asset('assets/images/logo.png'),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: viewModel.imageFile != null
+                            ? FileImage(File(viewModel.imageFile!.path))
+                            : (viewModel.networkImageUrl != null
+                            ? NetworkImage(viewModel.networkImageUrl!)
+                            : AssetImage('assets/images/profile.png')) as ImageProvider,
                       ),
-                    ),
-                  ),
-                  SizedBox(width: 30),
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                        'Chào, $displayName!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontWeight: FontWeight.w600
+                      SizedBox(width: 20),
+                      Expanded(
+                        child: Text(
+                          '${getGreeting()},\n$displayName!',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 25,
+                              fontWeight: FontWeight.w600
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
+                  SizedBox(height: 20),
+                  _buildBalance(),
                 ],
               ),
-            SizedBox(height: 20),
-            _buildBalance(),
-          ],
-        ),
-      ),
+            ),
+          );
+        }
     );
   }
 
   Widget _buildBalance() {
-    String balance = _isBalanceVisible ? '10TR VNĐ' : '*****';
-    return Container(
-      width: 380,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black45,
-            offset: Offset(7, 5),
-            blurRadius: 30,
-            spreadRadius: 2,
-          )
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
+    return Consumer<WalletViewModel>(
+      builder: (context, viewModel, child) {
+        String balance = _isBalanceVisible ? '${viewModel.formattedTotalBalance} ₫' : '***** ₫';
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black45,
+                offset: Offset(7, 5),
+                blurRadius: 30,
+                spreadRadius: 2,
+              )
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Tổng số dư',
                   style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.w400),
                 ),
-                Text(
-                  balance,
-                  style: TextStyle(color: Colors.green, fontSize: 26, fontWeight: FontWeight.w900),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        balance,
+                        style: TextStyle(color: Colors.green, fontSize: 20, fontWeight: FontWeight.w900),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _isBalanceVisible = !_isBalanceVisible;
+                        });
+                      },
+                      icon: Icon(
+                        _isBalanceVisible ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  _isBalanceVisible = !_isBalanceVisible;
-                });
-              },
-              icon: Icon(
-                _isBalanceVisible ? Icons.visibility : Icons.visibility_off,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
   Widget _buildUtilities() {
@@ -148,28 +166,28 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.receipt,
             title: 'Quản lý hóa đơn',
             onTap: () {
-              Navigator.of(context).pushNamed('/bill-list');
+              Navigator.pushNamed(context, '/bill-list');
             },
           ),
           _buildUtilityCard(
             icon: Icons.category,
             title: 'Quản lý danh mục',
             onTap: () {
-              Navigator.of(context).pushNamed('/category-list');
+              Navigator.pushNamed(context, '/category-list');
             },
           ),
           _buildUtilityCard(
             icon: Icons.wallet,
             title: 'Quản lý ví tiền',
             onTap: () {
-              Navigator.of(context).pushNamed('/wallets');
+              Navigator.pushNamed(context, '/wallets');
             },
           ),
           _buildUtilityCard(
             icon: Icons.account_balance_wallet,
             title: 'Lập hạn mức chi tiêu',
             onTap: () {
-              Navigator.of(context).pushNamed('/budget-list');
+              Navigator.pushNamed(context, '/budget-list');
             },
           ),
         ],

@@ -1,3 +1,4 @@
+import 'package:expense_management/widget/custom_header_1.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -51,53 +52,58 @@ class BudgetListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Danh sách Hạn Mức Chi Tiêu'),
-      ),
-      body: ListView.builder(
-        itemCount: spendingLimits.length,
-        itemBuilder: (context, index) {
-          final limit = spendingLimits[index];
-          final progress = limit.spent / limit.amount;
-
-          return Card(
-            margin: EdgeInsets.all(10),
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    limit.name,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      body: Column(
+        children: [
+          CustomHeader_1(title: 'Danh sách hạn mức'),
+          Expanded(
+            child: ListView.builder(
+              itemCount: spendingLimits.length,
+              itemBuilder: (context, index) {
+                final limit = spendingLimits[index];
+                final progress = limit.spent / limit.amount;
+            
+                return Card(
+                  margin: EdgeInsets.all(10),
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          limit.name,
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        Text('Danh mục: ${limit.category}'),
+                        Text('Ví: ${limit.wallet}'),
+                        Text('Số tiền: \$${limit.amount.toStringAsFixed(2)}'),
+                        Text('Đã chi: \$${limit.spent.toStringAsFixed(2)}'),
+                        Text('Lặp lại: ${limit.repeat}'),
+                        Text('Ngày bắt đầu: ${DateFormat('dd/MM/yyyy').format(limit.startDate)}'),
+                        Text('Ngày kết thúc: ${limit.endDate != null ? DateFormat('dd/MM/yyyy').format(limit.endDate!) : 'Không xác định'}'),
+                        SizedBox(height: 10),
+                        LinearProgressIndicator(
+                          value: progress,
+                          backgroundColor: Colors.grey.shade300,
+                          color: Colors.green,
+                        ),
+                        SizedBox(height: 4),
+                        Text('${(progress * 100).toStringAsFixed(1)}% đã chi tiêu'),
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 8),
-                  Text('Danh mục: ${limit.category}'),
-                  Text('Ví: ${limit.wallet}'),
-                  Text('Số tiền: \$${limit.amount.toStringAsFixed(2)}'),
-                  Text('Đã chi: \$${limit.spent.toStringAsFixed(2)}'),
-                  Text('Lặp lại: ${limit.repeat}'),
-                  Text('Ngày bắt đầu: ${DateFormat('dd/MM/yyyy').format(limit.startDate)}'),
-                  Text('Ngày kết thúc: ${limit.endDate != null ? DateFormat('dd/MM/yyyy').format(limit.endDate!) : 'Không xác định'}'),
-                  SizedBox(height: 10),
-                  LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.grey.shade300,
-                    color: Colors.green,
-                  ),
-                  SizedBox(height: 4),
-                  Text('${(progress * 100).toStringAsFixed(1)}% đã chi tiêu'),
-                ],
-              ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.green,
         onPressed: () {
-          Navigator.of(context).pushNamed('/creat-budget');
+          Navigator.pushNamed(context, '/creat-budget');
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.add, color: Colors.white,),
       ),
     );
   }

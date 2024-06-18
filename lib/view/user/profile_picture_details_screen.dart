@@ -10,6 +10,8 @@ class ProfilePictureDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Ảnh đại diện'),
@@ -17,7 +19,9 @@ class ProfilePictureDetailsScreen extends StatelessWidget {
       body: Center(
         child: Container(
           child: PhotoView(
-            imageProvider: FileImage(File(imagePath)),
+            imageProvider: isNetworkImage
+                ? NetworkImage(imagePath)
+                : FileImage(File(imagePath)) as ImageProvider,
             minScale: PhotoViewComputedScale.contained * 0.8,
             maxScale: PhotoViewComputedScale.covered * 2.0,
             initialScale: PhotoViewComputedScale.contained,

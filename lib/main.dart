@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppProviders(
         child: MaterialApp(
-      title: 'Expense Management',
+      title: 'Quản lý chi tiêu cá nhân',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),

@@ -1,5 +1,6 @@
 import 'package:expense_management/widget/custom_ElevatedButton_1.dart';
 import 'package:expense_management/widget/custom_header_1.dart';
+import 'package:expense_management/widget/custom_snackbar_2.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../view_model/user/change_password_view_model.dart';
@@ -13,11 +14,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Xóa dữ liệu từ các controller mỗi khi màn hình được rebuild
-    Provider.of<ChangePasswordViewModel>(context, listen: false)
-      ..currentPasswordController.clear()
-      ..newPasswordController.clear()
-      ..confirmPasswordController.clear();
+    Provider.of<ChangePasswordViewModel>(context, listen: false).resetFields();
   }
 
   @override
@@ -89,18 +86,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             ),
                             SizedBox(height: 30),
                             CustomElavatedButton_1(
-                              onPressed: viewModel.isFormValid ? () async{
+                              onPressed: viewModel.enableButton ? () async{
                                 if (await viewModel.changePassword(context)) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Center(
-                                          child:
-                                              Text('Thay đổi mật khẩu thành công')),
-                                    ),
-                                  );
-                                  Future.delayed(Duration(seconds: 2), () {
-                                    Navigator.of(context).pop();
-                                  });
+                                  CustomSnackBar_2.show(context, 'Thay đổi mật khẩu thành công');
+                                  Future.delayed(Duration(seconds: 2));
+                                  Navigator.pop(context);
                                 }
                               } : null,
                               text: 'Lưu',

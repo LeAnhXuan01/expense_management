@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'enum.dart';
 
 class Category {
@@ -7,6 +9,8 @@ class Category {
   TransactionType type;
   String icon;
   String color;
+  DateTime createdAt;
+  bool isDefault;
 
   Category({
     required this.categoryId,
@@ -15,6 +19,8 @@ class Category {
     required this.type,
     required this.icon,
     required this.color,
+    required this.createdAt,
+    this.isDefault = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -25,6 +31,8 @@ class Category {
       'type': type.index,
       'icon': icon,
       'color': color,
+      'createdAt': createdAt,
+      'isDefault': isDefault,
     };
   }
 
@@ -36,6 +44,8 @@ class Category {
       type: TransactionType.values[map['type']],
       icon: map['icon'],
       color: map['color'],
+      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      isDefault: map['isDefault'],
     );
   }
 }

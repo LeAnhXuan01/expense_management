@@ -1,31 +1,37 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import '../../widget/custom_snackbar_1.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  bool isFormValid = false;
+  bool enableButton = false;
   bool isPasswordVisible = false;
 
   String loginError = '';
-
-  void togglePasswordVisibility() {
-    isPasswordVisible = !isPasswordVisible;
-    notifyListeners();
-  }
 
   LoginViewModel() {
     emailController.addListener(validateForm);
     passwordController.addListener(validateForm);
   }
 
+  void togglePasswordVisibility() {
+    isPasswordVisible = !isPasswordVisible;
+    notifyListeners();
+  }
 
   void validateForm() {
-    isFormValid = emailController.text.isNotEmpty && passwordController.text.isNotEmpty;
+    enableButton = emailController.text.isNotEmpty && passwordController.text.isNotEmpty;
+    notifyListeners();
+  }
+
+  void resetFields() {
+    emailController.clear();
+    passwordController.clear();
+    enableButton = false;
+    isPasswordVisible = false;
     notifyListeners();
   }
 
@@ -43,7 +49,6 @@ class LoginViewModel extends ChangeNotifier {
     final email = emailController.text.trim() + '@gmail.com';
     final password = passwordController.text.trim();
 
-
     try {
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
@@ -54,13 +59,8 @@ class LoginViewModel extends ChangeNotifier {
       if (user != null) {
         await user.reload(); // Reload user để cập nhật trạng thái email đã xác thực hay chưa
         if (user.emailVerified) {
-          // Email đã được xác thực, cho phép đăng nhập
           // Email đã được xác thực, cập nhật mật khẩu mới vào Firestore
           await updatePasswordInFirestore(user.uid, password);
-
-          // Xóa mật khẩu cũ từ Firestore (nếu cần)
-          // await deleteOldPasswordFromFirestore(user.uid);
-
           return true;
         } else {
           // Email chưa được xác thực, hiển thị thông báo lỗi
@@ -74,12 +74,6 @@ class LoginViewModel extends ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       print('Error code: ${e.code}'); // In ra mã lỗi
       switch (e.code) {
-        // case 'user-not-found':
-        //   loginError = 'Không tìm thấy tài khoản này.';
-        //   break;
-        // case 'wrong-password':
-        //   loginError = 'Mật khẩu không đúng.';
-        //   break;
         case 'invalid-email':
           loginError = 'Email không hợp lệ.';
           break;
@@ -104,9 +98,7 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-
   void _showErrorSnackBar(BuildContext context, String error) {
     CustomSnackBar_1.show(context, error);
   }
-
 }

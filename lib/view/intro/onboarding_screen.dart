@@ -46,11 +46,11 @@ class OnboardingScreen extends StatelessWidget {
           return IntroductionScreen(
             pages: pages,
             done: Text('Bắt đầu', style: TextStyle(color: Colors.black),),
-            onDone: () => Navigator.of(context).pushNamed('/login'),
+            onDone: () => Navigator.pushReplacementNamed(context, '/login'),
             next: Text('Tiếp theo', style: TextStyle(color: Colors.black),),
             skip: Text('Bỏ qua', style: TextStyle(color: Colors.black),),
             showSkipButton: true,
-            onSkip: () => Navigator.of(context).pushNamed('/login'),
+            onSkip: () => Navigator.pushReplacementNamed(context, '/login'),
             dotsDecorator: DotsDecorator(
               color:  Color(0xFFBDBDBD), // Màu sắc của dấu chấm
               activeColor: Colors.green, // Màu sắc của dấu chấm đang hoạt động

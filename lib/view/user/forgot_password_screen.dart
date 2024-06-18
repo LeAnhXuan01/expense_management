@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../view_model/user/forgot_password_viewmodel.dart';
 import '../../widget/custom_ElevatedButton_1.dart';
 import '../../widget/custom_header_1.dart';
+import '../../widget/custom_snackbar_2.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
 
@@ -57,10 +58,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           const SizedBox(height: 30),
                           CustomElavatedButton_1(
                             text: 'Tiếp tục',
-                            onPressed: viewModel.isFormValid ? () async {
+                            onPressed: viewModel.enableButton ? () async {
                               if (await viewModel.next(context)) {
-                                // Chuyển hướng tới màn hình thông báo xác thực email nếu email hợp lệ
-                                Navigator.of(context).pushNamed('/verify-email-pass');
+                                CustomSnackBar_2.show(context, 'Một email đặt lại mật khẩu đã được gửi tới địa chỉ email của bạn.');
+                                await Future.delayed(Duration(seconds: 2));
+                                Navigator.pushReplacementNamed(context, '/verify-email-pass');
                               }
                             } : null,
                           ),

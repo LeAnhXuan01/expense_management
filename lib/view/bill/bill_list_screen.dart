@@ -59,16 +59,13 @@ class _BillListScreenState extends State<BillListScreen> {
       body: Column(
         children: [
           CustomHeader_1(
-            title: 'Danh sách lời nhắc',
-            actions: [
-              IconButton(
-                icon: Icon(Icons.delete, color: Colors.white),
-                onPressed: () {
-                  _showDeleteAllConfirmationDialog(context);
-                },
-                tooltip: 'Xóa tất cả nhắc nhở',
-              ),
-            ],
+            title: 'Danh sách hóa đơn',
+            action: IconButton(
+              icon: Icon(Icons.delete, color: Colors.white),
+              onPressed: () {
+                _showDeleteAllConfirmationDialog(context);
+              },
+            ),
           ),
         ],
       ),

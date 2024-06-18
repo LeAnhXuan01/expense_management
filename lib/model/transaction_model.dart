@@ -21,7 +21,7 @@ class Transaction {
     required this.categoryId,
     required this.date,
     required this.time,
-    required this.note,
+    this.note = '',
     required this.image,
   });
 

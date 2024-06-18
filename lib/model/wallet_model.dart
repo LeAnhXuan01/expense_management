@@ -1,13 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'enum.dart';
 
 class Wallet {
-  String walletId;
-  String userId;
-  double initialBalance;
-  String name;
-  String icon;
-  String color;
-  Currency currency;
+  final String walletId;
+  final String userId;
+  late  double initialBalance;
+  final String name;
+  final String icon;
+  final String color;
+  final Currency currency;
+  final bool excludeFromTotal;
+  final DateTime createdAt;
+  final bool isDefault;
 
   Wallet({
     required this.walletId,
@@ -17,6 +21,9 @@ class Wallet {
     required this.icon,
     required this.color,
     required this.currency,
+    this.excludeFromTotal = false,
+    required this.createdAt,
+    this.isDefault = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -27,7 +34,10 @@ class Wallet {
       'name': name,
       'icon': icon,
       'color': color,
-      'currency': currency.index,
+      'currency': currency == Currency.VND ? 'VND' : 'USD',
+      'excludeFromTotal': excludeFromTotal,
+      'createdAt': createdAt,
+      'isDefault': isDefault,
     };
   }
 
@@ -39,7 +49,10 @@ class Wallet {
       name: map['name'],
       icon: map['icon'],
       color: map['color'],
-      currency: Currency.values[map['currency']],
+      currency: map['currency'] == 'VND' ? Currency.VND : Currency.USD,
+      excludeFromTotal: map['excludeFromTotal'],
+      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      isDefault: map['isDefault'],
     );
   }
 }

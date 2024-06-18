@@ -8,7 +8,7 @@ class Profile {
   Gender gender;
   String address;
   String profileImageUrl;
-
+  String job;
   Profile({
     required this.profileId,
     required this.userId,
@@ -17,6 +17,7 @@ class Profile {
     required this.gender,
     required this.address,
     required this.profileImageUrl,
+    required this.job,
   });
 
   Map<String, dynamic> toMap() {
@@ -27,6 +28,7 @@ class Profile {
       'birthDate': birthDate,
       'gender': gender.index,
       'address': address,
+      'job': job,
       'profileImageUrl': profileImageUrl,
     };
   }
@@ -39,7 +41,20 @@ class Profile {
       birthDate: map['birthDate'],
       gender: Gender.values[map['gender']],
       address: map['address'],
+      job: map['job'],
       profileImageUrl: map['profileImageUrl'],
     );
   }
+  // factory Profile.fromMap(Map<String, dynamic> map) {
+  //   return Profile(
+  //     profileId: map['profileId'] ?? '',
+  //     userId: map['userId'] ?? '',
+  //     displayName: map['displayName'] ?? '',
+  //     birthDate: map['birthDate'] ?? '',
+  //     gender: Gender.values[map['gender'] ?? 0], // Assuming 0 is the default for Gender
+  //     address: map['address'] ?? '',
+  //     job: map['job'] ?? '',
+  //     profileImageUrl: map['profileImageUrl'] ?? '',
+  //   );
+  // }
 }

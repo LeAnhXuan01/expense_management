@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 class CustomHeader_1 extends StatelessWidget {
   final String title;
-  final List<Widget> actions;
-  const CustomHeader_1({Key? key, required this.title, this.actions = const [],}) : super(key: key);
+  final Widget? action;
+
+  const CustomHeader_1({
+    Key? key,
+    required this.title,
+    this.action,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,27 +23,35 @@ class CustomHeader_1 extends StatelessWidget {
         color: Colors.green,
       ),
       child: Padding(
-        padding: const EdgeInsets.only(left: 30, top: 30),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        padding: const EdgeInsets.only(top: 30),
+        child: Stack(
           children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-              child: Icon(Icons.arrow_back, color: Colors.white),
-            ),
-            SizedBox(width: 20),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 23,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+            Center(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 23,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
               ),
             ),
-            Spacer(), // Đẩy các actions sang bên phải
-            ...actions, // Hiển thị các actions
+            Positioned(
+              left: 20,
+              bottom: 10,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Icon(Icons.arrow_back, color: Colors.white),
+              ),
+            ),
+            if (action != null)
+              Positioned(
+                right: 20,
+                bottom: 0,
+                child: action!,
+              ),
           ],
         ),
       ),
