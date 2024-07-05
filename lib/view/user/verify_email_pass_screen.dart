@@ -1,12 +1,10 @@
 import 'dart:async';
-
 import 'package:expense_management/widget/custom_snackbar_1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../../services/auth_service.dart';
 import '../../view_model/user/forgot_password_viewmodel.dart';
 import '../../widget/custom_ElevatedButton_1.dart';
 import '../../widget/custom_header_2.dart';
@@ -48,13 +46,14 @@ class _VerifyEmailPassScreenState extends State<VerifyEmailPassScreen> {
     });
 
     try {
-      await viewModel.sendPasswordResetEmail(viewModel.emailController.text.trim() + '@gmail.com');
+      final AuthService _authService = AuthService();
+      await _authService.sendPasswordResetEmail(viewModel.emailController.text.trim() + '@gmail.com');
       setState(() {
         _hasRecentlySentVerification = true;
         _countdown = 60;
       });
 
-      CustomSnackBar_2.show(context, 'Email đặt lại mật khẩu đã được gửi lại. Vui lòng kiểm tra hộp thư của bạn.');
+      CustomSnackBar_2.show(context, 'Email đặt lại mật khẩu đã được gửi lại');
       _startCountdown();
     } catch (e) {
       print('Error sending password reset email: $e');

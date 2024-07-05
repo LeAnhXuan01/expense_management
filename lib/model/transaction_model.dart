@@ -1,28 +1,31 @@
+import 'package:flutter/material.dart';
 import 'enum.dart';
 
-class Transaction {
-  String transactionId;
-  String userId;
-  double amount;
-  TransactionType type;
-  String walletId;
-  String categoryId;
-  String date;
-  String time;
-  String note;
-  String image;
+class Transactions {
+  final String transactionId;
+  final String userId;
+  final double amount;
+  final Currency currency;
+  final TransactionType type;
+  final String walletId;
+  final String categoryId;
+  final DateTime date;
+  final TimeOfDay hour;
+  final String note;
+  final List<String> images;
 
-  Transaction({
+  Transactions({
     required this.transactionId,
     required this.userId,
     required this.amount,
+    required this.currency,
     required this.type,
     required this.walletId,
     required this.categoryId,
     required this.date,
-    required this.time,
+    required this.hour,
     this.note = '',
-    required this.image,
+    required this.images,
   });
 
   Map<String, dynamic> toMap() {
@@ -30,28 +33,32 @@ class Transaction {
       'transactionId': transactionId,
       'userId': userId,
       'amount': amount,
+      'currency': currency == Currency.VND ? 'VND' : 'USD',
       'type': type.index,
       'walletId': walletId,
       'categoryId': categoryId,
-      'date': date,
-      'time': time,
+      'date': date.toIso8601String(),
+      'hour': '${hour.hour}:${hour.minute.toString().padLeft(2, '0')}',
       'note': note,
-      'image': image,
+      'images': images,
     };
   }
 
-  factory Transaction.fromMap(Map<String, dynamic> map) {
-    return Transaction(
+  factory Transactions.fromMap(Map<String, dynamic> map) {
+    return Transactions(
       transactionId: map['transactionId'],
       userId: map['userId'],
       amount: map['amount'],
+      currency: map['currency'] == 'VND' ? Currency.VND : Currency.USD,
       type: TransactionType.values[map['type']],
       walletId: map['walletId'],
       categoryId: map['categoryId'],
-      date: map['date'],
-      time: map['time'],
+      date: DateTime.parse(map['date']), // Chuyển đổi từ chuỗi ISO 8601 sang DateTime
+      hour: TimeOfDay(
+          hour: int.parse(map['hour'].split(':')[0]),
+          minute: int.parse(map['hour'].split(':')[1])),
       note: map['note'],
-      image: map['image'],
+      images: List<String>.from(map['images'] ?? []),
     );
   }
 }

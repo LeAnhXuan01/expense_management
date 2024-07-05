@@ -3,6 +3,7 @@ import 'package:expense_management/widget/custom_header_2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../model/profile_model.dart';
 import '../../view_model/user/edit_profile_view_model.dart';
 import '../../widget/custom_ElevatedButton_1.dart';
 import 'edit_profile_screen.dart';
@@ -15,15 +16,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late EditProfileViewModel _editProfileViewModel;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _editProfileViewModel = Provider.of<EditProfileViewModel>(context);
-    _editProfileViewModel.loadProfile(); // Tải lại ví khi màn hình được hiển thị
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         SizedBox(height: 10),
                         GestureDetector(
                           child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Thêm khoảng cách bên trong để văn bản không bị sát viền
+                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(10.0),
@@ -66,8 +58,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
                             ),
                           ),
-                          onTap: () {
-                           Navigator.pushNamed((context), '/edit-profile');
+                          onTap: () async {
+                            final updatedProfile = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditProfileScreen(),
+                              ),
+                            );
+                            if (updatedProfile != null && updatedProfile is Profile) {
+                              await viewModel.loadProfile();
+                            }
                           },
                         ),
 

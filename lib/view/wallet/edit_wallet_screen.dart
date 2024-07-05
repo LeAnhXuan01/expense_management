@@ -1,4 +1,5 @@
 import 'package:expense_management/widget/custom_header_1.dart';
+import 'package:expense_management/widget/custom_snackbar_1.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,7 +9,6 @@ import '../../model/wallet_model.dart';
 import '../../utils/color_list.dart';
 import '../../utils/icon_list.dart';
 import '../../view_model/wallet/edit_wallet_view_model.dart';
-import '../../view_model/wallet/wallet_view_model.dart';
 import '../../widget/custom_ElevatedButton_2.dart';
 import '../../widget/custom_snackbar_2.dart';
 
@@ -44,12 +44,11 @@ class _EditWalletScreenState extends State<EditWalletScreen> {
                       ? () async {
                           final updatedWallet = await viewModel.updateWallet(widget.wallet.walletId, widget.wallet.createdAt);
                           if (updatedWallet != null) {
-                            CustomSnackBar_2.show(
-                                context, 'Ví đã được cập nhật thành công');
-                            await Future.delayed(Duration(seconds: 2));
+                            await CustomSnackBar_2.show(
+                                context, 'Cập nhật thành công');
                             Navigator.pop(context, updatedWallet);
                           } else {
-                            CustomSnackBar_2.show(
+                            CustomSnackBar_1.show(
                                 context, 'Có lỗi xảy ra khi cập nhật ví');
                           }
                         }
@@ -161,6 +160,7 @@ class _EditWalletScreenState extends State<EditWalletScreen> {
                                 }).toList(),
                                 onChanged: (newValue) {
                                   viewModel.setSelectedCurrency(newValue!);
+
                                 },
                                 decoration: InputDecoration(
                                     labelText: 'Đơn vị tiền tệ'),
@@ -320,12 +320,11 @@ class _EditWalletScreenState extends State<EditWalletScreen> {
                                   final updatedWallet =
                                       await viewModel.updateWallet(widget.wallet.walletId, widget.wallet.createdAt);
                                   if (updatedWallet != null) {
-                                    CustomSnackBar_2.show(context,
-                                        'Ví đã được cập nhật thành công');
-                                    await Future.delayed(Duration(seconds: 2));
+                                    await CustomSnackBar_2.show(context,
+                                        'Cập nhật thành công');
                                     Navigator.pop(context, updatedWallet);
                                   } else {
-                                    CustomSnackBar_2.show(context,
+                                    CustomSnackBar_1.show(context,
                                         'Có lỗi xảy ra khi cập nhật ví');
                                   }
                                 }

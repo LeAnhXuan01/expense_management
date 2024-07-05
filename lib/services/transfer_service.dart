@@ -52,4 +52,23 @@ class TransferService {
       throw e;
     }
   }
+
+  Future<Transfer?> getTransferById(String transferId) async {
+    try {
+      DocumentSnapshot docSnapshot = await _firestore
+          .collection('transfers')
+          .doc(transferId)
+          .get();
+
+      if (docSnapshot.exists) {
+        return Transfer.fromMap(docSnapshot.data() as Map<String, dynamic>);
+      } else {
+        print("Transfer with ID $transferId not found.");
+        return null;
+      }
+    } catch (e) {
+      print("Error getting transfer by ID: $e");
+      throw e;
+    }
+  }
 }

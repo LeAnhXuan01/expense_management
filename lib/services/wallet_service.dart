@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_management/model/wallet_model.dart';
 import '../data/default_wallet.dart';
+import '../model/enum.dart';
 
 class WalletService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -61,7 +62,7 @@ class WalletService {
       }
     } catch (e) {
       print("Error adding fixed wallets: $e");
-      throw e;  // Rethrow the error to handle it further up the call stack if needed
+      throw e;
     }
   }
 
@@ -76,6 +77,19 @@ class WalletService {
       print('Error checking fixed wallet: $e');
     }
     return false;
+  }
+
+  Future<Wallet?> getWalletById(String walletId) async {
+    try {
+      DocumentSnapshot docSnapshot = await _firestore.collection('wallets').doc(walletId).get();
+      if (docSnapshot.exists) {
+        return Wallet.fromMap(docSnapshot.data() as Map<String, dynamic>);
+      }
+    } catch (e) {
+      print("Error getting wallet by id: $e");
+      throw e;
+    }
+    return null;
   }
 
   Future<List<Wallet>> getWallets(String userId) async {
@@ -117,6 +131,9 @@ class WalletService {
 
   Future<void> deleteWallet(String walletId) async {
     try {
+      // Xóa tất cả các giao dịch liên quan trước khi xóa ví
+      await deleteAllTransactionsRelatedToWallet(walletId);
+
       await _firestore
           .collection('wallets')
           .doc(walletId)
@@ -125,5 +142,52 @@ class WalletService {
       print("Error deleting wallet: $e");
       throw e;
     }
+  }
+
+  Future<void> deleteAllTransactionsRelatedToWallet(String walletId) async {
+    // Xóa tất cả các giao dịch chuyển khoản liên quan
+    await _firestore
+        .collection('transfers')
+        .where('fromWallet', isEqualTo: walletId)
+        .get()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.docs) {
+        ds.reference.delete();
+      }
+    });
+
+    await _firestore
+        .collection('transfers')
+        .where('toWallet', isEqualTo: walletId)
+        .get()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.docs) {
+        ds.reference.delete();
+      }
+    });
+
+    // Xóa tất cả các giao dịch thu nhập liên quan
+    await _firestore
+        .collection('transactions')
+        .where('walletId', isEqualTo: walletId)
+        .where('type', isEqualTo: TransactionType.income.index)
+        .get()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.docs) {
+        ds.reference.delete();
+      }
+    });
+
+    // Xóa tất cả các giao dịch chi tiêu liên quan
+    await _firestore
+        .collection('transactions')
+        .where('walletId', isEqualTo: walletId)
+        .where('type', isEqualTo: TransactionType.expense.index)
+        .get()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.docs) {
+        ds.reference.delete();
+      }
+    });
   }
 }

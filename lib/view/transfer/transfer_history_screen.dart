@@ -1,4 +1,3 @@
-import 'package:expense_management/view_model/wallet/wallet_view_model.dart';
 import 'package:expense_management/widget/custom_ElevatedButton_2.dart';
 import 'package:expense_management/widget/custom_header_1.dart';
 import 'package:expense_management/widget/custom_snackbar_2.dart';
@@ -25,7 +24,7 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
         body: Column(
           children: [
             CustomHeader_1(
-              title: 'Lịch sử chuyển khoản',
+              title: 'Lịch sử',
               action: Builder(
                 builder: (context) => IconButton(
                   icon: Icon(Icons.filter_list, color: Colors.white),
@@ -67,39 +66,41 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                             ),
                           ),
                           ...transfers.map((transfer) {
-                            final fromWalletName =
-                                viewModel.getWalletName(transfer.fromWallet);
-                            final toWalletName =
-                                viewModel.getWalletName(transfer.toWallet);
-                            final formattedAmount = formatAmountTransfer(
+                            final fromWallet = viewModel.getFromWalletByTransfer(transfer);
+                            final toWallet = viewModel.getToWalletByTransfer(transfer);
+
+                            String fromWalletName = 'Không có ví nguồn';
+                            IconData fromWalletIcon = Icons.wallet;
+                            Color fromWalletColor = Colors.grey;
+                            if (fromWallet != null) {
+                              fromWalletName = fromWallet.name;
+                              fromWalletIcon = parseIcon(fromWallet.icon);
+                              fromWalletColor = parseColor(fromWallet.color);
+                            }
+
+                            String toWalletName = 'Không có ví đích';
+                            IconData toWalletIcon = Icons.wallet;
+                            Color toWalletColor = Colors.grey;
+                            if (toWallet != null) {
+                              toWalletName = toWallet.name;
+                              toWalletIcon = parseIcon(toWallet.icon);
+                              toWalletColor = parseColor(toWallet.color);
+                            }
+
+                            final formattedAmount = formatAmount_2(
                                 transfer.amount, transfer.currency);
                             final formattedTime =
                                 viewModel.formatHour(transfer.hour);
-
-                            final fromWalletIcon =
-                                viewModel.getWalletIcon(transfer.fromWallet);
-                            final toWalletIcon =
-                                viewModel.getWalletIcon(transfer.toWallet);
-                            final fromWalletColor =
-                                viewModel.getWalletColor(transfer.fromWallet);
-                            final toWalletColor =
-                                viewModel.getWalletColor(transfer.toWallet);
 
                             return Dismissible(
                               key: Key(transfer.transferId),
                               direction: DismissDirection.endToStart,
                               onDismissed: (direction) async {
-                                final walletViewModel = Provider.of<WalletViewModel>(context, listen: false);
-                                await viewModel
-                                    .deleteTransfer(transfer.transferId, walletViewModel);
+                                await viewModel.deleteTransfer(context,
+                                    transfer.transferId);
                                 CustomSnackBar_2.show(
-                                    context,
-                                    'Đã xóa giao dịch',
-                                  actionLabel: 'Hoàn tác',
-                                  onActionPressed: () async {
-                                    await viewModel.restoreTransfer();
-                                  },
-                                  duration: Duration(seconds: 3),
+                                  context,
+                                  'Đã xóa giao dịch',
                                 );
                               },
                               background: Container(
@@ -112,11 +113,15 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                                 child: ListTile(
                                   leading: Column(
                                     children: [
-                                      Icon(FontAwesomeIcons.downLong, color: Colors.green,),
+                                      Icon(
+                                        FontAwesomeIcons.downLong,
+                                        color: Colors.green,
+                                      ),
                                     ],
                                   ),
                                   title: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
@@ -170,16 +175,19 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                                   trailing: Text('$formattedAmount ₫',
                                       style: TextStyle(
                                           fontSize: 16,
-                                          fontWeight: FontWeight.w500)
-                                  ),
+                                          fontWeight: FontWeight.w500)),
                                   onTap: () async {
-                                    final updatedTransfer = await Navigator.push(
+                                    final updatedTransfer =
+                                        await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => EditTransferScreen(transfer: transfer),
+                                        builder: (context) =>
+                                            EditTransferScreen(
+                                                transfer: transfer),
                                       ),
                                     );
-                                    if (updatedTransfer != null && updatedTransfer is Transfer) {
+                                    if (updatedTransfer != null &&
+                                        updatedTransfer is Transfer) {
                                       await viewModel.loadTransfers();
                                     }
                                   },
@@ -275,14 +283,6 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                     Navigator.of(context).pop();
                   },
                 ),
-                // ListTile(
-                //   title: Text('Xóa bộ lọc'),
-                //   trailing: Icon(Icons.clear),
-                //   onTap: () {
-                //     viewModel.clearFilters();
-                //     Navigator.of(context).pop();
-                //   },
-                // ),
                 CustomElevatedButton_2(
                   text: 'Xóa bộ lọc',
                   onPressed: () {

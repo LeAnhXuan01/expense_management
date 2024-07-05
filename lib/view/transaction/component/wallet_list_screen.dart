@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../../model/enum.dart';
 import '../../../utils/utils.dart';
 import '../../../view_model/wallet/wallet_view_model.dart';
-import '../../../widget/custom_header_1.dart';
 import '../../../widget/custom_header_3.dart';
 
 class WalletListScreen extends StatefulWidget {
@@ -31,7 +29,7 @@ class _WalletListScreenState extends State<WalletListScreen> {
                       });
                     },
                     child: Icon(
-                      FontAwesomeIcons.magnifyingGlass,
+                      Icons.search,
                       color: Colors.white,
                     ),
                   ),
@@ -69,7 +67,7 @@ class _WalletListScreenState extends State<WalletListScreen> {
                           ),
                           title: Text(wallet.name),
                           subtitle: Text(
-                            '${formatInitialBalance(wallet.initialBalance, wallet.currency)} ${wallet.currency == Currency.VND ? 'VND' : 'USD'}',
+                            '${formatAmount(wallet.initialBalance, wallet.currency)} ${wallet.currency == Currency.VND ? '₫' : '\$'}',
                           ),
                           onTap: () {
                             Navigator.pop(context, wallet);

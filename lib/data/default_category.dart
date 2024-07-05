@@ -3,16 +3,16 @@ import '../model/enum.dart';
 
 List<Category> defaultCategories = [
   Category(
-    categoryId: 'default_expense_1',
+    categoryId: 'kqsQFaVYGfxtLAg6eAUW',
     userId: 'default',
-    name: 'Đồ ăn & Thức uống',
+    name: 'Ăn uống',
     type: TransactionType.expense,
     icon: 'IconData(U+0F2E7)', // FontAwesomeIcons.utensils
     color: 'MaterialColor(primary value: Color(0xffff5722))',
     createdAt: DateTime.now(),
   ),
   Category(
-    categoryId: 'default_expense_2',
+    categoryId: 'CmLoqOTNff4KEehR6hCX',
     userId: 'default',
     name: 'Mua sắm',
     type: TransactionType.expense,
@@ -21,7 +21,7 @@ List<Category> defaultCategories = [
     createdAt: DateTime.now(),
   ),
   Category(
-    categoryId: 'default_expense_3',
+    categoryId: 'DkU1auvLp56dqm6Rw9wa',
     userId: 'default',
     name: 'Di chuyển',
     type: TransactionType.expense,
@@ -30,7 +30,7 @@ List<Category> defaultCategories = [
     createdAt: DateTime.now(),
   ),
   Category(
-    categoryId: 'default_expense_4',
+    categoryId: '0azBrRox1uJ6ODTuGCXz',
     userId: 'default',
     name: 'Nhà cửa',
     type: TransactionType.expense,
@@ -39,7 +39,7 @@ List<Category> defaultCategories = [
     createdAt: DateTime.now(),
   ),
   Category(
-    categoryId: 'default_expense_5',
+    categoryId: '4il42hNSFvwtFBAqI42V',
     userId: 'default',
     name: 'Hóa đơn',
     type: TransactionType.expense,
@@ -48,7 +48,7 @@ List<Category> defaultCategories = [
     createdAt: DateTime.now(),
   ),
   Category(
-    categoryId: 'default_expense_6',
+    categoryId: 'UXHidvPR8Hs2ikapPk20',
     userId: 'default',
     name: 'Giải trí',
     type: TransactionType.expense,
@@ -174,7 +174,7 @@ List<Category> defaultCategories = [
     createdAt: DateTime.now(),
   ),
   Category(
-    categoryId: 'default_income_5',
+    categoryId: 'J0xYTDIydlpWYPYrJ8Dk',
     userId: 'default',
     name: 'Tiền thừa kế',
     type: TransactionType.income,
@@ -183,7 +183,7 @@ List<Category> defaultCategories = [
     createdAt: DateTime.now(),
   ),
   Category(
-    categoryId: 'default_income_6',
+    categoryId: '3QOjW6FhvM4JSW5aMFlt',
     userId: 'default',
     name: 'Tiền lãi',
     type: TransactionType.income,
@@ -192,7 +192,7 @@ List<Category> defaultCategories = [
     createdAt: DateTime.now(),
   ),
   Category(
-    categoryId: 'default_income_7',
+    categoryId: 'TxFVKqS6E1PRTrODK1Ja',
     userId: 'default',
     name: 'Tiền cho thuê',
     type: TransactionType.income,
@@ -201,7 +201,7 @@ List<Category> defaultCategories = [
     createdAt: DateTime.now(),
   ),
   Category(
-    categoryId: 'default_income_8',
+    categoryId: 'VqzcZUxkPqHILqmxRa0e',
     userId: 'default',
     name: 'Bán hàng',
     type: TransactionType.income,
@@ -210,7 +210,7 @@ List<Category> defaultCategories = [
     createdAt: DateTime.now(),
   ),
   Category(
-    categoryId: 'default_income_9',
+    categoryId: '5Z5KZGpVpITjuoqb6HZa',
     userId: 'default',
     name: 'Tiền hoàn thuế',
     type: TransactionType.income,
@@ -219,7 +219,7 @@ List<Category> defaultCategories = [
     createdAt: DateTime.now(),
   ),
   Category(
-    categoryId: 'default_income_10',
+    categoryId: '6uvl3p1M19NLIqimkN9Q',
     userId: 'default',
     name: 'Lãi suất ngân hàng',
     type: TransactionType.income,
@@ -251,3 +251,23 @@ List<Category> fixedCategories = [
     isDefault: true,
   ),
 ];
+
+// List<Category> getIncomeCategoryFrequent() {
+//   int length = defaultCategories.length;
+//   // Lấy 6 danh mục đầu tiên từ defaultCategories
+//   List<Category> incomeCategoriesFrequent = defaultCategories.sublist(length - 6, length);
+//   return incomeCategoriesFrequent;
+// }
+//
+// List<Category> getExpenseCategoryFrequent() {
+//   // Lấy 6 danh mục đầu tiên từ defaultCategories
+//   List<Category> expenseCategoriesFrequent = defaultCategories.take(6).toList();
+//   return expenseCategoriesFrequent;
+// }
+
+// List<Category> getCategoriesInRange(int start, int end) {
+//   // Lấy danh sách các danh mục từ vị trí start đến end (không bao gồm end)
+//   List<Category> categoriesInRange = defaultCategories.sublist(start, end);
+//   return categoriesInRange;
+// }
+// final List<Category> categoriesInRange = getCategoriesInRange(3, 9); // Lấy danh sách từ vị trí 3 đến vị trí 8 (6 phần tử)

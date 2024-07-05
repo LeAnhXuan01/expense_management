@@ -14,8 +14,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
     Provider.of<ForgotPasswordViewModel>(context, listen: false)
       ..emailController.clear();
   }
@@ -59,9 +59,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           CustomElavatedButton_1(
                             text: 'Tiếp tục',
                             onPressed: viewModel.enableButton ? () async {
-                              if (await viewModel.next(context)) {
-                                CustomSnackBar_2.show(context, 'Một email đặt lại mật khẩu đã được gửi tới địa chỉ email của bạn.');
-                                await Future.delayed(Duration(seconds: 2));
+                              if (await viewModel.forgotPassword(context)) {
+                                await CustomSnackBar_2.show(context, 'Một email đặt lại mật khẩu đã được gửi tới email của bạn.');
                                 Navigator.pushReplacementNamed(context, '/verify-email-pass');
                               }
                             } : null,

@@ -14,12 +14,6 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Provider.of<RegisterViewModel>(context, listen: false).resetFields();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<RegisterViewModel>(
@@ -105,11 +99,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       CustomElavatedButton_1(
                         onPressed: viewModel.enableButton
                             ? () async {
-                                bool isRegistered = await viewModel.register();
+                                bool isRegistered = await viewModel.register(context);
                                 if (isRegistered) {
-                                  CustomSnackBar_2.show(context,
-                                      'Một email xác thực đã được gửi tới địa chỉ email của bạn.');
-                                  await Future.delayed(Duration(seconds: 2));
+                                  await CustomSnackBar_2.show(context,
+                                      'Một email xác thực đã được gửi tới email của bạn');
                                   Navigator.pushReplacementNamed(
                                       context, '/verify-email');
                                 }

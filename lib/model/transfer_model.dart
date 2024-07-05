@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'enum.dart';
 
 class Transfer {
@@ -29,8 +28,8 @@ class Transfer {
     return {
       'transferId': transferId,
       'userId': userId,
-      'fromWalletId': fromWallet,
-      'toWalletId': toWallet,
+      'fromWallet': fromWallet,
+      'toWallet': toWallet,
       'amount': amount,
       'currency': currency == Currency.VND ? 'VND' : 'USD',
       'date': date.toIso8601String(),
@@ -43,8 +42,8 @@ class Transfer {
     return Transfer(
       transferId: map['transferId'],
       userId: map['userId'],
-      fromWallet: map['fromWalletId'],
-      toWallet: map['toWalletId'],
+      fromWallet: map['fromWallet'],
+      toWallet: map['toWallet'],
       amount: map['amount'],
       currency: map['currency'] == 'VND' ? Currency.VND : Currency.USD,
       date: DateTime.parse(map['date']), // Chuyển đổi từ chuỗi ISO 8601 sang DateTime

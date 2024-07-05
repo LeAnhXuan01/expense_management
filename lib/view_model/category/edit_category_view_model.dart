@@ -7,14 +7,14 @@ import '../../utils/icon_list.dart';
 import '../../utils/color_list.dart';
 import '../../utils/utils.dart';
 
-class EditCategoriesViewModel extends ChangeNotifier {
-  bool showPlusButtonIcon = true;
-  bool showPlusButtonColor = true;
+class EditCategoryViewModel extends ChangeNotifier {
+  final CategoryService _categoryService = CategoryService();
+  final TextEditingController nameCategory = TextEditingController();
+
   IconData? selectedIcon;
   Color? selectedColor;
-
-  final TextEditingController nameCategory = TextEditingController();
-  final CategoryService _categoryService = CategoryService();
+  bool showPlusButtonIcon = true;
+  bool showPlusButtonColor = true;
   bool enableButton = false;
 
   bool get isEmptyName => nameCategory.text.isEmpty;
@@ -24,7 +24,7 @@ class EditCategoriesViewModel extends ChangeNotifier {
   List<IconData> currentIconsList = incomeIcons;
   List<Color> get colors => colors_list;
 
-  EditCategoriesViewModel() {
+  EditCategoryViewModel() {
     nameCategory.addListener(updateButtonState);
   }
 
@@ -43,16 +43,6 @@ class EditCategoriesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleShowPlusButtonIcon() {
-    showPlusButtonIcon = !showPlusButtonIcon;
-    notifyListeners();
-  }
-
-  void toggleShowPlusButtonColor() {
-    showPlusButtonColor = !showPlusButtonColor;
-    notifyListeners();
-  }
-
   void setSelectedIcon(IconData icon) {
     selectedIcon = icon;
     updateButtonState();
@@ -63,11 +53,21 @@ class EditCategoriesViewModel extends ChangeNotifier {
     updateButtonState();
   }
 
+  void toggleShowPlusButtonIcon() {
+    showPlusButtonIcon = !showPlusButtonIcon;
+    notifyListeners();
+  }
+
+  void toggleShowPlusButtonColor() {
+    showPlusButtonColor = !showPlusButtonColor;
+    notifyListeners();
+  }
+
   Future<Category?> updateCategory(String categoryId, DateTime createdAt) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final updatedCategory = Category(
-          categoryId: categoryId, // Sử dụng categoryId được truyền vào
+          categoryId: categoryId,
           userId: user.uid,
           name: nameCategory.text,
           type: currentIconsList == incomeIcons ? TransactionType.income : TransactionType.expense,
@@ -86,5 +86,4 @@ class EditCategoriesViewModel extends ChangeNotifier {
     }
     return null;
   }
-
 }

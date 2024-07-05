@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../../model/enum.dart';
 import '../../view_model/wallet/wallet_view_model.dart';
 import '../../widget/custom_header_3.dart';
+import '../transfer/transfer_history_screen.dart';
 import 'create_wallet_screen.dart';
 import 'edit_wallet_screen.dart';
 
@@ -37,7 +38,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       });
                     },
                     child: Icon(
-                      FontAwesomeIcons.magnifyingGlass,
+                      Icons.search,
                       color: Colors.white,
                     ),
                   ),
@@ -87,7 +88,17 @@ class _WalletScreenState extends State<WalletScreen> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, '/transfer-history');
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    TransferHistoryScreen())).then((_) {
+                          // Cập nhật ví khi quay lại từ màn hình lịch sử chuyển khoản
+                          final walletViewModel = Provider.of<WalletViewModel>(
+                              context,
+                              listen: false);
+                          walletViewModel.loadWallets();
+                        });
                       },
                       child: Column(
                         children: [
@@ -98,7 +109,8 @@ class _WalletScreenState extends State<WalletScreen> {
                               borderRadius: BorderRadius.circular(20),
                               color: Colors.green,
                             ),
-                            child: Icon(FontAwesomeIcons.clockRotateLeft, color: Colors.white),
+                            child: Icon(FontAwesomeIcons.clockRotateLeft,
+                                color: Colors.white),
                           ),
                           SizedBox(height: 5),
                           Text(
@@ -133,7 +145,8 @@ class _WalletScreenState extends State<WalletScreen> {
                               borderRadius: BorderRadius.circular(20),
                               color: Colors.green,
                             ),
-                            child: Icon(FontAwesomeIcons.rightLeft, color: Colors.white),
+                            child: Icon(FontAwesomeIcons.rightLeft,
+                                color: Colors.white),
                           ),
                           SizedBox(height: 5),
                           Text(
@@ -150,88 +163,157 @@ class _WalletScreenState extends State<WalletScreen> {
                   ],
                 ),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: viewModel.wallets.length,
-                    itemBuilder: (context, index) {
-                      final wallet = viewModel.wallets[index];
-                      return Dismissible(
-                        key: Key(wallet.walletId), // Khóa duy nhất cho mỗi ví
-                        direction: DismissDirection.endToStart, // Chỉ cho phép vuốt từ phải sang trái
-                        onDismissed: (direction) {
-                          if (wallet.isDefault) {
-                            CustomSnackBar_1.show(context, 'Không thể xóa ví mặc định');
-                          } else {
-                            // Xóa ví
-                            viewModel.deleteWallet(wallet.walletId);
-                            CustomSnackBar_2.show(context, '${wallet.name} đã bị xóa');
-                          }
-                        },
-                        confirmDismiss: (direction) async {
-                          if (wallet.isDefault) {
-                            CustomSnackBar_1.show(context, 'Không thể xóa ví mặc định');
-                            return false;
-                          }
-                          return true;
-                        },
-                        background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Icon(Icons.delete, color: Colors.white),
-                        ),
-                        child: Card(
-                          margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                          child: ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                            leading: Container(
-                              width: 55,
-                              height: 55,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: parseColor(wallet.color),
-                              ),
-                              child: Icon(
-                                parseIcon(wallet.icon),
-                                color: Colors.white,
-                                size: 30,
-                              ),
-                            ),
-                            title: Text(
-                              wallet.name,
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1, // Giới hạn chỉ hiển thị tối đa 1 dòng
-                              overflow: TextOverflow.ellipsis, // Hiển thị dấu ba chấm khi vượt quá 1 dòng
-                            ),
-                            subtitle: Text(
-                              '${formatInitialBalance(wallet.initialBalance, wallet.currency)} ${wallet.currency == Currency.VND ? '₫' : '\$'}',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-
-                            trailing: wallet.excludeFromTotal
-                                ? Icon(Icons.remove_circle, color: Colors.red)
-                                : null,
-                            onTap: () async {
-                              final updatedWallet = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EditWalletScreen(wallet: wallet),
-                                ),
-                              );
-                              if (updatedWallet != null && updatedWallet is Wallet) {
-                                await viewModel.loadWallets();
-                              }
-                            },
+                  child: viewModel.wallets.isEmpty && viewModel.isSearching
+                      ? Center(
+                          child: Text(
+                            'Không có kết quả tìm kiếm nào.',
+                            style: TextStyle(fontSize: 18, color: Colors.grey),
                           ),
+                        )
+                      : ListView.builder(
+                          itemCount: viewModel.wallets.length,
+                          itemBuilder: (context, index) {
+                            final wallet = viewModel.wallets[index];
+                            return Dismissible(
+                              key: Key(wallet.walletId),
+                              // Khóa duy nhất cho mỗi ví
+                              direction: DismissDirection.endToStart,
+                              // Chỉ cho phép vuốt từ phải sang trái
+                              confirmDismiss: (direction) async {
+                                if (wallet.isDefault) {
+                                  CustomSnackBar_1.show(
+                                      context, 'Ví này không thể xóa');
+                                  return false;
+                                }
+                                // Hiển thị hộp thoại xác nhận
+                                return await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('Chú ý'),
+                                      content: RichText(
+                                        text: TextSpan(
+                                            text: 'Nếu bạn xóa ví này, ',
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16),
+                                            children: [
+                                              TextSpan(
+                                                text:
+                                                    'tất cả các ghi chép liên quan cũng sẽ bị xóa và không thể khôi phục',
+                                                style: TextStyle(
+                                                    color: Colors.red,
+                                                    fontSize: 17,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                              TextSpan(
+                                                text:
+                                                    '. Bạn có thực sự muốn xóa không?',
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize:
+                                                        16), // Màu đen cho phần văn bản bình thường
+                                              ),
+                                            ]),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          child: Text('Không',
+                                              style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontSize: 18)),
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pop(false); // Không xóa
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: Text('Có',
+                                              style: TextStyle(
+                                                  color: Colors.blue,
+                                                  fontSize: 18)),
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pop(true); // Xác nhận xóa
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              onDismissed: (direction) async {
+                                // Xóa ví
+                                await viewModel.deleteWallet(wallet.walletId);
+                                CustomSnackBar_2.show(
+                                    context, '${wallet.name} đã bị xóa');
+                              },
+                              background: Container(
+                                color: Colors.red,
+                                alignment: Alignment.centerRight,
+                                padding: EdgeInsets.symmetric(horizontal: 20),
+                                child: Icon(Icons.delete, color: Colors.white),
+                              ),
+                              child: Card(
+                                margin: EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 4.0),
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 16.0, vertical: 8.0),
+                                  leading: Container(
+                                    width: 55,
+                                    height: 55,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: parseColor(wallet.color),
+                                    ),
+                                    child: Icon(
+                                      parseIcon(wallet.icon),
+                                      color: Colors.white,
+                                      size: 30,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    wallet.name,
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 1,
+                                    // Giới hạn chỉ hiển thị tối đa 1 dòng
+                                    overflow: TextOverflow
+                                        .ellipsis, // Hiển thị dấu ba chấm khi vượt quá 1 dòng
+                                  ),
+                                  subtitle: Text(
+                                    '${formatAmount(wallet.initialBalance, wallet.currency)} ${wallet.currency == Currency.VND ? '₫' : '\$'}',
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                  trailing: wallet.excludeFromTotal
+                                      ? Icon(Icons.remove_circle,
+                                          color: Colors.red)
+                                      : null,
+                                  onTap: () async {
+                                    final updatedWallet = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            EditWalletScreen(wallet: wallet),
+                                      ),
+                                    );
+                                    if (updatedWallet != null &&
+                                        updatedWallet is Wallet) {
+                                      await viewModel.loadWallets();
+                                    }
+                                  },
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ),
               ],
             ),

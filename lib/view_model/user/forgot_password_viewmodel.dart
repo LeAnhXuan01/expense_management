@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../services/auth_service.dart';
 
 class ForgotPasswordViewModel extends ChangeNotifier {
+  final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
 
   bool enableButton = false;
@@ -32,7 +34,7 @@ class ForgotPasswordViewModel extends ChangeNotifier {
     validateForm();
   }
 
-  Future<bool> next(BuildContext context) async {
+  Future<bool> forgotPassword(BuildContext context) async {
     final isEmailValid = !hasEmailError;
 
     if (!isEmailValid) {
@@ -52,7 +54,7 @@ class ForgotPasswordViewModel extends ChangeNotifier {
 
       // Nếu tồn tại ít nhất một tài khoản có cùng email trong Firestore
       if (querySnapshot.docs.isNotEmpty) {
-        await sendPasswordResetEmail(email);
+        await _authService.sendPasswordResetEmail(email);
         return true;
       } else {
         emailError = 'Email này chưa được đăng ký.';
@@ -70,10 +72,6 @@ class ForgotPasswordViewModel extends ChangeNotifier {
       notifyListeners();
       return false;
     }
-  }
-
-  Future<void> sendPasswordResetEmail(String email) async {
-    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
   }
 }
 

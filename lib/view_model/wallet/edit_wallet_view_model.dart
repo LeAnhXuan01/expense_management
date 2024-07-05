@@ -8,6 +8,7 @@ import '../../model/enum.dart';
 import '../../utils/utils.dart';
 
 class EditWalletViewModel extends ChangeNotifier {
+  final WalletService _walletService = WalletService();
   final TextEditingController walletNameController = TextEditingController();
   final TextEditingController initialBalanceController = TextEditingController();
   IconData? selectedIcon;
@@ -19,20 +20,18 @@ class EditWalletViewModel extends ChangeNotifier {
   bool showPlusButtonColor = true;
   bool excludeFromTotal = false;
 
-  final WalletService _walletService = WalletService();
-
   bool get isEmptyWalletName => walletNameController.text.isEmpty;
   bool get isEmptyInitialBalance => initialBalanceController.text.isEmpty;
   bool get isEmptyIcon => selectedIcon == null;
   bool get isEmptyColor => selectedColor == null;
 
   EditWalletViewModel() {
-    initialBalanceController.addListener(_formatInitialBalance);
+    initialBalanceController.addListener(formatInitialBalance);
   }
 
   void initialize(Wallet wallet) {
     walletNameController.text = wallet.name;
-    initialBalanceController.text = NumberFormat('#,###', 'vi_VN').format(wallet.initialBalance);
+    initialBalanceController.text = formatAmount(wallet.initialBalance, wallet.currency);
     selectedIcon = parseIcon(wallet.icon);
     selectedColor = parseColor(wallet.color);
     selectedCurrency = wallet.currency;
@@ -40,7 +39,7 @@ class EditWalletViewModel extends ChangeNotifier {
     updateButtonState();
   }
 
-  void _formatInitialBalance() {
+  void formatInitialBalance() {
     final text = initialBalanceController.text;
     if (text.isEmpty) return;
 
@@ -71,22 +70,11 @@ class EditWalletViewModel extends ChangeNotifier {
   }
 
   void setSelectedCurrency(Currency currency) {
-    // Chuyển đổi số tiền dựa trên loại tiền tệ
-    final exchangeRate = 25442.5; // 1 USD = 25442.5 VND
-
-    // Lấy số dư hiện tại
     final cleanedBalance = initialBalanceController.text.replaceAll('.', '');
     final currentBalance = double.parse(cleanedBalance);
 
-    // Chuyển đổi số dư
-    double newBalance = currentBalance;
-    if (selectedCurrency == Currency.VND && currency == Currency.USD) {
-      newBalance = currentBalance / exchangeRate; // VND to USD
-    } else if (selectedCurrency == Currency.USD && currency == Currency.VND) {
-      newBalance = currentBalance * exchangeRate; // USD to VND
-    }
+    final newBalance = CurrencyUtils.convertCurrency(currentBalance, selectedCurrency, currency);
 
-    // Cập nhật loại tiền tệ và số dư mới
     selectedCurrency = currency;
     initialBalanceController.text = NumberFormat('#,###', 'vi_VN').format(newBalance);
 

@@ -7,7 +7,8 @@ class CategoryService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> addDefaultCategories(String userId) async {
-    final userCategories = await _firestore.collection('categories')
+    final userCategories = await _firestore
+        .collection('categories')
         .where('userId', isEqualTo: userId)
         .get();
 
@@ -23,7 +24,10 @@ class CategoryService {
           createdAt: DateTime.now(),
         );
 
-        await _firestore.collection('categories').doc(newCategory.categoryId).set(newCategory.toMap());
+        await _firestore
+            .collection('categories')
+            .doc(newCategory.categoryId)
+            .set(newCategory.toMap());
       }
     }
   }
@@ -35,7 +39,7 @@ class CategoryService {
           .collection('categories')
           .where('userId', isEqualTo: userId)
           .where('isDefault', isEqualTo: true)
-          .limit(1)  // Limit the query to check for at least one result
+          .limit(1) // Limit the query to check for at least one result
           .get();
 
       // If no fixed categories exist, add them
@@ -60,17 +64,37 @@ class CategoryService {
       }
     } catch (e) {
       print("Error adding fixed categories: $e");
-      throw e;  // Rethrow the error to handle it further up the call stack if needed
+      throw e;
     }
   }
 
-
-  Future<void> createCategory(Category category) async {
+  Future<Category?> getCategoryById(String categoryId) async {
     try {
-      DocumentReference docRef = await _firestore.collection('categories').add(category.toMap());
-      await docRef.update({'categoryId': docRef.id});
+      DocumentSnapshot docSnapshot =
+          await _firestore.collection('categories').doc(categoryId).get();
+      if (docSnapshot.exists) {
+        return Category.fromMap(docSnapshot.data() as Map<String, dynamic>);
+      }
     } catch (e) {
-      print("Error creating category: $e");
+      print("Error getting category by id: $e");
+      throw e;
+    }
+    return null;
+  }
+
+  Future<List<Category>> getAllCategories(String userId) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('categories')
+          .where('userId', isEqualTo: userId)
+          .orderBy('createdAt', descending: false)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => Category.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print("Error getting all categories: $e");
       throw e;
     }
   }
@@ -84,7 +108,28 @@ class CategoryService {
           .orderBy('createdAt', descending: false)
           .get();
 
-      return querySnapshot.docs.map((doc) => Category.fromMap(doc.data() as Map<String, dynamic>)).toList();
+      return querySnapshot.docs
+          .map((doc) => Category.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print("Error getting income categories: $e");
+      throw e;
+    }
+  }
+
+  Future<List<Category>> getIncomeCategoryFrequent(String userId) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('categories')
+          .where('userId', isEqualTo: userId)
+          .where('type', isEqualTo: TransactionType.income.index)
+          .orderBy('createdAt', descending: false)
+          .limit(6)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => Category.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       print("Error getting income categories: $e");
       throw e;
@@ -100,9 +145,41 @@ class CategoryService {
           .orderBy('createdAt', descending: false)
           .get();
 
-      return querySnapshot.docs.map((doc) => Category.fromMap(doc.data() as Map<String, dynamic>)).toList();
+      return querySnapshot.docs
+          .map((doc) => Category.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       print("Error getting expense categories: $e");
+      throw e;
+    }
+  }
+
+  Future<List<Category>> getExpenseCategoryFrequent(String userId) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('categories')
+          .where('userId', isEqualTo: userId)
+          .where('type', isEqualTo: TransactionType.expense.index)
+          .orderBy('createdAt', descending: false)
+          .limit(6)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => Category.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print("Error getting income categories: $e");
+      throw e;
+    }
+  }
+
+  Future<void> createCategory(Category category) async {
+    try {
+      DocumentReference docRef =
+          await _firestore.collection('categories').add(category.toMap());
+      await docRef.update({'categoryId': docRef.id});
+    } catch (e) {
+      print("Error creating category: $e");
       throw e;
     }
   }
@@ -121,16 +198,10 @@ class CategoryService {
 
   Future<void> deleteCategory(String categoryId) async {
     try {
-      await _firestore
-          .collection('categories')
-          .doc(categoryId)
-          .delete();
+      await _firestore.collection('categories').doc(categoryId).delete();
     } catch (e) {
       print("Error deleting category: $e");
       throw e;
     }
   }
 }
-
-
-

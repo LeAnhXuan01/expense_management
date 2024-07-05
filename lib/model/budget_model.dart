@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'enum.dart';
 
 class Budget {
@@ -5,11 +6,12 @@ class Budget {
   String userId;
   double amount;
   String name;
-  String categoryId;
-  String walletId;
+  List<String> categoryId;
+  List<String> walletId;
   RepeatBudget repeat;
-  String startDate;
-  String endDate;
+  DateTime startDate;
+  DateTime endDate;
+  DateTime createdAt;
 
   Budget({
     required this.budgetId,
@@ -21,6 +23,7 @@ class Budget {
     required this.repeat,
     required this.startDate,
     required this.endDate,
+    required this.createdAt,
   });
 
   Map<String, dynamic> toMap() {
@@ -32,8 +35,9 @@ class Budget {
       'categoryId': categoryId,
       'walletId': walletId,
       'repeat': repeat.index,
-      'startDate': startDate,
-      'endDate': endDate,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      'createdAt': createdAt,
     };
   }
 
@@ -43,11 +47,12 @@ class Budget {
       userId: map['userId'],
       amount: map['amount'],
       name: map['name'],
-      categoryId: map['categoryId'],
-      walletId: map['walletId'],
+      categoryId: List<String>.from(map['categoryId']),
+      walletId: List<String>.from(map['walletId']),
       repeat: RepeatBudget.values[map['repeat']],
-      startDate: map['startDate'],
-      endDate: map['endDate'],
+      startDate: DateTime.parse(map['startDate']),
+      endDate: DateTime.parse(map['endDate']),
+      createdAt: (map['createdAt'] as Timestamp).toDate(),
     );
   }
 }

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../view/home_screen.dart';
 import '../view/statistics/statistics_screen.dart';
-import '../view/transaction/add_transaction_screen.dart';
-import '../view/transaction/transaction_history/transaction_history_screen.dart';
+import '../view/transaction/create_transaction_screen.dart';
+import '../view/transaction/transaction_history_screen.dart';
 import '../view/user/profile_screen.dart';
 
 class BottomNavigation extends StatefulWidget {
@@ -16,8 +16,8 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   final List<Widget> _screens = [
     HomeScreen(),
-    TransactionHistoryScreen(transactions: []),
-    AddTransactionScreen(),
+    TransactionHistoryScreen(),
+    CreateTransactionScreen(),
     StatisticsScreen(),
     ProfileScreen(),
   ];

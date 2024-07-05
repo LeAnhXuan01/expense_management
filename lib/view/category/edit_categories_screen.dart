@@ -7,6 +7,7 @@ import '../../view_model/category/edit_category_view_model.dart';
 import '../../widget/custom_ElevatedButton_2.dart';
 import '../../widget/custom_header_1.dart';
 import '../../model/category_model.dart';
+import '../../widget/custom_snackbar_1.dart';
 
 class EditCategoriesScreen extends StatefulWidget {
   final Category category;
@@ -20,13 +21,13 @@ class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    Provider.of<EditCategoriesViewModel>(context, listen: false).initializeFields(widget.category);
+    Provider.of<EditCategoryViewModel>(context, listen: false).initializeFields(widget.category);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<EditCategoriesViewModel>(
+      body: Consumer<EditCategoryViewModel>(
           builder: (context, viewModel, child) {
             return Column(
               children: [
@@ -37,11 +38,10 @@ class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
                     onPressed: viewModel.enableButton ? () async {
                       final updatedCategory = await viewModel.updateCategory(widget.category.categoryId, widget.category.createdAt);
                       if (updatedCategory != null) {
-                        CustomSnackBar_2.show(context, 'Danh mục đã được cập nhật thành công');
-                        await Future.delayed(Duration(seconds: 2));
+                        await CustomSnackBar_2.show(context, 'Cập nhật thành công');
                         Navigator.pop(context, updatedCategory);
                       } else {
-                        CustomSnackBar_2.show(context, 'Có lỗi xảy ra khi cập nhật danh mục');
+                        CustomSnackBar_1.show(context, 'Có lỗi xảy ra khi cập nhật danh mục');
                       }
                     } : null,
                   ),
@@ -235,11 +235,10 @@ class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
                             onPressed: viewModel.enableButton ? () async {
                               final updatedCategory = await viewModel.updateCategory(widget.category.categoryId, widget.category.createdAt);
                               if (updatedCategory != null) {
-                                CustomSnackBar_2.show(context, 'Danh mục đã được cập nhật thành công');
-                                await Future.delayed(Duration(seconds: 2));
+                                await CustomSnackBar_2.show(context, 'Cập nhật thành công');
                                 Navigator.pop(context, updatedCategory);
                               } else {
-                                CustomSnackBar_2.show(context, 'Có lỗi xảy ra khi cập nhật danh mục');
+                                CustomSnackBar_1.show(context, 'Có lỗi xảy ra khi cập nhật danh mục');
                               }
                             } : null,
                           ),

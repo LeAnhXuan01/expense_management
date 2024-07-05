@@ -36,7 +36,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
   void _sendEmailVerification(RegisterViewModel viewModel) async {
     if (_hasRecentlySentVerification) {
-      CustomSnackBar_2.show(context, 'Vui lòng thử lại sau ít phút.');
+      CustomSnackBar_2.show(context, 'Vui lòng thử lại sau ít phút');
       return;
     }
 
@@ -53,7 +53,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
           _countdown = 60;
         });
 
-        CustomSnackBar_2.show(context, 'Email xác thực đã được gửi lại. Vui lòng kiểm tra hộp thư của bạn.');
+        CustomSnackBar_2.show(context, 'Email xác thực đã được gửi lại');
         _startCountdown();
       }
     } catch (e) {
@@ -128,8 +128,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                             if (user.emailVerified) {
                               await viewModel.monitorEmailVerification(
                                   user, viewModel.passwordController.text);
-                              CustomSnackBar_2.show(context, 'Đăng ký thành công');
-                              await Future.delayed(Duration(seconds: 2));
+                              await CustomSnackBar_2.show(context, 'Đăng ký thành công');
                               Navigator.pushReplacementNamed(context, '/login');
                             } else {
                               CustomSnackBar_1.show(context, 'Email chưa được xác thực. Vui lòng kiểm tra lại.');

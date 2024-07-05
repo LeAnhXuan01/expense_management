@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../services/auth_service.dart';
 import '../../widget/custom_snackbar_1.dart';
 
 class LoginViewModel extends ChangeNotifier {
+  final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -50,12 +52,7 @@ class LoginViewModel extends ChangeNotifier {
     final password = passwordController.text.trim();
 
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      User? user = userCredential.user;
+      User? user = await _authService.signInWithEmailAndPassword(email, password);
       if (user != null) {
         await user.reload(); // Reload user để cập nhật trạng thái email đã xác thực hay chưa
         if (user.emailVerified) {

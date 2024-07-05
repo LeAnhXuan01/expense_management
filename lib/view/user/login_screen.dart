@@ -13,12 +13,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Provider.of<LoginViewModel>(context, listen: false).resetFields();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<LoginViewModel>(builder: (context, viewModel, child) {
@@ -84,6 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: viewModel.enableButton ? () async {
                           if (await viewModel.login(context)) {
                             Navigator.pushReplacementNamed(context, '/bottom-navigator');
+                            viewModel.resetFields();
                           }
                         } : null,
                       ),
@@ -92,6 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: GestureDetector(
                           onTap: () {
                             Navigator.pushNamed(context, '/forgot-pass');
+                            viewModel.resetFields();
                           },
                           child: const Text(
                             'Quên mật khẩu?',

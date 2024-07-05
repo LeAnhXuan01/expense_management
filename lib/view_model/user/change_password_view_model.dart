@@ -2,7 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../services/auth_service.dart';
+
 class ChangePasswordViewModel extends ChangeNotifier {
+  final AuthService _authService = AuthService();
   final TextEditingController currentPasswordController = TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
@@ -110,8 +113,8 @@ class ChangePasswordViewModel extends ChangeNotifier {
   }
 
   Future<bool> changePassword(BuildContext context) async {
-    final currentPassword = currentPasswordController.text;
-    final newPassword = newPasswordController.text;
+    final currentPassword = currentPasswordController.text.trim();
+    final newPassword = newPasswordController.text.trim();
 
     final isCurrentPasswordValid = !hasCurrentPassword;
     final isNewPasswordValid = !hasNewPassword;
@@ -126,13 +129,9 @@ class ChangePasswordViewModel extends ChangeNotifier {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         // Xác thực mật khẩu hiện tại
-        AuthCredential credential = EmailAuthProvider.credential(
-          email: user.email!,
-          password: currentPassword,
-        );
-        await user.reauthenticateWithCredential(credential);
+        await _authService.reauthenticateUser(user, currentPassword);
         // Cập nhật mật khẩu mới
-        await user.updatePassword(newPassword);
+        await _authService.updateUserPassword(user, newPassword);
         // Cập nhật mật khẩu mới vào Firestore
         await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
           'password': newPassword,

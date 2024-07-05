@@ -1,4 +1,4 @@
-import 'package:expense_management/view/transfer/wallet_selection_dialog.dart';
+import 'package:expense_management/widget/wallet_selection_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -57,7 +57,7 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                           },
                           child: InputDecorator(
                             decoration: InputDecoration(
-                              labelText: 'Chọn tài khoản nguồn',
+                              labelText: 'Chọn ví nguồn',
                             ),
                             child: viewModel.selectedFromWallet != null
                                 ? Row(
@@ -81,7 +81,7 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                                 Text(viewModel.selectedFromWallet!.name),
                               ],
                             )
-                                : Text('Chọn tài khoản'),
+                                : Text('Chọn ví'),
                           ),
                         ),
                         SizedBox(height: 20),
@@ -105,7 +105,7 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                           },
                           child: InputDecorator(
                             decoration: InputDecoration(
-                              labelText: 'Chọn tài khoản đích',
+                              labelText: 'Chọn ví đích',
                             ),
                             child: viewModel.selectedToWallet != null
                                 ? Row(
@@ -129,7 +129,7 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                                 Text(viewModel.selectedToWallet!.name),
                               ],
                             )
-                                : Text('Chọn tài khoản'),
+                                : Text('Chọn ví'),
                           ),
                         ),
                         SizedBox(height: 20),
@@ -186,11 +186,9 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                                 },
                                 decoration: InputDecoration(
                                   labelText: 'Ngày',
-                                  suffixIcon: Icon(Icons.calendar_today),
                                 ),
                               ),
                             ),
-                            SizedBox(width: 20),
                             Flexible(
                               flex: 1,
                               child: TextFormField(
@@ -209,7 +207,6 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                                 },
                                 decoration: InputDecoration(
                                   labelText: 'Giờ',
-                                  suffixIcon: Icon(Icons.access_time),
                                 ),
                               ),
                             ),
@@ -227,18 +224,16 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                         CustomElevatedButton_2(
                           onPressed: viewModel.enableButton
                               ? () async {
-                            final walletViewModel = Provider.of<WalletViewModel>(context, listen: false);
                             final updatedTransfer =
-                            await viewModel.updateTransfer(context, widget.transfer.transferId, walletViewModel);
+                            await viewModel.updateTransfer(context, widget.transfer.transferId);
                             if (updatedTransfer != null) {
-                              CustomSnackBar_2.show(
-                                  context, 'Chuyển khoản được cập nhật thành công');
-                              await Future.delayed(Duration(seconds: 2));
+                              await CustomSnackBar_2.show(
+                                  context, 'Cập nhật thành công');
                               Navigator.pop(context, updatedTransfer);
                             }
                           }
                               : null,
-                          text: 'Lưu thay đổi',
+                          text: 'Lưu chyển khoản',
                         ),
                       ],
                     );

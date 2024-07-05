@@ -1,5 +1,5 @@
-import 'package:expense_management/model/wallet_model.dart';
 import 'package:expense_management/widget/custom_header_1.dart';
+import 'package:expense_management/widget/custom_snackbar_1.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,7 +8,6 @@ import '../../model/enum.dart';
 import '../../utils/color_list.dart';
 import '../../utils/icon_list.dart';
 import '../../view_model/wallet/create_wallet_view_model.dart';
-import '../../view_model/wallet/wallet_view_model.dart';
 import '../../widget/custom_ElevatedButton_2.dart';
 import '../../widget/custom_snackbar_2.dart';
 
@@ -33,14 +32,10 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                       ? () async {
                           final newWallet = await viewModel.createWallet();
                           if (newWallet != null) {
-                            CustomSnackBar_2.show(
-                                context, 'Ví đã được tạo thành công');
-                            await Future.delayed(Duration(seconds: 2));
+                            await CustomSnackBar_2.show(
+                                context, 'Tạo thành công');
                             Navigator.pop(context, newWallet);
                             viewModel.resetFields();
-                          } else {
-                            CustomSnackBar_2.show(
-                                context, 'Có lỗi xảy ra khi tạo ví');
                           }
                         }
                       : null,
@@ -151,7 +146,9 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                                   );
                                 }).toList(),
                                 onChanged: (newValue) {
-                                  viewModel.setSelectedCurrency(newValue!);
+                                  if (newValue != null) {
+                                    viewModel.setSelectedCurrency(newValue);
+                                  }
                                 },
                                 decoration: InputDecoration(
                                     labelText: 'Đơn vị tiền tệ'
@@ -312,14 +309,10 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                                   final newWallet =
                                       await viewModel.createWallet();
                                   if (newWallet != null) {
-                                    CustomSnackBar_2.show(
-                                        context, 'Ví đã được tạo thành công');
-                                    await Future.delayed(Duration(seconds: 2));
+                                    await CustomSnackBar_2.show(
+                                        context, 'Tạo thành công');
                                     Navigator.pop(context, newWallet);
                                     viewModel.resetFields();
-                                  } else {
-                                    CustomSnackBar_2.show(
-                                        context, 'Có lỗi xảy ra khi tạo ví');
                                   }
                                 }
                               : null,

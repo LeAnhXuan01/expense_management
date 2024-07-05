@@ -1,11 +1,10 @@
 import 'dart:io';
-
+import 'package:expense_management/view/wallet/wallets_screen.dart';
 import 'package:expense_management/view_model/user/edit_profile_view_model.dart';
 import 'package:expense_management/view_model/wallet/wallet_view_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../utils/utils.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,20 +18,22 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isBalanceVisible = true;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    late WalletViewModel walletViewModel = Provider.of<WalletViewModel>(context);
-    walletViewModel.loadWallets(); // Tải lại ví khi màn hình được hiển thị
-    final profileViewModel = Provider.of<EditProfileViewModel>(context);
-    profileViewModel.loadProfile();
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final walletViewModel = Provider.of<WalletViewModel>(context, listen: false);
+      walletViewModel.loadWallets(); // Tải lại ví khi màn hình được hiển thị
+      final profileViewModel = Provider.of<EditProfileViewModel>(context, listen: false);
+      profileViewModel.loadProfile();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    print('build called');
     return Scaffold(
+      backgroundColor: Colors.grey[300],
       body: _buildBody(),
-
-
     );
   }
   Widget _buildBody() {
@@ -164,28 +165,39 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           _buildUtilityCard(
             icon: Icons.receipt,
-            title: 'Quản lý hóa đơn',
+            color: Colors.grey,
+            title: 'Hóa đơn',
             onTap: () {
               Navigator.pushNamed(context, '/bill-list');
             },
           ),
           _buildUtilityCard(
             icon: Icons.category,
-            title: 'Quản lý danh mục',
+            color: Colors.green,
+            title: 'Danh mục',
             onTap: () {
               Navigator.pushNamed(context, '/category-list');
             },
           ),
           _buildUtilityCard(
             icon: Icons.wallet,
-            title: 'Quản lý ví tiền',
+            color: Colors.yellow,
+            title: 'Ví tiền',
+            // onTap: () {
+            //   Navigator.pushNamed(context, '/wallets');
+            // },
             onTap: () {
-              Navigator.pushNamed(context, '/wallets');
+              Navigator.push(context, MaterialPageRoute(builder: (context) => WalletScreen())).then((_) {
+                // Cập nhật ví khi quay lại từ màn hình lịch sử chuyển khoản
+                final walletViewModel = Provider.of<WalletViewModel>(context, listen: false);
+                walletViewModel.loadWallets();
+              });
             },
           ),
           _buildUtilityCard(
             icon: Icons.account_balance_wallet,
-            title: 'Lập hạn mức chi tiêu',
+            color: Colors.blue,
+            title: 'Lập hạn mức',
             onTap: () {
               Navigator.pushNamed(context, '/budget-list');
             },
@@ -195,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildUtilityCard({required IconData icon, required String title, required VoidCallback onTap}) {
+  Widget _buildUtilityCard({required IconData icon, required Color color,required String title, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -204,12 +216,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         elevation: 4,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 50, color: Colors.green),
-              SizedBox(height: 10),
+              Icon(icon, size: 60, color: color),
+              SizedBox(height: 5),
               Text(
                 title,
                 textAlign: TextAlign.center,

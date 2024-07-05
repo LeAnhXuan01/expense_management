@@ -2,9 +2,8 @@ import 'package:expense_management/view_model/wallet/wallet_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_management/model/wallet_model.dart';
 import 'package:provider/provider.dart';
-
-import '../../model/enum.dart';
-import '../../utils/utils.dart';
+import '../model/enum.dart';
+import '../utils/utils.dart';
 
 class WalletSelectionDialog extends StatelessWidget {
   final List<Wallet> wallets;
@@ -20,8 +19,8 @@ class WalletSelectionDialog extends StatelessWidget {
         builder: (context, viewModel, child){
           return Dialog(
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.8, // Set width to 80% of screen width
-              height: MediaQuery.of(context).size.height * 0.6, // Set height to 60% of screen height
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.6,
               child: Column(
                 children: [
                   Padding(
@@ -51,7 +50,7 @@ class WalletSelectionDialog extends StatelessWidget {
                             ),
                             title: Text(wallet.name),
                             subtitle: Text(
-                              '${formatInitialBalance(wallet.initialBalance, wallet.currency)} ${wallet.currency == Currency.VND ? 'VND' : 'USD'}',
+                              '${formatAmount(wallet.initialBalance, wallet.currency)} ${wallet.currency == Currency.VND ? '₫' : '\$'}',
                             ),
                             onTap: () {
                               onSelect(wallet);

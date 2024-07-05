@@ -6,14 +6,21 @@ import 'package:expense_management/model/wallet_model.dart';
 import 'package:expense_management/services/transfer_service.dart';
 import 'package:expense_management/services/wallet_service.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../model/enum.dart';
+import '../../services/wallet_service.dart';
 import '../../utils/utils.dart';
 import 'package:collection/collection.dart';
-
+import '../../utils/wallet_utils.dart';
+import '../../utils/wallet_utils.dart';
+import '../../utils/wallet_utils.dart';
 import '../wallet/wallet_view_model.dart';
+
 class EditTransferViewModel extends ChangeNotifier {
   final TransferService _transferService = TransferService();
   final WalletService _walletService = WalletService();
+  final TransferHelper _transferHelper = TransferHelper();
+
   final TextEditingController amountController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
@@ -27,76 +34,39 @@ class EditTransferViewModel extends ChangeNotifier {
   bool enableButton = false;
 
   EditTransferViewModel() {
-    amountController.addListener(_formatAmount);
+    amountController.addListener(formatAmount);
   }
 
-  void initialize(Transfer transfer){
+  void initialize(Transfer transfer) {
     loadWallets(transfer);
     amountController.text = transfer.amount.toStringAsFixed(0);
-    _formatAmount();
+    formatAmount();
     selectedDate = transfer.date;
-    selectedHour = TimeOfDay(hour: transfer.hour.hour, minute: transfer.hour.minute);
-    _updateDateController();
-    _updateHourController();
+    selectedHour =
+        TimeOfDay(hour: transfer.hour.hour, minute: transfer.hour.minute);
     noteController.text = transfer.note;
+    updateDateController();
+    updateHourController();
     updateButtonState();
   }
-
 
   Future<void> loadWallets(Transfer transfer) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
         wallets = await _walletService.getWallets(user.uid);
-        selectedFromWallet = wallets.firstWhereOrNull((wallet) => wallet.walletId == transfer.fromWallet);
-        selectedToWallet = wallets.firstWhereOrNull((wallet) => wallet.walletId == transfer.toWallet);
+        selectedFromWallet = wallets.firstWhereOrNull(
+            (wallet) => wallet.walletId == transfer.fromWallet);
+        selectedToWallet = wallets
+            .firstWhereOrNull((wallet) => wallet.walletId == transfer.toWallet);
         notifyListeners();
       } catch (e) {
-        print("Error loading wallets: $e");
+        print("Error loading wallet: $e");
       }
     }
   }
 
-  void setSelectedFromWallet(Wallet? wallet) {
-    selectedFromWallet = wallet;
-    updateButtonState();
-  }
-
-  void setSelectedToWallet(Wallet? wallet) {
-    selectedToWallet = wallet;
-    updateButtonState();
-  }
-
-  void setSelectedDate(DateTime value) {
-    selectedDate = value;
-    _updateDateController();
-    updateButtonState();
-    notifyListeners();
-  }
-
-  void setSelectedHour(TimeOfDay value) {
-    selectedHour = value;
-    _updateHourController();
-    updateButtonState();
-    notifyListeners();
-  }
-
-  void _updateDateController() {
-    dateController.text = formatDate(selectedDate);
-  }
-
-  void _updateHourController() {
-    hourController.text = formatHour(selectedHour);
-  }
-
-  void updateButtonState() {
-    enableButton = selectedFromWallet != null &&
-        selectedToWallet != null &&
-        amountController.text.isNotEmpty;
-    notifyListeners();
-  }
-
-  void _formatAmount() {
+  void formatAmount() {
     final text = amountController.text;
     if (text.isEmpty) return;
 
@@ -113,27 +83,59 @@ class EditTransferViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Transfer?> updateTransfer(BuildContext context, String transferId, WalletViewModel walletViewModel) async {
+  void updateButtonState() {
+    enableButton = selectedFromWallet != null &&
+        selectedToWallet != null &&
+        amountController.text.isNotEmpty;
+    notifyListeners();
+  }
+
+  void setSelectedFromWallet(Wallet? wallet) {
+    selectedFromWallet = wallet;
+    updateButtonState();
+  }
+
+  void setSelectedToWallet(Wallet? wallet) {
+    selectedToWallet = wallet;
+    updateButtonState();
+  }
+
+  void setSelectedDate(DateTime value) {
+    selectedDate = value;
+    updateDateController();
+    updateButtonState();
+    notifyListeners();
+  }
+
+  void setSelectedHour(TimeOfDay value) {
+    selectedHour = value;
+    updateHourController();
+    updateButtonState();
+    notifyListeners();
+  }
+
+  void updateDateController() {
+    dateController.text = formatDate(selectedDate);
+  }
+
+  void updateHourController() {
+    hourController.text = formatHour(selectedHour);
+  }
+
+  Future<Transfer?> updateTransfer(
+      BuildContext context, String transferId) async {
     if (selectedFromWallet == selectedToWallet) {
       CustomSnackBar_1.show(context, 'Không thể chuyển khoản cùng ví');
       return null;
     }
+
     final user = FirebaseAuth.instance.currentUser;
-    if(user != null){
-      // Lấy danh sách các giao dịch của người dùng
-      List<Transfer> transfers = await _transferService.getTransfers(user.uid);
+    if (user != null) {
+      try {
+        final cleanedAmount = amountController.text.replaceAll('.', '');
+        final amount = double.parse(cleanedAmount);
 
-      // Tìm giao dịch cũ theo transferId
-      final oldTransfer = transfers.firstWhereOrNull((transfer) => transfer.transferId == transferId);
-
-      if (oldTransfer == null) {
-        CustomSnackBar_1.show(context, 'Không tìm thấy giao dịch chuyển khoản');
-        return null;
-      }
-
-      final cleanedAmount = amountController.text.replaceAll('.', '');
-      final amount = double.parse(cleanedAmount);
-      final updateTransfer = Transfer(
+        final updateTransfer = Transfer(
           transferId: transferId,
           userId: user.uid,
           fromWallet: selectedFromWallet!.walletId,
@@ -143,58 +145,37 @@ class EditTransferViewModel extends ChangeNotifier {
           date: selectedDate,
           hour: TimeOfDay(hour: selectedHour.hour, minute: selectedHour.minute),
           note: noteController.text,
-      );
+        );
 
-      // Lấy ví cũ
-      Wallet? oldFromWallet = wallets.firstWhereOrNull((wallet) => wallet.walletId == oldTransfer.fromWallet);
-      Wallet? oldToWallet = wallets.firstWhereOrNull((wallet) => wallet.walletId == oldTransfer.toWallet);
-
-      try {
-        // Hoàn lại số tiền cho ví nguồn cũ
-        if (oldFromWallet != null) {
-          if (oldFromWallet.currency == Currency.USD) {
-            oldFromWallet.initialBalance += oldTransfer.amount / 25442.5;
-          } else {
-            oldFromWallet.initialBalance += oldTransfer.amount;
-          }
-          await _walletService.updateWallet(oldFromWallet);
+        // Lấy giao dịch cũ
+        final oldTransfer = await _transferService.getTransferById(transferId);
+        if (oldTransfer == null) {
+          print('Transfer not found');
+          return null;
         }
 
-        // Trừ số tiền từ ví đích cũ
-        if (oldToWallet != null) {
-          if (oldToWallet.currency == Currency.USD) {
-            oldToWallet.initialBalance -= oldTransfer.amount / 25442.5;
-          } else {
-            oldToWallet.initialBalance -= oldTransfer.amount;
-          }
-          await _walletService.updateWallet(oldToWallet);
+        final transferHelper = TransferHelper();
+
+        // Kiểm tra số dư ví nguồn cho giao dịch mới
+        final isBalanceSufficient = await transferHelper.checkBalance(
+            updateTransfer.fromWallet,
+            updateTransfer.amount,
+            updateTransfer.currency);
+        if (!isBalanceSufficient) {
+          CustomSnackBar_1.show(context, 'Số dư ví nguồn không đủ');
+          return null;
         }
 
-        // Trừ số tiền từ ví nguồn mới
-        if (selectedFromWallet!.currency == Currency.USD) {
-          selectedFromWallet!.initialBalance -= amount / 25442.5;
-        } else {
-          selectedFromWallet!.initialBalance -= amount;
-        }
-        await _walletService.updateWallet(selectedFromWallet!);
+        // Cập nhật số dư của các ví dựa trên giao dịch cũ và mới
+        await transferHelper.updateWalletsForTransfer(updateTransfer,
+            oldTransfer: oldTransfer);
 
-        // Cộng số tiền vào ví đích mới
-        if (selectedToWallet!.currency == Currency.USD) {
-          selectedToWallet!.initialBalance += amount / 25442.5;
-        } else {
-          selectedToWallet!.initialBalance += amount;
-        }
-        await _walletService.updateWallet(selectedToWallet!);
-
-        // Cập nhật giao dịch
+        // Cập nhật giao dịch chuyển khoản
         await _transferService.updateTransfer(updateTransfer);
 
-        // Load lại danh sách ví và thông báo thay đổi
-        await walletViewModel.loadWallets();
         return updateTransfer;
       } catch (e) {
         print('Error updating transfer: $e');
-        // Show snackbar or alert that update failed
         return null;
       }
     }

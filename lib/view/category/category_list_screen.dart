@@ -1,15 +1,15 @@
-import 'package:expense_management/widget/custom_header_3.dart';
+import 'package:expense_management/widget/custom_header_4.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-
 import '../../model/category_model.dart';
 import '../../model/enum.dart';
 import '../../utils/utils.dart';
 import '../../view_model/category/category_list_view_model.dart';
-import '../../widget/custom_header_1.dart';
-import 'creat_categories_screen.dart';
-import 'edit_categories.dart';
+import '../../widget/custom_header_6.dart';
+import '../../widget/custom_snackbar_2.dart';
+import 'create_categories_screen.dart';
+import 'edit_categories_screen.dart';
 
 class CategoryListScreen extends StatefulWidget {
   final int selectedTabIndex;
@@ -26,32 +26,14 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedTabIndex = widget.selectedTabIndex; // Gán selectedTabIndex từ đối số của màn hình
+    _selectedTabIndex =
+        widget.selectedTabIndex; // Gán selectedTabIndex từ đối số của màn hình
   }
 
-  void _onTabSelected(int index) {
+  void _onTitleChanged(String? title) {
     setState(() {
-      _selectedTabIndex = index;
+      _selectedTabIndex = (title == 'Thu nhập') ? 0 : 1;
     });
-  }
-
-  Widget _buildTab(String label, int index, Color selectedColor, Color defaultColor) {
-    bool isSelected = _selectedTabIndex == index;
-    return TextButton(
-      onPressed: () => _onTabSelected(index),
-      style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all<Color>(isSelected ? selectedColor : defaultColor),
-        overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
-        textStyle: MaterialStateProperty.all<TextStyle>(
-          TextStyle(
-            decoration: isSelected ? TextDecoration.underline : TextDecoration.none,
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-      child: Text(label),
-    );
   }
 
   @override
@@ -63,18 +45,25 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
           return Scaffold(
             body: Column(
               children: [
-                CustomHeader_3(
-                  title: 'Quản lý danh mục.',
-                  action: GestureDetector(
-                    onTap: () {
+                CustomHeader_6(
+                  title: _selectedTabIndex == 0 ? 'Thu nhập' : 'Chi tiêu',
+                  onTitleChanged: _onTitleChanged,
+                  leftAction: IconButton(
+                    icon: Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  rightAction: IconButton(
+                    icon: Icon(
+                      Icons.search,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
                       setState(() {
                         viewModel.isSearching = true;
                       });
                     },
-                    child: Icon(
-                      FontAwesomeIcons.magnifyingGlass,
-                      color: Colors.white,
-                    ),
                   ),
                   isSearching: viewModel.isSearching,
                   onSearchChanged: (query) {
@@ -86,23 +75,16 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                   onSearchClose: () {
                     setState(() {
                       viewModel.isSearching = false;
-                      viewModel.searchQuery = '';
-                      viewModel.searchController.clear();
-                      viewModel.filterCategories('');
+                      viewModel.clearSearch();
                     });
                   },
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildTab('Thu nhập', 0, Colors.green, Colors.grey),
-                    _buildTab('Chi tiêu', 1, Colors.red, Colors.grey),
-                  ],
-                ),
                 Expanded(
                   child: _selectedTabIndex == 0
-                      ? _buildCategoryList(viewModel.incomeCategories, viewModel)
-                      : _buildCategoryList(viewModel.expenseCategories, viewModel),
+                      ? _buildCategoryList(
+                          viewModel.incomeCategories, viewModel)
+                      : _buildCategoryList(
+                          viewModel.expenseCategories, viewModel),
                 ),
               ],
             ),
@@ -114,7 +96,8 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                 final newCategory = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CreatCategoriesScreen(initialSelectedValue: initialSelectedValue),
+                    builder: (context) => CreateCategoriesScreen(
+                        initialSelectedValue: initialSelectedValue),
                   ),
                 );
 
@@ -122,13 +105,13 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                 if (newCategory != null && newCategory is Category) {
                   await viewModel.loadCategories();
                   setState(() {
-                    _selectedTabIndex = newCategory.type == TransactionType.income ? 0 : 1;
+                    _selectedTabIndex =
+                        newCategory.type == TransactionType.income ? 0 : 1;
                   });
                 }
               },
               child: Icon(Icons.add, color: Colors.white),
             ),
-
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           );
         },
@@ -136,7 +119,8 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
     );
   }
 
-  Widget _buildCategoryList(List<Category> categories, CategoryListViewModel viewModel) {
+  Widget _buildCategoryList(
+      List<Category> categories, CategoryListViewModel viewModel) {
     if (viewModel.isSearching && categories.isEmpty) {
       return Center(
         child: Text(
@@ -158,19 +142,20 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
         final category = categories[index];
         return GestureDetector(
           onTap: () {
-            if(category.isDefault){
+            if (category.isDefault) {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: Text('Thông báo'),
                     content: Text(
-                        'Đây là danh mục không thể chỉnh sửa hoặc xóa',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 18)
-                            ),
+                      'Đây là danh mục không thể chỉnh sửa hoặc xóa',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 18,
+                      ),
+                    ),
                     actions: [
                       TextButton(
                         onPressed: () {
@@ -182,7 +167,7 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                   );
                 },
               );
-            }else{
+            } else {
               _showOptionsDialog(context, category, viewModel);
             }
           },
@@ -205,6 +190,8 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
               const SizedBox(height: 3),
               Text(
                 category.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14),
               ),
@@ -214,7 +201,9 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
       },
     );
   }
-  void _showOptionsDialog(BuildContext context, Category category, CategoryListViewModel viewModel) {
+
+  void _showOptionsDialog(BuildContext context, Category category,
+      CategoryListViewModel viewModel) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -230,24 +219,26 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                       color: Colors.green,
                       border: Border.all(color: Colors.grey, width: 2),
                     ),
-
                     child: TextButton(
                       onPressed: () async {
-                        Navigator.pop(context); 
+                        Navigator.pop(context);
                         final updatedCategory = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EditCategoriesScreen(category: category),
+                            builder: (context) =>
+                                EditCategoriesScreen(category: category),
                           ),
                         );
-                        if (updatedCategory != null && updatedCategory is Category) {
+                        if (updatedCategory != null &&
+                            updatedCategory is Category) {
                           await viewModel.loadCategories();
                         }
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Icon(FontAwesomeIcons.penToSquare, color: Colors.white),
+                          Icon(FontAwesomeIcons.penToSquare,
+                              color: Colors.white),
                           Text(
                             'Sửa',
                             style: TextStyle(
@@ -267,17 +258,80 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Colors.red,
-                      border: Border.all(color: Colors.grey ,width: 2),
+                      border: Border.all(color: Colors.grey, width: 2),
                     ),
                     child: TextButton(
-                      onPressed: () {
-                        viewModel.deleteCategory(category.categoryId);
-                        Navigator.pop(context);
+                      onPressed: () async {
+                        final shouldDelete = await showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Chú ý'),
+                              content: RichText(
+                                text: TextSpan(
+                                  text: 'Nếu bạn xóa danh mục này, ',
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 16),
+                                  // Màu đen cho phần văn bản bình thường
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text:
+                                          'tất cả các ghi chép liên quan sẽ bị để trống thông tin danh mục',
+                                      style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 17,
+                                          fontWeight: FontWeight
+                                              .w500), // Màu đỏ cho phần văn bản cảnh báo
+                                    ),
+                                    TextSpan(
+                                      text: '. Bạn có thực sự muốn xóa không?',
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize:
+                                              16), // Màu đen cho phần văn bản bình thường
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  child: Text(
+                                    'Không',
+                                    style: TextStyle(
+                                        color: Colors.red, fontSize: 18),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(false); // Không xóa
+                                  },
+                                ),
+                                TextButton(
+                                  child: Text(
+                                    'Có',
+                                    style: TextStyle(
+                                        color: Colors.blue, fontSize: 18),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(true); // Xác nhận xóa
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+
+                        if (shouldDelete == true) {
+                          viewModel.deleteCategory(category.categoryId);
+                          Navigator.pop(context);
+                          await CustomSnackBar_2.show(
+                              context, 'Danh mục ${category.name} đã xóa');
+                        }
                       },
-                      child:  Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Icon(FontAwesomeIcons.trash, color: Colors.white,),
+                          Icon(FontAwesomeIcons.trash, color: Colors.white),
                           Text(
                             'Xóa',
                             style: TextStyle(

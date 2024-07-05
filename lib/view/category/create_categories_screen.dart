@@ -1,37 +1,34 @@
+import 'package:expense_management/widget/custom_snackbar_1.dart';
 import 'package:expense_management/widget/custom_snackbar_2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import '../../view_model/category/creat_categories_view_model.dart';
+import '../../view_model/category/create_category_view_model.dart';
 import '../../widget/custom_ElevatedButton_2.dart';
 import '../../widget/custom_header_1.dart';
 
-class CreatCategoriesScreen extends StatefulWidget {
+class CreateCategoriesScreen extends StatefulWidget {
   final int initialSelectedValue;
 
-  const CreatCategoriesScreen({super.key, this.initialSelectedValue = 0});
+  const CreateCategoriesScreen({super.key, this.initialSelectedValue = 0});
 
   @override
-  State<CreatCategoriesScreen> createState() => _CreatCategoriesScreenState();
+  State<CreateCategoriesScreen> createState() => _CreateCategoriesScreenState();
 }
 
-class _CreatCategoriesScreenState extends State<CreatCategoriesScreen> {
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Provider.of<CreatCategoriesViewModel>(context, listen: false).resetFields();
-  }
+class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<CreatCategoriesViewModel>(context, listen: false)
+    Provider.of<CreateCategoryViewModel>(context, listen: false)
         .setSelectedValue(widget.initialSelectedValue);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<CreatCategoriesViewModel>(
+      body: Consumer<CreateCategoryViewModel>(
           builder: (context, viewModel, child) {
         return Column(
           children: [
@@ -42,11 +39,11 @@ class _CreatCategoriesScreenState extends State<CreatCategoriesScreen> {
                 onPressed: viewModel.enableButton ? () async {
                   final newCategory = await viewModel.createCategory();
                   if (newCategory != null) {
-                    CustomSnackBar_2.show(context, 'Danh mục đã được tạo thành công');
-                    await Future.delayed(Duration(seconds: 2));
+                    await CustomSnackBar_2.show(context, 'Tạo thành công');
                     Navigator.pop(context, newCategory);
+                    viewModel.resetFields();
                   } else {
-                    CustomSnackBar_2.show(context, 'Có lỗi xảy ra khi tạo danh mục');
+                    CustomSnackBar_1.show(context, 'Có lỗi xảy ra khi tạo danh mục');
                   }
                 } : null,
               ),
@@ -62,8 +59,11 @@ class _CreatCategoriesScreenState extends State<CreatCategoriesScreen> {
                         children: [
                           Padding(
                             padding: EdgeInsets.only(left: 70),
-                            child: TextField(
+                            child: TextFormField(
                               controller: viewModel.nameCategory,
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(30),
+                              ],
                               decoration: InputDecoration(
                                 labelText: 'Tên danh mục',
                               ),
@@ -289,21 +289,19 @@ class _CreatCategoriesScreenState extends State<CreatCategoriesScreen> {
                               },
                             )
                           : SizedBox.shrink(),
-                      SizedBox(height: 30),
                       CustomElevatedButton_2(
                         text: 'Tạo',
                         onPressed: viewModel.enableButton ? () async {
                           final newCategory = await viewModel.createCategory();
                           if (newCategory != null) {
-                            CustomSnackBar_2.show(context, 'Danh mục đã được tạo thành công');
-                            await Future.delayed(Duration(seconds: 2));
+                            await CustomSnackBar_2.show(context, 'Tạo thành công.');
                             Navigator.pop(context, newCategory);
+                            viewModel.resetFields();
                           } else {
-                            CustomSnackBar_2.show(context, 'Có lỗi xảy ra khi tạo danh mục');
+                            CustomSnackBar_1.show(context, 'Có lỗi xảy ra khi tạo danh mục');
                           }
                         } : null,
                       ),
-
                     ],
                   ),
                 ),

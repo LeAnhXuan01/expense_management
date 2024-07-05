@@ -23,7 +23,7 @@ class _ExpenseCategoryScreenState extends State<ExpenseCategoryScreen> {
             body: Column(
               children: [
                 CustomHeader_3(
-                  title: 'Danh mục thu nhập.',
+                  title: 'Danh mục chi tiêu',
                   action: GestureDetector(
                     onTap: () {
                       setState(() {
@@ -31,7 +31,7 @@ class _ExpenseCategoryScreenState extends State<ExpenseCategoryScreen> {
                       });
                     },
                     child: Icon(
-                      FontAwesomeIcons.magnifyingGlass,
+                      Icons.search,
                       color: Colors.white,
                     ),
                   ),
@@ -45,9 +45,7 @@ class _ExpenseCategoryScreenState extends State<ExpenseCategoryScreen> {
                   onSearchClose: () {
                     setState(() {
                       viewModel.isSearching = false;
-                      viewModel.searchQuery = '';
-                      viewModel.searchController.clear();
-                      viewModel.filterCategories('');
+                      viewModel.clearSearch();
                     });
                   },
                 ),
@@ -66,7 +64,7 @@ class _ExpenseCategoryScreenState extends State<ExpenseCategoryScreen> {
                         : viewModel.expenseCategories.isEmpty
                             ? Center(
                                 child: Text(
-                                  'Không có danh mục thu nhập nào.',
+                                  'Không có danh mục chi tiêu nào',
                                   style: TextStyle(
                                       fontSize: 18, color: Colors.grey),
                                 ),
@@ -104,6 +102,8 @@ class _ExpenseCategoryScreenState extends State<ExpenseCategoryScreen> {
                                         const SizedBox(height: 3),
                                         Text(
                                           category.name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(fontSize: 14),
                                         ),

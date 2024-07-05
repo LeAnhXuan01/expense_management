@@ -1,16 +1,15 @@
-import 'package:expense_management/view_model/wallet/wallet_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:expense_management/model/wallet_model.dart';
 import 'package:expense_management/services/wallet_service.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import '../../model/enum.dart';
+import '../../utils/utils.dart';
 
 class CreateWalletViewModel extends ChangeNotifier {
+  final WalletService _walletService = WalletService();
   final TextEditingController walletNameController = TextEditingController();
-  final TextEditingController initialBalanceController =
-      TextEditingController();
+  final TextEditingController initialBalanceController = TextEditingController();
   IconData? selectedIcon;
   Color? selectedColor;
   Currency selectedCurrency = Currency.VND;
@@ -20,36 +19,15 @@ class CreateWalletViewModel extends ChangeNotifier {
   bool showPlusButtonColor = true;
   bool excludeFromTotal = false;
 
-  final WalletService _walletService = WalletService();
-
   bool get isEmptyWalletName => walletNameController.text.isEmpty;
-
   bool get isEmptyInitialBalance => initialBalanceController.text.isEmpty;
-
   bool get isEmptyIcon => selectedIcon == null;
-
   bool get isEmptyColor => selectedColor == null;
 
   CreateWalletViewModel() {
-    initialBalanceController.addListener(_formatInitialBalance);
-  }
-
-  void _formatInitialBalance() {
-    final text = initialBalanceController.text;
-    if (text.isEmpty) return;
-
-    // Remove non-digit characters
-    final cleanedText = text.replaceAll(RegExp(r'[^0-9]'), '');
-
-    // Parse to int and format
-    final number = int.parse(cleanedText);
-    final formatted = NumberFormat('#,###', 'vi_VN').format(number);
-
-    // Update the text controller
-    initialBalanceController.value = TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
+    initialBalanceController.addListener((){
+      formatAmount_3(initialBalanceController);
+    });
   }
 
   void updateButtonState() {
@@ -60,6 +38,21 @@ class CreateWalletViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setSelectedCurrency(Currency currency) {
+    if (selectedCurrency != currency) {
+      final cleanedBalance = initialBalanceController.text.replaceAll(',', '').replaceAll('₫', '').replaceAll('\$', '');
+      final currentBalance = double.tryParse(cleanedBalance) ?? 0;
+
+      final newBalance = CurrencyUtils.convertCurrency(currentBalance, selectedCurrency, currency);
+
+      selectedCurrency = currency;
+      initialBalanceController.text = NumberFormat('#,###', 'vi_VN').format(newBalance);
+
+      notifyListeners();
+    }
+  }
+
+
   void setSelectedIcon(IconData icon) {
     selectedIcon = icon;
     updateButtonState();
@@ -68,11 +61,6 @@ class CreateWalletViewModel extends ChangeNotifier {
   void setSelectedColor(Color color) {
     selectedColor = color;
     updateButtonState();
-  }
-
-  void setSelectedCurrency(Currency currency) {
-    selectedCurrency = currency;
-    notifyListeners();
   }
 
   void toggleShowPlusButtonIcon() {
@@ -95,9 +83,9 @@ class CreateWalletViewModel extends ChangeNotifier {
     if (user != null) {
       final cleanedBalance = initialBalanceController.text.replaceAll('.', '');
       final initialBalance = double.parse(cleanedBalance);
+
       Wallet newWallet = Wallet(
         walletId: '',
-        // Firestore will assign this
         userId: user.uid,
         initialBalance: initialBalance,
         name: walletNameController.text,

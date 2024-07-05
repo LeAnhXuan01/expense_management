@@ -1,5 +1,6 @@
 
 import 'package:expense_management/routes.dart';
+import 'package:expense_management/view/intro/splash_screen.dart';
 import 'package:expense_management/view/user/login_screen.dart';
 import 'package:expense_management/view/user/profile_screen.dart';
 import 'package:expense_management/widget/bottom_navigatorbar.dart';
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routes: routes,
-      home: LoginScreen(),
+      home: SplashScreen(),
     ));
   }
 }

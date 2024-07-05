@@ -22,7 +22,6 @@ final List<IconData> incomeIcons = [
   FontAwesomeIcons.donate,
   FontAwesomeIcons.chartPie,
   FontAwesomeIcons.invision,
-  FontAwesomeIcons.question,
 ];
 
 final List<IconData> expenseIcons = [

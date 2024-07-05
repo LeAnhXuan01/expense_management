@@ -1,13 +1,14 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../model/enum.dart';
 import '../../model/profile_model.dart';
+import '../../services/profile_service.dart';
 
 class EditProfileViewModel extends ChangeNotifier {
+  final ProfileService _profileService = ProfileService();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController jobController = TextEditingController();
@@ -17,7 +18,7 @@ class EditProfileViewModel extends ChangeNotifier {
   String gender = 'Khác';
   String? selectedJob;
   final ImagePicker picker = ImagePicker();
-  PickedFile? imageFile;
+  File? imageFile;
   String? networkImageUrl;
   String _displayName = 'Người dùng';
   String get displayName => _displayName;
@@ -28,11 +29,10 @@ class EditProfileViewModel extends ChangeNotifier {
 
   Future<void> loadProfile() async {
     try {
-      User? user = FirebaseAuth.instance.currentUser;
+      User? user = await _profileService.getCurrentUser();
       if (user != null) {
         String userId = user.uid;
-        DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-        await FirebaseFirestore.instance.collection('profiles').doc(userId).get();
+        DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await _profileService.getProfile(userId);
 
         if (documentSnapshot.exists) {
           Profile profile = Profile.fromMap(documentSnapshot.data()!);
@@ -45,12 +45,12 @@ class EditProfileViewModel extends ChangeNotifier {
           if (profile.profileImageUrl.isNotEmpty) {
             networkImageUrl = profile.profileImageUrl;
           } else {
-            networkImageUrl = 'assets/images/profile.png'; // Sử dụng ảnh mặc định nếu không có ảnh đại diện
+            networkImageUrl = 'assets/images/profile.png';
           }
           _displayName = profile.displayName;
         } else {
           _displayName = user.email!.split('@')[0];
-          nameController.text = _displayName!;
+          nameController.text = _displayName;
           birthDateController.text = "1/1/1990";
         }
         notifyListeners();
@@ -60,32 +60,17 @@ class EditProfileViewModel extends ChangeNotifier {
     }
   }
 
-
-  Future<String?> uploadImage(String path) async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      String userId = user.uid;
-      File file = File(path);
-      try {
-        Reference ref = FirebaseStorage.instance.ref().child('user_avatars').child(userId);
-        TaskSnapshot uploadTask = await ref.putFile(file);
-        return await uploadTask.ref.getDownloadURL();
-      } catch (e) {
-        print("Lỗi khi tải ảnh lên: $e");
-        return null;
-      }
-    }
-    return null;
-  }
-
   Future<void> pickImage(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);
     if (pickedFile != null) {
-      String? imageUrl = await uploadImage(pickedFile.path);
-      if (imageUrl != null) {
-        networkImageUrl = imageUrl;
-        updateProfileImage(pickedFile.path);
-        await saveProfile(); // Lưu thông tin hồ sơ ngay sau khi tải lên ảnh đại diện mới
+      User? currentUser = await _profileService.getCurrentUser();
+      if (currentUser != null) {
+        String? imageUrl = await _profileService.uploadImage(currentUser.uid, pickedFile.path);
+        if (imageUrl != null) {
+          networkImageUrl = imageUrl;
+          updateProfileImage(pickedFile.path);
+          await saveProfile(); // Lưu thông tin hồ sơ ngay sau khi tải lên ảnh đại diện mới
+        }
       }
     }
   }
@@ -117,12 +102,12 @@ class EditProfileViewModel extends ChangeNotifier {
 
   // Hàm cập nhật ảnh đại diện
   void updateProfileImage(String imagePath) {
-    imageFile = PickedFile(imagePath);
+    imageFile = File(imagePath);
     notifyListeners(); // Thông báo cho UI rằng đã có sự thay đổi
   }
 
-  Future<void> saveProfile() async {
-    User? user = FirebaseAuth.instance.currentUser;
+  Future<Profile?> saveProfile() async {
+    User? user = await _profileService.getCurrentUser();
     if (user != null) {
       String profileImageUrl = networkImageUrl ?? 'assets/images/profile.png';
 
@@ -137,13 +122,12 @@ class EditProfileViewModel extends ChangeNotifier {
         profileImageUrl: profileImageUrl,
       );
 
-      await FirebaseFirestore.instance
-          .collection('profiles')
-          .doc(user.uid)
-          .set(profile.toMap());
+      await _profileService.saveProfile(profile);
+      return profile;
     }
     _displayName = nameController.text;
     notifyListeners();
+    return null;
   }
 }
 

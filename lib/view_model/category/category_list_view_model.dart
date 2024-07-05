@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import '../../model/category_model.dart';
 import '../../services/category_service.dart';
 
 class CategoryListViewModel extends ChangeNotifier {
-  TextEditingController searchController = TextEditingController();
   final CategoryService _categoryService = CategoryService();
+  TextEditingController searchController = TextEditingController();
+
   List<Category> _incomeCategories = [];
   List<Category> _expenseCategories = [];
   List<Category> _filteredIncomeCategories = [];
@@ -35,12 +35,13 @@ class CategoryListViewModel extends ChangeNotifier {
 
         notifyListeners();
       } catch (e) {
-        print("Error loading categories: $e");
+        print("Error loading category: $e");
       }
     }
   }
 
   void filterCategories(String query) {
+    searchQuery = query;
     if (query.isEmpty) {
       _filteredIncomeCategories = _incomeCategories;
       _filteredExpenseCategories = _expenseCategories;
@@ -56,10 +57,16 @@ class CategoryListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearSearch(){
+    searchQuery = '';
+    searchController.clear();
+    filterCategories('');
+  }
+
   Future<void> deleteCategory(String categoryId) async {
     try {
       await _categoryService.deleteCategory(categoryId);
-      await loadCategories();  // Refresh the categories after deleting
+      await loadCategories();
     } catch (e) {
       print("Error deleting category: $e");
     }

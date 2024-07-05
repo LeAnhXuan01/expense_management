@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CustomSnackBar_1 {
-  static show(BuildContext context, String message, {Duration duration = const Duration(seconds: 2)}) {
+  static show(
+    BuildContext context,
+    String message, {
+    Duration duration = const Duration(seconds: 2),
+  }) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -25,5 +29,6 @@ class CustomSnackBar_1 {
         duration: duration,
       ),
     );
+    // await Future.delayed(Duration(milliseconds: 1500));
   }
 }

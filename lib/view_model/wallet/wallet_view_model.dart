@@ -3,27 +3,34 @@ import 'package:flutter/material.dart';
 import 'package:expense_management/model/wallet_model.dart';
 import 'package:expense_management/services/wallet_service.dart';
 import 'package:intl/intl.dart';
-
 import '../../model/enum.dart';
+import '../../utils/utils.dart';
 
 class WalletViewModel extends ChangeNotifier {
+  final WalletService _walletService = WalletService();
   TextEditingController searchController = TextEditingController();
 
-  final WalletService _walletService = WalletService();
   List<Wallet> _wallets = [];
   List<Wallet> _filteredWallets = [];
   double _totalBalance = 0;
   bool isSearching = false;
-  late String searchQuery = "";
+  String searchQuery = "";
   Wallet? _selectedWallet;
+  int loadWalletsCallCount = 0;
 
   List<Wallet> get wallets => _filteredWallets;
-  String get formattedTotalBalance => _formatTotalBalance();
+  String get formattedTotalBalance => formatTotalBalance(_totalBalance);
   Wallet? get selectedWallet => _selectedWallet;
   double get totalBalance => _totalBalance;
 
   WalletViewModel() {
-    loadWallets();
+    print("WalletViewModel constructor called");
+    initializeWallets();
+  }
+
+  Future<void> initializeWallets() async {
+    await addDefaultAndFixedWallets();
+    await loadWallets();
   }
 
   void selectWallet(Wallet wallet) {
@@ -31,12 +38,25 @@ class WalletViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadWallets() async {
+  Future<void> addDefaultAndFixedWallets() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
         await _walletService.addDefaultWallets(user.uid);
         await _walletService.addFixedWallet(user.uid);
+      } catch (e) {
+        print("Error adding default and fixed wallets: $e");
+      }
+    }
+  }
+
+  Future<void> loadWallets() async {
+    loadWalletsCallCount++;
+    print("loadWallets called $loadWalletsCallCount times");
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
         _wallets = await _walletService.getWallets(user.uid);
         _filteredWallets = _wallets; // Ban đầu hiển thị tất cả các ví
         _calculateTotalBalance();
@@ -56,30 +76,6 @@ class WalletViewModel extends ChangeNotifier {
       }).toList();
     }
     notifyListeners();
-  }
-
-  Future<void> addWallet(Wallet wallet) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      try {
-        await _walletService.createWallet(wallet);
-        await loadWallets();  // Tải lại danh sách ví và cập nhật tổng số dư
-      } catch (e) {
-        print("Error adding wallet: $e");
-      }
-    }
-  }
-
-  Future<void> updateWallet(Wallet wallet) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      try {
-        await _walletService.updateWallet(wallet);
-        await loadWallets();  // Tải lại danh sách ví và cập nhật tổng số dư
-      } catch (e) {
-        print("Error updating wallet: $e");
-      }
-    }
   }
 
   Future<void> deleteWallet(String walletId) async {
@@ -108,16 +104,4 @@ class WalletViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _formatTotalBalance() {
-    final formatter = NumberFormat('#,###', 'vi_VN'); // Sử dụng dấu chấm làm dấu phân cách
-    if (_totalBalance >= 1000000000) {
-      return '${formatter.format((_totalBalance / 1))}';
-    } else if (_totalBalance >= 1000000) {
-      return '${formatter.format((_totalBalance / 1))}';
-    } else if (_totalBalance >= 1000) {
-      return '${formatter.format(_totalBalance.round())}';
-    } else {
-      return _totalBalance.toStringAsFixed(0);
-    }
-  }
 }

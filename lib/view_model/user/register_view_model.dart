@@ -2,7 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../../services/auth_service.dart';
+import '../../widget/custom_snackbar_1.dart';
+
 class RegisterViewModel extends ChangeNotifier {
+  final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
@@ -88,50 +92,59 @@ class RegisterViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetFields() {
-    emailController.clear();
-    passwordController.clear();
-    confirmPasswordController.clear();
-    isPasswordVisible = false;
-    isConfirmPasswordVisible = false;
-    enableButton = false;
-    notifyListeners();
-  }
+  // void resetFields() {
+  //   emailController.clear();
+  //   passwordController.clear();
+  //   confirmPasswordController.clear();
+  //   isPasswordVisible = false;
+  //   isConfirmPasswordVisible = false;
+  //   enableButton = false;
+  //   notifyListeners();
+  // }
 
-  Future<bool> register() async {
-    final email = emailController.text;
-    final newPassword = passwordController.text;
+  Future<bool> register(BuildContext context) async {
+    final email = emailController.text.trim() + '@gmail.com';
+    final newPassword = passwordController.text.trim();
 
     final isEmailValid = !hasEmailError; // Kiểm tra xem không có lỗi về email
     final isPasswordValid = !hasPasswordError; // Kiểm tra xem không có lỗi về mật khẩu
-    final isConfimPasswordValid = !hasConfirmPasswordError;
-    if (!isEmailValid || !isPasswordValid || !isConfimPasswordValid) {
+    final isConfirmPasswordValid = !hasConfirmPasswordError;
+    if (!isEmailValid || !isPasswordValid || !isConfirmPasswordValid) {
       notifyListeners();
       return false;
     }
 
     try {
       // Tạo tài khoản mới với Firebase Authentication
-      UserCredential userCredential =
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email + '@gmail.com',
-        password: newPassword,
-      );
-      // Gửi email xác thực
-      await userCredential.user!.sendEmailVerification();
-      return true;
+      User? user = await _authService.createUserWithEmailAndPassword(email, newPassword);
+      if (user != null) {
+        // Gửi email xác thực
+        await user.sendEmailVerification();
+        return true;
+      }
+      return false;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         emailError = 'Email này đã được sử dụng.';
       } else if (e.code == 'invalid-email') {
         emailError = 'Email không hợp lệ.';
       }
+      // _showErrorSnackBar(context, emailError);
       notifyListeners();
       return false;
     } catch (e) {
-      print(e);
+      _showErrorSnackBar(context, 'Đã xảy ra lỗi. Vui lòng thử lại.');
+      notifyListeners();
       return false;
     }
+  }
+
+  Future<void> saveUserToFirestore(String userId, String email, String password) async {
+    await FirebaseFirestore.instance.collection('users').doc(userId).set({
+      'userId': userId,
+      'email': email,
+      'password': password,
+    });
   }
 
   Future<bool> monitorEmailVerification(User user, String password) async {
@@ -140,15 +153,14 @@ class RegisterViewModel extends ChangeNotifier {
       // Lấy user ID từ Firebase Authentication
       String userId = user.uid;
       // Lưu thông tin người dùng vào Firestore
-      await FirebaseFirestore.instance.collection('users').doc(userId).set({
-        'userId': userId,
-        'email': user.email,
-        'password': password,
-      });
-
+      await saveUserToFirestore(userId, user.email!, password);
       return true;
     } else {
       return false;
     }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String error) {
+    CustomSnackBar_1.show(context, error);
   }
 }

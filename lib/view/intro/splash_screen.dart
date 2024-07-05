@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+import '../../services/splash_service.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key});
 
@@ -9,12 +11,13 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  late SplashService _splashService;
+
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 2), () {
-      Navigator.pushReplacementNamed(context, '/onboarding');
-    });
+    _splashService = SplashService(context);
+    _splashService.checkFirstLaunch();
   }
 
   @override

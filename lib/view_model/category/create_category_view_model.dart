@@ -6,15 +6,15 @@ import '../../services/category_service.dart';
 import '../../utils/icon_list.dart';
 import '../../utils/color_list.dart';
 
-class CreatCategoriesViewModel extends ChangeNotifier {
-  int selectedValue = 0; // 0: Thu, 1: Chi
+class CreateCategoryViewModel extends ChangeNotifier {
+  final CategoryService _categoryService = CategoryService();
+  final TextEditingController nameCategory = TextEditingController();
+
+  int selectedValue = 0;
+  IconData? selectedIcon;
+  Color? selectedColor;
   bool showPlusButtonIcon = true;
   bool showPlusButtonColor = true;
-  IconData? selectedIcon;
-  Color? selectedColor; // Biến để lưu màu được chọn
-
-  final TextEditingController nameCategory = TextEditingController();
-  final CategoryService _categoryService = CategoryService();
   bool enableButton = false;
 
   bool get isEmptyName => nameCategory.text.isEmpty;
@@ -24,7 +24,7 @@ class CreatCategoriesViewModel extends ChangeNotifier {
   List<IconData> get currentIconsList => selectedValue == 0 ? incomeIcons : expenseIcons;
   List<Color> get colors => colors_list;
 
-  CreatCategoriesViewModel() {
+  CreateCategoryViewModel() {
     nameCategory.addListener(updateButtonState);
   }
 
@@ -33,15 +33,20 @@ class CreatCategoriesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetSelectedIcon() {
-    selectedIcon = null;
+  void setSelectedValue(int value) {
+    selectedValue = value;
+    resetSelectedIcon();
     notifyListeners();
   }
 
-  void setSelectedValue(int value) {
-    selectedValue = value;
-    resetSelectedIcon(); // Đặt lại biểu tượng khi thay đổi loại danh mục
-    notifyListeners();
+  void setSelectedIcon(IconData icon) {
+    selectedIcon = icon;
+    updateButtonState();
+  }
+
+  void setSelectedColor(Color color) {
+    selectedColor = color;
+    updateButtonState();
   }
 
   void toggleShowPlusButtonIcon() {
@@ -54,14 +59,9 @@ class CreatCategoriesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSelectedIcon(IconData icon) {
-    selectedIcon = icon;
-    updateButtonState();
-  }
-
-  void setSelectedColor(Color color) {
-    selectedColor = color;
-    updateButtonState();
+  void resetSelectedIcon() {
+    selectedIcon = null;
+    notifyListeners();
   }
 
   void resetFields() {
@@ -78,7 +78,7 @@ class CreatCategoriesViewModel extends ChangeNotifier {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final newCategory = Category(
-        categoryId: "",
+        categoryId: '',
         userId: user.uid,
         name: nameCategory.text,
         type: selectedValue == 0 ? TransactionType.income : TransactionType.expense,
@@ -89,7 +89,7 @@ class CreatCategoriesViewModel extends ChangeNotifier {
 
       try {
         await _categoryService.createCategory(newCategory);
-        return newCategory; // Trả về danh mục vừa tạo
+        return newCategory;
       } catch (e) {
 
         print('Error creating category: $e');
