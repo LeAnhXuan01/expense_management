@@ -1,14 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'enum.dart';
 
 class Bill {
   String billId;
   String userId;
   String name;
-  RepeatBill repeat;
-  String date;
-  String time;
+  Repeat repeat;
+  DateTime date;
+  TimeOfDay hour;
   String note;
   bool isActive;
+  DateTime createdAt;
 
   Bill({
     required this.billId,
@@ -16,9 +19,10 @@ class Bill {
     required this.name,
     required this.repeat,
     required this.date,
-    required this.time,
-    required this.note,
+    required this.hour,
+    this.note = '',
     this.isActive = true,
+    required this.createdAt,
   });
 
   Map<String, dynamic> toMap() {
@@ -27,10 +31,11 @@ class Bill {
       'userId': userId,
       'name': name,
       'repeat': repeat.index,
-      'date': date,
-      'time': time,
+      'date': date.toIso8601String(),
+      'hour': '${hour.hour}:${hour.minute.toString().padLeft(2, '0')}',
       'note': note,
-      'isActive': isActive ? 1 : 0,
+      'isActive': isActive,
+      'createdAt': createdAt,
     };
   }
 
@@ -39,11 +44,14 @@ class Bill {
       billId: map['billId'],
       userId: map['userId'],
       name: map['name'],
-      repeat: RepeatBill.values[map['repeat']],
-      date: map['date'],
-      time: map['time'],
+      repeat: Repeat.values[map['repeat']],
+      date: DateTime.parse(map['date']),
+      hour: TimeOfDay(
+          hour: int.parse(map['hour'].split(':')[0]),
+          minute: int.parse(map['hour'].split(':')[1])),
       note: map['note'],
-      isActive: map['isActive'] == 1,
+      isActive: map['isActive'],
+      createdAt: (map['createdAt'] as Timestamp).toDate(),
     );
   }
 }

@@ -13,6 +13,7 @@ import 'component/expense_category_screen.dart';
 import 'component/image_detail_screen.dart';
 import 'component/income_category_screen.dart';
 import 'component/wallet_list_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CreateTransactionScreen extends StatefulWidget {
   @override
@@ -39,7 +40,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                 await viewModel.createTransaction(context);
                             if (newTransaction != null) {
                               await CustomSnackBar_2.show(
-                                  context, 'Tạo thành công');
+                                  context, tr('creation_success'));
                               viewModel.resetFields();
                             }
                           }
@@ -65,74 +66,32 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                         children: [
                           Row(
                             children: [
-                              Flexible(
-                                flex: 2,
-                                child: TextField(
-                                  controller: viewModel.amountController,
-                                  inputFormatters: [
-                                    LengthLimitingTextInputFormatter(15),
-                                  ],
-                                  onChanged: (value) {
-                                    viewModel.setAmount(
-                                        double.tryParse(value) ?? 0.0);
-                                  },
-                                  decoration: InputDecoration(
-                                    labelText: 'Số tiền', hintText: '0'
+                               Expanded(
+                                 child: TextField(
+                                    controller: viewModel.amountController,
+                                    inputFormatters: [
+                                      LengthLimitingTextInputFormatter(15),
+                                    ],
+                                    onChanged: (value) {
+                                      viewModel.setAmount(
+                                          double.tryParse(value) ?? 0.0);
+                                    },
+                                    decoration: InputDecoration(
+                                      labelText: tr('amount_label'),
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w500,
+                                      color: viewModel.isExpenseTabSelected ? Colors.red : Colors.green,
+                                    ),
+                                    textAlign: TextAlign.right,
                                   ),
-                                  keyboardType: TextInputType.number,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: viewModel.isIncomeTabSelected ? Colors.green : Colors.red,
-                                  ),
-                                  textAlign: TextAlign.start,
-                                ),
-                              ),
-                              SizedBox(width: 10),
-                              Flexible(
-                                flex: 1,
-                                child: DropdownButtonFormField<Currency>(
-                                  value: viewModel.selectedCurrency,
-                                  items:
-                                      Currency.values.map((Currency currency) {
-                                    return DropdownMenuItem<Currency>(
-                                      value: currency,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(currency == Currency.VND
-                                              ? 'VND'
-                                              : 'USD'),
-                                          Text(currency == Currency.VND
-                                              ? '₫'
-                                              : '\$'),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                                  onChanged: (Currency? value) {
-                                    if (value != null) {
-                                      viewModel.setSelectedCurrency(value);
-                                    }
-                                  },
-                                  decoration: InputDecoration(
-                                    labelText: 'Đơn vị tiền tệ',
-                                  ),
-                                  selectedItemBuilder: (BuildContext context) {
-                                    return Currency.values
-                                        .map((Currency currency) {
-                                      return Row(
-                                        children: [
-                                          Text(currency == Currency.VND
-                                              ? '₫'
-                                              : '\$'),
-
-                                        ],
-                                      );
-                                    }).toList();
-                                  },
-                                ),
-                              ),
+                               ),
+                               Padding(
+                                 padding: const EdgeInsets.only(top: 20.0),
+                                 child: Text("₫", style: TextStyle(fontSize: 28)),
+                               )
                             ],
                           ),
                           SizedBox(height: 20),
@@ -170,11 +129,11 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                     style: TextStyle(fontSize: 18),
                                   )
                                 : Text(
-                                    'Chọn danh mục',
+                                    tr('category_placeholder'),
                                     style: TextStyle(fontSize: 18),
                                   ),
                             trailing: Text(
-                              'Tất cả  >',
+                              tr('all_text'),
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.green,
@@ -186,9 +145,9 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      viewModel.isIncomeTabSelected
-                                          ? IncomeCategoryScreen()
-                                          : ExpenseCategoryScreen(),
+                                      viewModel.isExpenseTabSelected
+                                          ? ExpenseCategoryScreen()
+                                          : IncomeCategoryScreen(),
                                 ),
                               );
                               if (selectedCategory != null) {
@@ -200,7 +159,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Danh mục hay dùng',
+                              Text(tr('frequent_categories'),
                                   style: TextStyle(fontSize: 18)),
                               GestureDetector(
                                 onTap: () {
@@ -313,11 +272,11 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                     overflow: TextOverflow.ellipsis,
                                   )
                                 : Text(
-                                    'Chọn ví tiền',
+                                    tr('wallet_placeholder'),
                                     style: TextStyle(fontSize: 20),
                                   ),
                             trailing: Text(
-                              'Tất cả  >',
+                              tr('all_text'),
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.green,
@@ -347,10 +306,11 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                   onTap: () async {
                                     final DateTime? picked =
                                         await showDatePicker(
+                                          locale: context.locale,
                                       context: context,
                                       initialDate: viewModel.selectedDate,
                                       firstDate: DateTime(1999),
-                                      lastDate: DateTime.now(),
+                                      lastDate: DateTime(2100),
                                     );
                                     if (picked != null &&
                                         picked != viewModel.selectedDate) {
@@ -358,7 +318,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                     }
                                   },
                                   decoration: InputDecoration(
-                                    labelText: 'Chọn ngày',
+                                    labelText: tr('select_date'),
                                   ),
                                 ),
                               ),
@@ -372,6 +332,13 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                         await showTimePicker(
                                       context: context,
                                       initialTime: viewModel.selectedHour,
+                                          builder: (BuildContext context, Widget? child) {
+                                            return Localizations.override(
+                                              context: context,
+                                              locale: context.locale,
+                                              child: child,
+                                            );
+                                          },
                                     );
                                     if (picked != null &&
                                         picked != viewModel.selectedHour) {
@@ -379,7 +346,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                     }
                                   },
                                   decoration: InputDecoration(
-                                    labelText: 'Chọn giờ',
+                                    labelText: tr('select_time'),
                                   ),
                                 ),
                               ),
@@ -395,7 +362,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                               viewModel.setNote(value);
                             },
                             decoration: InputDecoration(
-                              labelText: 'Ghi chú',
+                              labelText: tr('note_label'),
                             ),
                             keyboardType: TextInputType.text,
                           ),
@@ -493,12 +460,12 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                         .createTransaction(context);
                                     if (newTransaction != null) {
                                       await CustomSnackBar_2.show(
-                                          context, 'Tạo thành công');
+                                          context, tr('creation_success'));
                                       viewModel.resetFields();
                                     }
                                   }
                                 : null,
-                            text: 'Tạo giao dịch',
+                            text: tr('create_label'),
                           ),
                         ],
                       ),

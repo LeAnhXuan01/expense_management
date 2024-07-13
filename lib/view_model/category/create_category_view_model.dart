@@ -81,7 +81,7 @@ class CreateCategoryViewModel extends ChangeNotifier {
         categoryId: '',
         userId: user.uid,
         name: nameCategory.text,
-        type: selectedValue == 0 ? TransactionType.income : TransactionType.expense,
+        type: selectedValue == 0 ? Type.income : Type.expense,
         icon: selectedIcon.toString(),
         color: selectedColor.toString(),
         createdAt: DateTime.now()

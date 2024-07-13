@@ -104,7 +104,7 @@ class CategoryService {
       QuerySnapshot querySnapshot = await _firestore
           .collection('categories')
           .where('userId', isEqualTo: userId)
-          .where('type', isEqualTo: TransactionType.income.index)
+          .where('type', isEqualTo: Type.income.index)
           .orderBy('createdAt', descending: false)
           .get();
 
@@ -122,7 +122,7 @@ class CategoryService {
       QuerySnapshot querySnapshot = await _firestore
           .collection('categories')
           .where('userId', isEqualTo: userId)
-          .where('type', isEqualTo: TransactionType.income.index)
+          .where('type', isEqualTo: Type.income.index)
           .orderBy('createdAt', descending: false)
           .limit(6)
           .get();
@@ -141,7 +141,7 @@ class CategoryService {
       QuerySnapshot querySnapshot = await _firestore
           .collection('categories')
           .where('userId', isEqualTo: userId)
-          .where('type', isEqualTo: TransactionType.expense.index)
+          .where('type', isEqualTo: Type.expense.index)
           .orderBy('createdAt', descending: false)
           .get();
 
@@ -159,7 +159,7 @@ class CategoryService {
       QuerySnapshot querySnapshot = await _firestore
           .collection('categories')
           .where('userId', isEqualTo: userId)
-          .where('type', isEqualTo: TransactionType.expense.index)
+          .where('type', isEqualTo: Type.expense.index)
           .orderBy('createdAt', descending: false)
           .limit(6)
           .get();

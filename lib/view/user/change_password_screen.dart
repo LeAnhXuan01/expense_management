@@ -4,6 +4,7 @@ import 'package:expense_management/widget/custom_snackbar_2.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../view_model/user/change_password_view_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   @override
@@ -11,11 +12,6 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Provider.of<ChangePasswordViewModel>(context, listen: false).resetFields();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +20,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         builder: (context, viewModel, child) {
           return Column(
             children: [
-              CustomHeader_1(title: 'Đổi mật khẩu'),
+              CustomHeader_1(title: tr('change_password_title')),
               Expanded(
                 child: SingleChildScrollView(
                   child: Padding(
@@ -37,10 +33,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         ),
                         Center(
                             child: Image.asset(
-                          'assets/images/logo.png',
-                          height: 150,
-                          width: 150,
-                        )),
+                              'assets/images/logo.png',
+                              height: 150,
+                              width: 150,
+                            )),
                         SizedBox(
                           height: 30,
                         ),
@@ -48,13 +44,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           controller: viewModel.currentPasswordController,
                           obscureText: !viewModel.isCurrentPasswordVisible,
                           decoration: InputDecoration(
-                            labelText: 'Mật khẩu hiện tại',
+                            labelText: tr('current_password_label'),
                             suffixIcon: IconButton(
                               icon: Icon(viewModel.isCurrentPasswordVisible
                                   ? Icons.visibility
                                   : Icons.visibility_off),
                               onPressed:
-                                  viewModel.toggleCurrentPasswordVisibility,
+                              viewModel.toggleCurrentPasswordVisibility,
                             ),
                             errorText: viewModel.currentPasswordError.isNotEmpty
                                 ? viewModel.currentPasswordError
@@ -66,7 +62,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           controller: viewModel.newPasswordController,
                           obscureText: !viewModel.isNewPasswordVisible,
                           decoration: InputDecoration(
-                            labelText: 'Mật khẩu mới',
+                            labelText: tr('new_password_label'),
                             suffixIcon: IconButton(
                               icon: Icon(viewModel.isNewPasswordVisible
                                   ? Icons.visibility
@@ -83,13 +79,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           controller: viewModel.confirmPasswordController,
                           obscureText: !viewModel.isConfirmPasswordVisible,
                           decoration: InputDecoration(
-                            labelText: 'Nhập lại mật khẩu mới',
+                            labelText: tr('confirm_password_label'),
                             suffixIcon: IconButton(
                               icon: Icon(viewModel.isConfirmPasswordVisible
                                   ? Icons.visibility
                                   : Icons.visibility_off),
                               onPressed:
-                                  viewModel.toggleConfirmPasswordVisibility,
+                              viewModel.toggleConfirmPasswordVisibility,
                             ),
                             errorText: viewModel.confirmPasswordError.isNotEmpty
                                 ? viewModel.confirmPasswordError
@@ -100,14 +96,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         CustomElavatedButton_1(
                           onPressed: viewModel.enableButton
                               ? () async {
-                                  if (await viewModel.changePassword(context)) {
-                                    await CustomSnackBar_2.show(
-                                        context, 'Đổi mật khẩu thành công');
-                                    Navigator.pop(context);
-                                  }
-                                }
+                            if (await viewModel.changePassword(context)) {
+                              await CustomSnackBar_2.show(
+                                  context, tr('save_success'));
+                              Navigator.pop(context);
+                              viewModel.resetFields();
+                            }
+                          }
                               : null,
-                          text: 'Lưu',
+                          text: tr('save_button'),
                         ),
                       ],
                     ),

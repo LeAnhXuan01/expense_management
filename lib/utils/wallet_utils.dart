@@ -9,7 +9,7 @@ import '../services/wallet_service.dart';
 class TransactionHelper {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<bool> checkBalance(String walletId, double transactionAmount, Currency transactionCurrency, TransactionType transactionType, {Transactions? oldTransaction}) async {
+  Future<bool> checkBalance(String walletId, double transactionAmount, Type transactionType, {Transactions? oldTransaction}) async {
     try {
       DocumentSnapshot walletSnapshot = await _firestore.collection('wallets').doc(walletId).get();
 
@@ -19,35 +19,22 @@ class TransactionHelper {
 
       Map<String, dynamic> walletData = walletSnapshot.data() as Map<String, dynamic>;
       double walletBalance = walletData['initialBalance'];
-      String walletCurrency = walletData['currency'];
 
-      // Tính toán số tiền giao dịch hiện tại trong đơn vị tiền của ví
       double amountInWalletCurrency = transactionAmount;
-      if (walletCurrency == 'VND' && transactionCurrency == Currency.USD) {
-        amountInWalletCurrency = transactionAmount * 25442.5;
-      } else if (walletCurrency == 'USD' && transactionCurrency == Currency.VND) {
-        amountInWalletCurrency = transactionAmount / 25442.5;
-      }
 
       // Nếu có giao dịch cũ (đang cập nhật), thực hiện điều chỉnh số dư ví
       if (oldTransaction != null) {
-        // Điều chỉnh lại số dư của ví trước khi cập nhật
         double oldAmountInWalletCurrency = oldTransaction.amount;
-        if (walletCurrency == 'VND' && oldTransaction.currency == Currency.USD) {
-          oldAmountInWalletCurrency = oldTransaction.amount * 25442.5;
-        } else if (walletCurrency == 'USD' && oldTransaction.currency == Currency.VND) {
-          oldAmountInWalletCurrency = oldTransaction.amount / 25442.5;
-        }
 
-        if (oldTransaction.type == TransactionType.income) {
+        if (oldTransaction.type == Type.income) {
           walletBalance -= oldAmountInWalletCurrency;
-        } else if (oldTransaction.type == TransactionType.expense) {
+        } else if (oldTransaction.type == Type.expense) {
           walletBalance += oldAmountInWalletCurrency;
         }
       }
 
       // Kiểm tra số dư ví sau khi điều chỉnh giao dịch cũ
-      if (transactionType == TransactionType.expense) {
+      if (transactionType == Type.expense) {
         return walletBalance >= amountInWalletCurrency;
       }
 
@@ -57,7 +44,6 @@ class TransactionHelper {
       throw e;
     }
   }
-
 
   Future<void> updateWalletBalance(Transactions transaction, {required bool isCreation, required bool isDeletion, Transactions? oldTransaction}) async {
     try {
@@ -69,48 +55,35 @@ class TransactionHelper {
 
       Map<String, dynamic> walletData = walletSnapshot.data() as Map<String, dynamic>;
       double currentBalance = walletData['initialBalance'];
-      String walletCurrency = walletData['currency'];
 
       double amountInWalletCurrency = transaction.amount;
       double oldAmountInWalletCurrency = oldTransaction != null ? oldTransaction.amount : 0;
 
-      if (walletCurrency == 'VND' && transaction.currency == Currency.USD) {
-        amountInWalletCurrency = transaction.amount * 25442.5;
-        if (oldTransaction != null) {
-          oldAmountInWalletCurrency = oldTransaction.amount * 25442.5;
-        }
-      } else if (walletCurrency == 'USD' && transaction.currency == Currency.VND) {
-        amountInWalletCurrency = transaction.amount / 25442.5;
-        if (oldTransaction != null) {
-          oldAmountInWalletCurrency = oldTransaction.amount / 25442.5;
-        }
-      }
-
       if (isCreation) {
-        if (transaction.type == TransactionType.income) {
+        if (transaction.type == Type.income) {
           currentBalance += amountInWalletCurrency;
-        } else if (transaction.type == TransactionType.expense) {
+        } else if (transaction.type == Type.expense) {
           currentBalance -= amountInWalletCurrency;
         }
       } else if (isDeletion) {
-        if (transaction.type == TransactionType.income) {
+        if (transaction.type == Type.income) {
           currentBalance -= amountInWalletCurrency;
-        } else if (transaction.type == TransactionType.expense) {
+        } else if (transaction.type == Type.expense) {
           currentBalance += amountInWalletCurrency;
         }
       } else {
         if (oldTransaction != null) {
           // Hoàn tác số dư của giao dịch cũ
-          if (oldTransaction.type == TransactionType.income) {
+          if (oldTransaction.type == Type.income) {
             currentBalance -= oldAmountInWalletCurrency;
-          } else if (oldTransaction.type == TransactionType.expense) {
+          } else if (oldTransaction.type == Type.expense) {
             currentBalance += oldAmountInWalletCurrency;
           }
         }
         // Áp dụng số dư của giao dịch mới
-        if (transaction.type == TransactionType.income) {
+        if (transaction.type == Type.income) {
           currentBalance += amountInWalletCurrency;
-        } else if (transaction.type == TransactionType.expense) {
+        } else if (transaction.type == Type.expense) {
           currentBalance -= amountInWalletCurrency;
         }
       }
@@ -143,7 +116,7 @@ class TransactionHelper {
 class TransferHelper {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<bool> checkBalance(String walletId, double amount, Currency currency) async {
+  Future<bool> checkBalance(String walletId, double amount) async {
     try {
       DocumentSnapshot walletSnapshot = await _firestore.collection('wallets').doc(walletId).get();
 
@@ -153,15 +126,8 @@ class TransferHelper {
 
       Map<String, dynamic> walletData = walletSnapshot.data() as Map<String, dynamic>;
       double walletBalance = walletData['initialBalance'];
-      String walletCurrency = walletData['currency'];
 
-      // Tính toán số tiền chuyển khoản hiện tại trong đơn vị tiền của ví
       double amountInWalletCurrency = amount;
-      if (walletCurrency == 'VND' && currency == Currency.USD) {
-        amountInWalletCurrency = amount * 25442.5;
-      } else if (walletCurrency == 'USD' && currency == Currency.VND) {
-        amountInWalletCurrency = amount / 25442.5;
-      }
 
       return walletBalance >= amountInWalletCurrency;
     } catch (e) {
@@ -170,7 +136,7 @@ class TransferHelper {
     }
   }
 
-  Future<void> updateWalletBalance(String walletId, double amount, Currency currency, bool isIncome) async {
+  Future<void> updateWalletBalance(String walletId, double amount, bool isIncome) async {
     try {
       DocumentSnapshot walletSnapshot = await _firestore.collection('wallets').doc(walletId).get();
 
@@ -180,14 +146,8 @@ class TransferHelper {
 
       Map<String, dynamic> walletData = walletSnapshot.data() as Map<String, dynamic>;
       double currentBalance = walletData['initialBalance'];
-      String walletCurrency = walletData['currency'];
 
       double amountInWalletCurrency = amount;
-      if (walletCurrency == 'VND' && currency == Currency.USD) {
-        amountInWalletCurrency = amount * 25442.5;
-      } else if (walletCurrency == 'USD' && currency == Currency.VND) {
-        amountInWalletCurrency = amount / 25442.5;
-      }
 
       if (isIncome) {
         currentBalance += amountInWalletCurrency;
@@ -206,21 +166,16 @@ class TransferHelper {
     try {
       if (oldTransfer != null) {
         // Hoàn tác ảnh hưởng của giao dịch cũ lên ví cũ
-        await updateWalletBalance(oldTransfer.fromWallet, oldTransfer.amount, oldTransfer.currency, true);
-        await updateWalletBalance(oldTransfer.toWallet, oldTransfer.amount, oldTransfer.currency, false);
+        await updateWalletBalance(oldTransfer.fromWallet, oldTransfer.amount, true);
+        await updateWalletBalance(oldTransfer.toWallet, oldTransfer.amount, false);
       }
 
       // Áp dụng ảnh hưởng của giao dịch mới lên ví mới
-      await updateWalletBalance(newTransfer.fromWallet, newTransfer.amount, newTransfer.currency, false);
-      await updateWalletBalance(newTransfer.toWallet, newTransfer.amount, newTransfer.currency, true);
+      await updateWalletBalance(newTransfer.fromWallet, newTransfer.amount, false);
+      await updateWalletBalance(newTransfer.toWallet, newTransfer.amount, true);
     } catch (e) {
       print("Error updating wallets for transfer: $e");
       throw e;
     }
   }
 }
-
-
-
-
-

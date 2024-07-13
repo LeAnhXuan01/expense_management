@@ -7,7 +7,6 @@ import 'package:expense_management/widget/custom_snackbar_2.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import '../../model/enum.dart';
 import '../../view_model/wallet/wallet_view_model.dart';
 import '../../widget/custom_header_3.dart';
 import '../transfer/transfer_history_screen.dart';
@@ -52,9 +51,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   onSearchClose: () {
                     setState(() {
                       viewModel.isSearching = false;
-                      viewModel.searchQuery = '';
-                      viewModel.searchController.clear();
-                      viewModel.filterWallets('');
+                      viewModel.clearSearch();
                     });
                   },
                 ),
@@ -286,7 +283,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                         .ellipsis, // Hiển thị dấu ba chấm khi vượt quá 1 dòng
                                   ),
                                   subtitle: Text(
-                                    '${formatAmount(wallet.initialBalance, wallet.currency)} ${wallet.currency == Currency.VND ? '₫' : '\$'}',
+                                    '${formatAmount(wallet.initialBalance)} đ',
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       color: Colors.grey[700],

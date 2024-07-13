@@ -1,20 +1,18 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:expense_management/view_model/wallet/wallet_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:expense_management/model/wallet_model.dart';
 import 'package:expense_management/services/wallet_service.dart';
-import 'package:intl/intl.dart';
-import '../../model/enum.dart';
 import '../../utils/utils.dart';
 
 class EditWalletViewModel extends ChangeNotifier {
   final WalletService _walletService = WalletService();
   final TextEditingController walletNameController = TextEditingController();
   final TextEditingController initialBalanceController = TextEditingController();
+
   IconData? selectedIcon;
   Color? selectedColor;
-  Currency selectedCurrency = Currency.VND;
-
   bool enableButton = false;
   bool showPlusButtonIcon = true;
   bool showPlusButtonColor = true;
@@ -31,10 +29,9 @@ class EditWalletViewModel extends ChangeNotifier {
 
   void initialize(Wallet wallet) {
     walletNameController.text = wallet.name;
-    initialBalanceController.text = formatAmount(wallet.initialBalance, wallet.currency);
+    initialBalanceController.text = formatAmount(wallet.initialBalance);
     selectedIcon = parseIcon(wallet.icon);
     selectedColor = parseColor(wallet.color);
-    selectedCurrency = wallet.currency;
     excludeFromTotal = wallet.excludeFromTotal;
     updateButtonState();
   }
@@ -69,18 +66,6 @@ class EditWalletViewModel extends ChangeNotifier {
     updateButtonState();
   }
 
-  void setSelectedCurrency(Currency currency) {
-    final cleanedBalance = initialBalanceController.text.replaceAll('.', '');
-    final currentBalance = double.parse(cleanedBalance);
-
-    final newBalance = CurrencyUtils.convertCurrency(currentBalance, selectedCurrency, currency);
-
-    selectedCurrency = currency;
-    initialBalanceController.text = NumberFormat('#,###', 'vi_VN').format(newBalance);
-
-    notifyListeners();
-  }
-
   void toggleShowPlusButtonIcon() {
     showPlusButtonIcon = !showPlusButtonIcon;
     notifyListeners();
@@ -112,7 +97,6 @@ class EditWalletViewModel extends ChangeNotifier {
         name: walletNameController.text,
         icon: selectedIcon.toString(),
         color: selectedColor.toString(),
-        currency: selectedCurrency,
         excludeFromTotal: excludeFromTotal,
         createdAt: createdAt,
         isDefault: isDefault,

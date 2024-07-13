@@ -21,7 +21,7 @@ class CreateBudgetViewModel extends ChangeNotifier {
   List<Category> selectedCategories = [];
   List<Wallet> wallets = [];
   List<Wallet> selectedWallets = [];
-  RepeatBudget selectedRepeat = RepeatBudget.Monthly;
+  Repeat selectedRepeat = Repeat.Monthly;
   DateTime startDate = DateTime.now();
   DateTime? endDate;
   bool enableButton = false;
@@ -29,19 +29,19 @@ class CreateBudgetViewModel extends ChangeNotifier {
   Map<String, Category> categoryMap = {};
   Map<String, Wallet> walletMap = {};
 
-  List<RepeatBudget> get repeatOptions => RepeatBudget.values;
+  List<Repeat> get repeatOptions => Repeat.values;
 
-  String getRepeatBudgetString(RepeatBudget repeatBudget) {
+  String getRepeatString(Repeat repeatBudget) {
     switch (repeatBudget) {
-      case RepeatBudget.Daily:
+      case Repeat.Daily:
         return 'Hàng ngày';
-      case RepeatBudget.Weekly:
+      case Repeat.Weekly:
         return 'Hàng tuần';
-      case RepeatBudget.Monthly:
+      case Repeat.Monthly:
         return 'Hàng tháng';
-      case RepeatBudget.Quarterly:
+      case Repeat.Quarterly:
         return 'Hàng quý';
-      case RepeatBudget.Yearly:
+      case Repeat.Yearly:
         return 'Hàng năm';
       default:
         return '';
@@ -101,7 +101,7 @@ class CreateBudgetViewModel extends ChangeNotifier {
       QuerySnapshot categorySnapshot = await _firestore
           .collection('categories')
           .where('userId', isEqualTo: currentUser.uid)
-          .where('type', isEqualTo: TransactionType.expense.index)
+          .where('type', isEqualTo: Type.expense.index)
           .get();
       categories = categorySnapshot.docs
           .map((doc) => Category.fromMap(doc.data() as Map<String, dynamic>))
@@ -134,7 +134,7 @@ class CreateBudgetViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSelectedRepeat(RepeatBudget value) {
+  void setSelectedRepeat(Repeat value) {
     selectedRepeat = value;
     notifyListeners();
   }
@@ -173,22 +173,28 @@ class CreateBudgetViewModel extends ChangeNotifier {
       bool isValid = true;
       String message = '';
 
-      if (selectedRepeat == RepeatBudget.Weekly) {
+      if(selectedRepeat == Repeat.Daily){
+        if (endDate!.isBefore(startDate)) {
+          isValid = false;
+          message = 'Ngày kết thúc phải lớn hơn ngày ${formatDate(startDate)}';
+        }
+      }
+      else if (selectedRepeat == Repeat.Weekly) {
         if (endDate!.isBefore(startDate.add(Duration(days: 6)))) {
           isValid = false;
           message = 'Ngày kết thúc phải lớn hơn ngày ${formatDate(startDate.add(Duration(days: 6)))}';
         }
-      } else if (selectedRepeat == RepeatBudget.Monthly) {
+      } else if (selectedRepeat == Repeat.Monthly) {
         if (endDate!.isBefore(startDate.add(Duration(days: 29)))) {
           isValid = false;
           message = 'Ngày kết thúc phải lớn hơn ngày ${formatDate(startDate.add(Duration(days: 29)))}';
         }
-      } else if (selectedRepeat == RepeatBudget.Quarterly) {
+      } else if (selectedRepeat == Repeat.Quarterly) {
         if (endDate!.isBefore(startDate.add(Duration(days: 89)))) {
           isValid = false;
           message = 'Ngày kết thúc phải lớn hơn ngày ${formatDate(startDate.add(Duration(days: 89)))}';
         }
-      } else if (selectedRepeat == RepeatBudget.Yearly) {
+      } else if (selectedRepeat == Repeat.Yearly) {
         if (endDate!.isBefore(startDate.add(Duration(days: 364)))) {
           isValid = false;
           message = 'Ngày kết thúc phải lớn hơn ngày ${formatDate(startDate.add(Duration(days: 365)))}';

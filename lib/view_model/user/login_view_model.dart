@@ -95,6 +95,30 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> signInWithGoogle(BuildContext context) async {
+    try {
+      UserCredential userCredential = await _authService.signInWithGoogle();
+      User? user = userCredential.user;
+
+      if (user != null) {
+        await user.reload();
+        return true;
+      } else {
+        _showErrorSnackBar(context, 'Đăng nhập Google thất bại.');
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      print("loi dang nhap: $e");
+      // loginError = 'Đã xảy ra lỗi. Vui lòng thử lại: $e';
+
+      _showErrorSnackBar(context, loginError);
+      notifyListeners();
+      return false;
+    }
+  }
+
+
   void _showErrorSnackBar(BuildContext context, String error) {
     CustomSnackBar_1.show(context, error);
   }

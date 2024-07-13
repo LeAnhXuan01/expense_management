@@ -1,10 +1,9 @@
 import 'package:expense_management/widget/custom_header_1.dart';
-import 'package:expense_management/widget/custom_snackbar_1.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import '../../model/enum.dart';
+
 import '../../utils/color_list.dart';
 import '../../utils/icon_list.dart';
 import '../../view_model/wallet/create_wallet_view_model.dart';
@@ -107,63 +106,28 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                         SizedBox(height: 20),
                         Row(
                           children: [
-                            Flexible(
-                              flex: 2,
-                              child:
-                                  TextFormField(
+                            Expanded(
+                              child: TextFormField(
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(15),
                                 ],
                                 controller: viewModel.initialBalanceController,
-                                decoration:
-                                    InputDecoration(labelText: 'Số dư ban đầu', hintText: '0'),
+                                decoration: InputDecoration(
+                                    labelText: 'Số dư ban đầu'),
+                                style: TextStyle(
+                                    fontSize: 28, color: Colors.green, fontWeight: FontWeight.w500),
                                 keyboardType: TextInputType.number,
-                                textAlign: TextAlign.start,
+                                textAlign: TextAlign.right,
                                 onChanged: (_) => viewModel.updateButtonState(),
                               ),
                             ),
-                            SizedBox(width: 10),
-                            Flexible(
-                              flex: 1,
-                              child: DropdownButtonFormField<Currency>(
-                                value: viewModel.selectedCurrency,
-                                items: Currency.values.map((Currency currency) {
-                                  return DropdownMenuItem<Currency>(
-                                    value: currency,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(currency == Currency.VND
-                                            ? 'VND'
-                                            : 'USD'
-                                        ),
-                                        Text( currency == Currency.VND
-                                            ? '₫'
-                                            : '\$',
-                                        )
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (newValue) {
-                                  if (newValue != null) {
-                                    viewModel.setSelectedCurrency(newValue);
-                                  }
-                                },
-                                decoration: InputDecoration(
-                                    labelText: 'Đơn vị tiền tệ'
-                                ),
-                                selectedItemBuilder: (BuildContext context){
-                                  return Currency.values.map((Currency currency) {
-                                    return Row(
-                                      children: [
-                                        Text(currency == Currency.VND ? '₫' : '\$'),
-                                      ],
-                                    );
-                                  }).toList();
-                                },
+                            Padding(
+                              padding: const EdgeInsets.only(top: 20.0),
+                              child: Text(
+                                '₫',
+                                style: TextStyle(fontSize: 28),
                               ),
-                            ),
+                            )
                           ],
                         ),
                         SizedBox(height: 20),

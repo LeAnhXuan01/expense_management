@@ -88,7 +88,7 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                             }
 
                             final formattedAmount = formatAmount_2(
-                                transfer.amount, transfer.currency);
+                                transfer.amount);
                             final formattedTime =
                                 viewModel.formatHour(transfer.hour);
 

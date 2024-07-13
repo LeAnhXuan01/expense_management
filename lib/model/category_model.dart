@@ -6,7 +6,7 @@ class Category {
   String categoryId;
   String userId;
   String name;
-  TransactionType type;
+  Type type;
   String icon;
   String color;
   DateTime createdAt;
@@ -41,7 +41,7 @@ class Category {
       categoryId: map['categoryId'],
       userId: map['userId'],
       name: map['name'],
-      type: TransactionType.values[map['type']],
+      type: Type.values[map['type']],
       icon: map['icon'],
       color: map['color'],
       createdAt: (map['createdAt'] as Timestamp).toDate(),

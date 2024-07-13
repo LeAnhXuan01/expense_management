@@ -20,7 +20,6 @@ class WalletService {
             name: wallet.name,
             icon: wallet.icon,
             color: wallet.color,
-            currency: wallet.currency,
             createdAt: DateTime.now(),
         );
 
@@ -49,7 +48,6 @@ class WalletService {
             name: wallet.name,
             icon: wallet.icon,
             color: wallet.color,
-            currency: wallet.currency,
             createdAt: DateTime.now(),
             isDefault: true,
           );
@@ -170,7 +168,7 @@ class WalletService {
     await _firestore
         .collection('transactions')
         .where('walletId', isEqualTo: walletId)
-        .where('type', isEqualTo: TransactionType.income.index)
+        .where('type', isEqualTo: Type.income.index)
         .get()
         .then((snapshot) {
       for (DocumentSnapshot ds in snapshot.docs) {
@@ -182,7 +180,7 @@ class WalletService {
     await _firestore
         .collection('transactions')
         .where('walletId', isEqualTo: walletId)
-        .where('type', isEqualTo: TransactionType.expense.index)
+        .where('type', isEqualTo: Type.expense.index)
         .get()
         .then((snapshot) {
       for (DocumentSnapshot ds in snapshot.docs) {

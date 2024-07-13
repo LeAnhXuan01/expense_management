@@ -8,7 +8,7 @@ class Budget {
   String name;
   List<String> categoryId;
   List<String> walletId;
-  RepeatBudget repeat;
+  Repeat repeat;
   DateTime startDate;
   DateTime endDate;
   DateTime createdAt;
@@ -49,7 +49,7 @@ class Budget {
       name: map['name'],
       categoryId: List<String>.from(map['categoryId']),
       walletId: List<String>.from(map['walletId']),
-      repeat: RepeatBudget.values[map['repeat']],
+      repeat: Repeat.values[map['repeat']],
       startDate: DateTime.parse(map['startDate']),
       endDate: DateTime.parse(map['endDate']),
       createdAt: (map['createdAt'] as Timestamp).toDate(),

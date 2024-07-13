@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:expense_management/model/wallet_model.dart';
 import 'package:expense_management/services/wallet_service.dart';
-import 'package:intl/intl.dart';
-import '../../model/enum.dart';
 import '../../utils/utils.dart';
 
 class CreateWalletViewModel extends ChangeNotifier {
   final WalletService _walletService = WalletService();
   final TextEditingController walletNameController = TextEditingController();
   final TextEditingController initialBalanceController = TextEditingController();
+
   IconData? selectedIcon;
   Color? selectedColor;
-  Currency selectedCurrency = Currency.VND;
-
   bool enableButton = false;
   bool showPlusButtonIcon = true;
   bool showPlusButtonColor = true;
@@ -37,21 +34,6 @@ class CreateWalletViewModel extends ChangeNotifier {
         !isEmptyColor;
     notifyListeners();
   }
-
-  void setSelectedCurrency(Currency currency) {
-    if (selectedCurrency != currency) {
-      final cleanedBalance = initialBalanceController.text.replaceAll(',', '').replaceAll('₫', '').replaceAll('\$', '');
-      final currentBalance = double.tryParse(cleanedBalance) ?? 0;
-
-      final newBalance = CurrencyUtils.convertCurrency(currentBalance, selectedCurrency, currency);
-
-      selectedCurrency = currency;
-      initialBalanceController.text = NumberFormat('#,###', 'vi_VN').format(newBalance);
-
-      notifyListeners();
-    }
-  }
-
 
   void setSelectedIcon(IconData icon) {
     selectedIcon = icon;
@@ -91,7 +73,6 @@ class CreateWalletViewModel extends ChangeNotifier {
         name: walletNameController.text,
         icon: selectedIcon.toString(),
         color: selectedColor.toString(),
-        currency: selectedCurrency,
         excludeFromTotal: excludeFromTotal,
         createdAt: DateTime.now(),
       );
@@ -114,7 +95,6 @@ class CreateWalletViewModel extends ChangeNotifier {
     selectedColor = null;
     showPlusButtonIcon = true;
     showPlusButtonColor = true;
-    selectedCurrency = Currency.VND;
     enableButton = false;
     excludeFromTotal = false;
     notifyListeners();

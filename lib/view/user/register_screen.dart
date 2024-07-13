@@ -1,11 +1,12 @@
-import 'package:expense_management/widget/custom_ElevatedButton_1.dart';
-import 'package:expense_management/widget/custom_header_2.dart';
-import 'package:expense_management/widget/custom_snackbar_2.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../view_model/user/register_view_model.dart';
+import '../../widget/custom_ElevatedButton_1.dart';
+import '../../widget/custom_header_2.dart';
+import '../../widget/custom_snackbar_2.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -21,7 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                CustomHeader_2(title: 'Đăng ký'),
+                CustomHeader_2(title: tr('register')),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
@@ -31,10 +32,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       Center(
                           child: Image.asset(
-                        'assets/images/logo.png',
-                        height: 150,
-                        width: 150,
-                      )),
+                            'assets/images/logo.png',
+                            height: 150,
+                            width: 150,
+                          )),
                       SizedBox(
                         height: 50,
                       ),
@@ -42,10 +43,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: viewModel.emailController,
                         decoration: InputDecoration(
                           prefixIcon: Icon(FontAwesomeIcons.solidEnvelope),
-                          labelText: 'Email',
+                          labelText: tr('email'),
                           border: OutlineInputBorder(
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(20))),
+                              BorderRadius.all(Radius.circular(20))),
                           errorText: viewModel.emailError.isNotEmpty
                               ? viewModel.emailError
                               : null,
@@ -58,10 +59,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         obscureText: !viewModel.isPasswordVisible,
                         decoration: InputDecoration(
                           prefixIcon: Icon(FontAwesomeIcons.lock),
-                          labelText: 'Mật khẩu',
+                          labelText: tr('password'),
                           border: OutlineInputBorder(
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(20))),
+                              BorderRadius.all(Radius.circular(20))),
                           suffixIcon: IconButton(
                             icon: Icon(viewModel.isPasswordVisible
                                 ? Icons.visibility
@@ -79,16 +80,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         obscureText: !viewModel.isConfirmPasswordVisible,
                         decoration: InputDecoration(
                           prefixIcon: Icon(FontAwesomeIcons.lock),
-                          labelText: 'Nhập lại mật khẩu',
+                          labelText: tr('confirm_password'),
                           border: OutlineInputBorder(
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(20))),
+                              BorderRadius.all(Radius.circular(20))),
                           suffixIcon: IconButton(
                             icon: Icon(viewModel.isConfirmPasswordVisible
                                 ? Icons.visibility
                                 : Icons.visibility_off),
                             onPressed:
-                                viewModel.toggleConfirmPasswordVisibility,
+                            viewModel.toggleConfirmPasswordVisibility,
                           ),
                           errorText: viewModel.confirmPasswordError.isNotEmpty
                               ? viewModel.confirmPasswordError
@@ -99,16 +100,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       CustomElavatedButton_1(
                         onPressed: viewModel.enableButton
                             ? () async {
-                                bool isRegistered = await viewModel.register(context);
-                                if (isRegistered) {
-                                  await CustomSnackBar_2.show(context,
-                                      'Một email xác thực đã được gửi tới email của bạn');
-                                  Navigator.pushReplacementNamed(
-                                      context, '/verify-email');
-                                }
-                              }
+                          bool isRegistered = await viewModel.register(context);
+                          if (isRegistered) {
+                            await CustomSnackBar_2.show(context,
+                                tr('verification_email_sent'));
+                            Navigator.pushReplacementNamed(
+                                context, '/verify-email');
+                          }
+                        }
                             : null,
-                        text: 'Đăng ký',
+                        text: tr('register'),
                       ),
                       SizedBox(height: 16),
                       Center(
@@ -116,14 +117,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: RichText(
                             text: TextSpan(
                               children: [
-                                const TextSpan(
-                                    text: 'Đã có tài khoản? ',
+                                TextSpan(
+                                    text: tr('have_account') + " ",
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 15,
                                     )),
                                 TextSpan(
-                                  text: 'Đăng nhập',
+                                  text: tr('login'),
                                   style: const TextStyle(
                                       color: Colors.green,
                                       decoration: TextDecoration.underline,

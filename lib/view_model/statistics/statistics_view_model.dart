@@ -6,6 +6,7 @@ import '../../model/category_model.dart';
 import '../../model/enum.dart';
 import '../../model/wallet_model.dart';
 import '../../utils/utils.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ChartData {
   final String date;
@@ -39,29 +40,32 @@ class StatisticsViewModel with ChangeNotifier {
 
   double get currentIncomeTotal {
     return selectedIncomeTransactions.fold(0, (sum, item) {
-      double amountInVND = item.currency == Currency.USD ? item.amount * 25442.5 : item.amount;
-      return sum + amountInVND;
+      double amount = item.amount;
+      return sum + amount;
     });
   }
 
   double get currentExpenseTotal {
     return selectedExpenseTransactions.fold(0, (sum, item) {
-      double amountInVND = item.currency == Currency.USD ? item.amount * 25442.5 : item.amount;
-      return sum + amountInVND;
+      double amount = item.amount;
+      return sum + amount;
     });
   }
-
 
   List<Transactions> selectedProfitTransactions = [];
   List<Transactions> selectedLossTransactions = [];
 
-  // Thêm một map để lưu trữ categoryId và category tương ứng
   Map<String, Category> categoryMap = {};
 
   StatisticsViewModel() {
-    fetchWallets();
-    fetchCategories();
-    fetchData();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    await fetchWallets();
+    await fetchCategories();
+    await fetchData();
+    notifyListeners();
   }
 
   void setTabController(TabController controller) {
@@ -107,7 +111,7 @@ class StatisticsViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void setSelectedTransactions(TransactionType type, String date) {
+  void setSelectedTransactions(Type type, String date) {
     print('setSelectedTransactions called với type: $type và date: $date');
     DateTime parsedDate;
     DateTime? endDate;
@@ -123,13 +127,13 @@ class StatisticsViewModel with ChangeNotifier {
       return;
     }
 
-    if (type == TransactionType.income) {
+    if (type == Type.income) {
       currentIncomeDateKey = date;
       selectedIncomeTransactions = incomeTransactions.where((t) {
         return isTransactionInDateRange(t, parsedDate, endDate);
       }).toList();
       selectedExpenseTransactions.clear();
-    } else if (type == TransactionType.expense) {
+    } else if (type == Type.expense) {
       currentExpenseDateKey = date;
       selectedExpenseTransactions = expenseTransactions.where((t) {
         return isTransactionInDateRange(t, parsedDate, endDate);
@@ -263,8 +267,8 @@ class StatisticsViewModel with ChangeNotifier {
 
     processTransactionData(filteredTransactions);
     //list transaction
-    incomeTransactions = filteredTransactions.where((transaction) => transaction.type == TransactionType.income).toList();
-    expenseTransactions = filteredTransactions.where((transaction) => transaction.type == TransactionType.expense).toList();
+    incomeTransactions = filteredTransactions.where((transaction) => transaction.type == Type.income).toList();
+    expenseTransactions = filteredTransactions.where((transaction) => transaction.type == Type.expense).toList();
     notifyListeners();
   }
 
@@ -277,42 +281,42 @@ class StatisticsViewModel with ChangeNotifier {
       // Custom date range format
       final startDate = customStartDate!;
       final endDate = customEndDate!;
-      String dateKey = 'Từ ${startDate.day}-${startDate.month}-${startDate.year} đến ${endDate.day}-${endDate.month}-${endDate.year}';
+      String dateKey = '${startDate.day}/${startDate.month}/${startDate.year} - ${endDate.day}/${endDate.month}/${endDate.year}';
 
       for (var transaction in transactions) {
-        if (transaction.type == TransactionType.income) {
+        if (transaction.type == Type.income) {
           incomeMap.update(dateKey, (value) => value + transaction.amount, ifAbsent: () => transaction.amount);
-        } else if (transaction.type == TransactionType.expense) {
+        } else if (transaction.type == Type.expense) {
           expenseMap.update(dateKey, (value) => value + transaction.amount, ifAbsent: () => transaction.amount);
         }
       }
     } else {
       for (var transaction in transactions) {
-        double amountInVND = transaction.currency == Currency.USD ? transaction.amount * 25442.5 : transaction.amount;
+        double amount = transaction.amount;
 
         String dateKey;
         switch (selectedTimeframe) {
           case 'day':
-            dateKey = '${transaction.date.day}-${transaction.date.month}-${transaction.date.year}';
+            dateKey = '${transaction.date.day}/${transaction.date.month}/${transaction.date.year}';
             break;
           case 'week':
             DateTime monday = transaction.date.subtract(Duration(days: transaction.date.weekday - 1));
-            dateKey = 'Từ ${monday.day}-${monday.month}-${monday.year} đến ${monday.day + 6}-${monday.month}-${monday.year}';
+            dateKey = '${monday.day}/${monday.month}/${monday.year} - ${monday.day + 6}/${monday.month}/${monday.year}';
             break;
           case 'month':
-            dateKey = 'Tháng ${transaction.date.month}-${transaction.date.year}';
+            dateKey = '${transaction.date.month}/${transaction.date.year}';
             break;
           case 'year':
-            dateKey = 'Năm ${transaction.date.year}';
+            dateKey = '${transaction.date.year}';
             break;
           default:
-            dateKey = '${transaction.date.day}-${transaction.date.month}-${transaction.date.year}';
+            dateKey = '${transaction.date.day}/${transaction.date.month}/${transaction.date.year}';
         }
 
-        if (transaction.type == TransactionType.income) {
-          incomeMap.update(dateKey, (value) => value + amountInVND, ifAbsent: () => amountInVND);
-        } else if (transaction.type == TransactionType.expense) {
-          expenseMap.update(dateKey, (value) => value + amountInVND, ifAbsent: () => amountInVND);
+        if (transaction.type == Type.income) {
+          incomeMap.update(dateKey, (value) => value + amount, ifAbsent: () => amount);
+        } else if (transaction.type == Type.expense) {
+          expenseMap.update(dateKey, (value) => value + amount, ifAbsent: () => amount);
         }
       }
     }

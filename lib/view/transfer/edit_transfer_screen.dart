@@ -7,7 +7,6 @@ import 'package:expense_management/widget/custom_header_1.dart';
 import 'package:expense_management/widget/custom_snackbar_2.dart';
 import '../../utils/utils.dart';
 import '../../view_model/transfer/edit_transfer_view_model.dart';
-import '../../view_model/wallet/wallet_view_model.dart';
 import '../../widget/custom_ElevatedButton_2.dart';
 
 class EditTransferScreen extends StatefulWidget {
@@ -174,10 +173,11 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                                 controller: viewModel.dateController,
                                 onTap: () async {
                                   final DateTime? picked = await showDatePicker(
+                                    locale: const Locale('vi', 'VN'),
                                     context: context,
                                     initialDate: viewModel.selectedDate,
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime.now(),
+                                    firstDate: DateTime(1999),
+                                    lastDate: DateTime(2100),
                                   );
                                   if (picked != null &&
                                       picked != viewModel.selectedDate) {
@@ -199,6 +199,13 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                                   await showTimePicker(
                                     context: context,
                                     initialTime: viewModel.selectedHour,
+                                    builder: (BuildContext context, Widget? child) {
+                                      return Localizations.override(
+                                        context: context,
+                                        locale: const Locale('vi', 'VN'),
+                                        child: child,
+                                      );
+                                    },
                                   );
                                   if (picked != null &&
                                       picked != viewModel.selectedHour) {

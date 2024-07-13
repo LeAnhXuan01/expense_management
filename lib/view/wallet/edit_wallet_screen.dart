@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import '../../model/enum.dart';
 import '../../model/wallet_model.dart';
 import '../../utils/color_list.dart';
 import '../../utils/icon_list.dart';
@@ -121,60 +120,28 @@ class _EditWalletScreenState extends State<EditWalletScreen> {
                         SizedBox(height: 20),
                         Row(
                           children: [
-                            Flexible(
-                              flex: 2,
+                            Expanded(
                               child: TextFormField(
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(15),
                                 ],
                                 controller: viewModel.initialBalanceController,
-                                decoration:
-                                    InputDecoration(labelText: 'Số dư ban đầu', hintText: '0'),
-                                textAlign: TextAlign.start,
+                                decoration: InputDecoration(
+                                    labelText: 'Số dư ban đầu'),
+                                style: TextStyle(
+                                    fontSize: 28, color: Colors.green, fontWeight: FontWeight.w500),
                                 keyboardType: TextInputType.number,
+                                textAlign: TextAlign.right,
                                 onChanged: (_) => viewModel.updateButtonState(),
                               ),
                             ),
-                            SizedBox(width: 10),
-                            Flexible(
-                              flex: 1,
-                              child: DropdownButtonFormField<Currency>(
-                                value: viewModel.selectedCurrency,
-                                items: Currency.values.map((Currency currency) {
-                                  return DropdownMenuItem<Currency>(
-                                    value: currency,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(currency == Currency.VND
-                                            ? 'VND'
-                                            : 'USD'
-                                        ),
-                                        Text( currency == Currency.VND
-                                            ? '₫'
-                                            : '\$',
-                                        )
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (newValue) {
-                                  viewModel.setSelectedCurrency(newValue!);
-
-                                },
-                                decoration: InputDecoration(
-                                    labelText: 'Đơn vị tiền tệ'),
-                                selectedItemBuilder: (BuildContext context){
-                                  return Currency.values.map((Currency currency) {
-                                    return Row(
-                                      children: [
-                                        Text(currency == Currency.VND ? '₫' : '\$'),
-                                      ],
-                                    );
-                                  }).toList();
-                                },
+                            Padding(
+                              padding: const EdgeInsets.only(top: 20.0),
+                              child: Text(
+                                '₫',
+                                style: TextStyle(fontSize: 28),
                               ),
-                            ),
+                            )
                           ],
                         ),
                         SizedBox(height: 20),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CustomHeader_4 extends StatelessWidget {
   final String title;
@@ -76,26 +77,10 @@ class CustomHeader_4 extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Chọn loại giao dịch'),
+          title: Text(tr('select_transaction_type')),
           content: SingleChildScrollView(
             child: Column(
               children: [
-                ListTile(
-                  leading: Container(
-                    width: 35,
-                    height: 35,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.green
-                    ),
-                      child: Icon(FontAwesomeIcons.plus, color: Colors.white)),
-                  title: Text('Thu nhập'),
-                  trailing: title == 'Thu nhập' ? Icon(Icons.check, color: Colors.green) : null,
-                  onTap: () {
-                    onTitleChanged('Thu nhập');
-                    Navigator.of(context).pop();
-                  },
-                ),
                 ListTile(
                   leading: Container(
                       width: 35,
@@ -105,10 +90,26 @@ class CustomHeader_4 extends StatelessWidget {
                           color: Colors.red
                       ),
                       child: Icon(FontAwesomeIcons.minus, color: Colors.white)),
-                  title: Text('Chi tiêu'),
-                  trailing: title == 'Chi tiêu' ? Icon(Icons.check, color: Colors.green) : null,
+                  title: Text(tr('expense')),
+                  trailing: title == tr('expense') ? Icon(Icons.check, color: Colors.green) : null,
                   onTap: () {
-                    onTitleChanged('Chi tiêu');
+                    onTitleChanged(tr('expense'));
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ListTile(
+                  leading: Container(
+                    width: 35,
+                    height: 35,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.green
+                    ),
+                      child: Icon(FontAwesomeIcons.plus, color: Colors.white)),
+                  title: Text(tr('income')),
+                  trailing: title == tr('income') ? Icon(Icons.check, color: Colors.green) : null,
+                  onTap: () {
+                    onTitleChanged(tr('income'));
                     Navigator.of(context).pop();
                   },
                 ),

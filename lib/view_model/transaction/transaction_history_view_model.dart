@@ -1,13 +1,14 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:expense_management/model/enum.dart';
 import 'package:expense_management/services/category_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../../model/transaction_model.dart';
-import 'package:intl/intl.dart';
 import '../../model/category_model.dart';
 import '../../model/wallet_model.dart';
 import '../../services/transaction_service.dart';
 import '../../services/wallet_service.dart';
+import '../../utils/utils.dart';
 import '../../utils/wallet_utils.dart';
 import '../wallet/wallet_view_model.dart';
 
@@ -24,26 +25,46 @@ class TransactionHistoryViewModel extends ChangeNotifier {
   Map<String, List<Transactions>> groupedTransactions = {};
   DateTimeRange? selectedDateRange;
   String? selectedWalletId;
-  String? selectedTypeFilter;
-  String currentSortCriteria = 'date';
-  bool isSearching = false;
   String searchQuery = "";
+  bool isSearching = false;
+  int _currentTabIndex = 0;
+  bool isLoading = false;
+  double totalIncome = 0;
+  double totalExpense = 0;
 
   TransactionHistoryViewModel() {
     loadTransactions();
   }
 
+  String formatAmount(double amount) {
+    final formatted = NumberFormat('#,###', 'vi_VN').format(amount);
+    return formatted;
+  }
+
+  void calculateTotals() {
+    for (var transaction in filteredTransactions) {
+      if (transaction.type == Type.income) {
+        totalIncome += transaction.amount;
+      } else if (transaction.type == Type.expense) {
+        totalExpense += transaction.amount;
+      }
+    }
+    notifyListeners();
+  }
+
   Future<void> loadTransactions() async {
+    print('load transaction');
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      try{
+      try {
         transactions = await _transactionService.getTransaction(user.uid);
         await loadWallets();
         await loadCategories();
         filteredTransactions = transactions;
         groupTransactions();
+        calculateTotals();
         notifyListeners();
-      } catch (e){
+      } catch (e) {
         print("Error loading transaction: $e");
       }
     }
@@ -76,13 +97,15 @@ class TransactionHistoryViewModel extends ChangeNotifier {
   void groupTransactions() {
     groupedTransactions = {};
     for (var transaction in filteredTransactions) {
-      final date = DateFormat('dd/MM/yyyy').format(transaction.date);
+      final date = formatDate_2(transaction.date);
       if (!groupedTransactions.containsKey(date)) {
         groupedTransactions[date] = [];
       }
       groupedTransactions[date]!.add(transaction);
     }
+    print("Grouped Transactions: ${groupedTransactions.length}");
   }
+
   void filterByDateRange(DateTimeRange range) {
     selectedDateRange = range;
     _applyFilters();
@@ -93,74 +116,42 @@ class TransactionHistoryViewModel extends ChangeNotifier {
     _applyFilters();
   }
 
-  void filterByType(String type) {
-    selectedTypeFilter = type;
+  void filterByTab(int index) {
+    _currentTabIndex = index;
     _applyFilters();
+    print("Tab Index: $_currentTabIndex, Filtered Transactions: ${filteredTransactions.length}");
   }
-
-  // void _sortFilteredTransactions() {
-  //   if (currentSortCriteria == 'date') {
-  //     sortTransactionsByDate();
-  //   } else if (currentSortCriteria == 'amount') {
-  //     sortTransactionsByAmount();
-  //   }
-  // }
-  //
-  // // Sorting by da
-  // void sortTransactionsByDate() {
-  //   transactions.sort((a, b) => b.date.compareTo(a.date));
-  //   currentSortCriteria = 'date';
-  //   _groupTransactions();
-  //   // _applyFilters();
-  // }
-  //
-  // void sortTransactionsByAmount() {
-  //   try {
-  //     filteredTransactions.sort((a, b) => b.amount.compareTo(a.amount));
-  //     currentSortCriteria = 'amount';
-  //     _groupTransactions(); // Cập nhật lại nhóm giao dịch sau khi sắp xếp
-  //     // _applyFilters();
-  //   } catch (e) {
-  //     print('Error sorting transactions: $e');
-  //   }
-  // }
-  //
-  // void setCurrentSortCriteria(String criteria) {
-  //   currentSortCriteria = criteria;
-  //   _sortFilteredTransactions();
-  //   notifyListeners();
-  // }
-
 
   void _applyFilters() {
     filteredTransactions = transactions;
+
     if (selectedDateRange != null) {
       filteredTransactions = filteredTransactions.where((transaction) {
         return transaction.date.isAfter(selectedDateRange!.start) &&
             transaction.date.isBefore(selectedDateRange!.end);
       }).toList();
     }
+
     if (selectedWalletId != null) {
       filteredTransactions = filteredTransactions
           .where((transaction) => transaction.walletId == selectedWalletId)
           .toList();
     }
-    if (selectedTypeFilter != null && selectedTypeFilter != 'Tất cả') {
+
+    // Lọc theo tab
+    if (_currentTabIndex == 1) { // Thu nhập
       filteredTransactions = filteredTransactions.where((transaction) {
-        if (selectedTypeFilter == 'Thu nhập') {
-          return transaction.type == TransactionType.income;
-        } else if (selectedTypeFilter == 'Chi tiêu') {
-          return transaction.type == TransactionType.expense;
-        }
-        return true;
+        return transaction.type == Type.income;
+      }).toList();
+    } else if (_currentTabIndex == 2) { // Chi tiêu
+      filteredTransactions = filteredTransactions.where((transaction) {
+        return transaction.type == Type.expense;
       }).toList();
     }
-
-    // _sortFilteredTransactions();
+    print("Filtered Transactions Length: ${filteredTransactions.length}");
     groupTransactions();
     notifyListeners();
   }
-
 
   Wallet? getWalletByTransaction(Transactions transaction) {
     return walletMap[transaction.walletId];
@@ -172,6 +163,7 @@ class TransactionHistoryViewModel extends ChangeNotifier {
 
   void searchTransactions(String query) {
     searchQuery = query.toLowerCase();
+    isSearching = true;
     if (searchQuery.isNotEmpty) {
       filteredTransactions = filteredTransactions.where((transaction) {
         final category = getCategoryByTransaction(transaction);
@@ -180,7 +172,6 @@ class TransactionHistoryViewModel extends ChangeNotifier {
         return categoryName.contains(searchQuery) || note.contains(searchQuery);
       }).toList();
     } else {
-      // filteredTransactions = _transactions;
       _applyFilters();
     }
     groupTransactions();
@@ -189,18 +180,15 @@ class TransactionHistoryViewModel extends ChangeNotifier {
 
   void clearSearch() {
     searchQuery = "";
+    isSearching = false;
     _applyFilters();
-    groupTransactions();
-    notifyListeners();
   }
 
   void clearFilters() {
     selectedDateRange = null;
     selectedWalletId = null;
-    selectedTypeFilter = null;
+    _currentTabIndex = 0;
     filteredTransactions = transactions;
-    // currentSortCriteria = 'date'; // Đặt lại tiêu chí sắp xếp về 'date'
-    // sortTransactionsByDate();
     groupTransactions();
     notifyListeners();
   }

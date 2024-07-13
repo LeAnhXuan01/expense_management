@@ -8,7 +8,6 @@ import '../../model/category_model.dart';
 import '../../model/wallet_model.dart';
 import '../../utils/utils.dart';
 import '../../view_model/budget/create_budget_view_model.dart';
-import '../../widget/custom_snackbar_1.dart';
 import '../../widget/custom_snackbar_2.dart';
 import '../../widget/multi_category_selection_dialog.dart';
 import '../../widget/multi_wallet_selection_dialog.dart';
@@ -42,11 +41,11 @@ class CreateBudgetScreen extends StatelessWidget {
                                   controller: viewModel.amountController,
                                   decoration: InputDecoration(labelText: 'Số tiền'),
                                   style: TextStyle(
-                                    fontSize: 25,
+                                    fontSize: 28,
                                     color: Colors.green,
                                     fontWeight: FontWeight.w500,
                                   ),
-                                  textAlign: TextAlign.center,
+                                  textAlign: TextAlign.right,
                                   keyboardType: TextInputType.number,
                                   onChanged: (_) => viewModel.updateButtonState(),
                                 ),
@@ -56,7 +55,7 @@ class CreateBudgetScreen extends StatelessWidget {
                                 child: Text(
                                   '₫',
                                   style: TextStyle(
-                                    fontSize: 25,
+                                    fontSize: 28,
                                   ),
                                 ),
                               ),
@@ -228,12 +227,12 @@ class CreateBudgetScreen extends StatelessWidget {
                             },
                           ),
                           SizedBox(height: 16),
-                          DropdownButtonFormField<RepeatBudget>(
+                          DropdownButtonFormField<Repeat>(
                             value: model.selectedRepeat,
                             items: model.repeatOptions
-                                .map((option) => DropdownMenuItem<RepeatBudget>(
+                                .map((option) => DropdownMenuItem<Repeat>(
                               value: option,
-                              child: Text(model.getRepeatBudgetString(option)), // Convert RepeatBudget to string here
+                              child: Text(model.getRepeatString(option)), // Convert RepeatBudget to string here
                             ))
                                 .toList(),
                             onChanged: (value) {
@@ -253,9 +252,10 @@ class CreateBudgetScreen extends StatelessWidget {
                             onTap: () async {
                               final DateTime? picked =
                               await showDatePicker(
+                                locale: const Locale('vi', 'VN'),
                                 context: context,
                                 initialDate: viewModel.startDate,
-                                firstDate: DateTime.now(),
+                                firstDate: DateTime(1999),
                                 lastDate: DateTime(2100),
                               );
                               if (picked != null &&
@@ -274,9 +274,10 @@ class CreateBudgetScreen extends StatelessWidget {
                             onTap: () async {
                               final DateTime? picked =
                               await showDatePicker(
+                                locale: const Locale('vi', 'VN'),
                                 context: context,
                                 initialDate: viewModel.endDate,
-                                firstDate: DateTime.now(),
+                                firstDate: DateTime(1999),
                                 lastDate: DateTime(2100),
                               );
                               if (picked != null &&

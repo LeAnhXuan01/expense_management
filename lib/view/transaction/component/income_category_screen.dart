@@ -55,7 +55,7 @@ class _IncomeCategoryScreenState extends State<IncomeCategoryScreen> {
                         viewModel.isSearching
                         ? Center(
                       child: Text(
-                        'Không có kết quả tìm kiếm nào.',
+                        'Không có kết quả tìm kiếm nào',
                         style:
                         TextStyle(fontSize: 18, color: Colors.grey),
                       ),

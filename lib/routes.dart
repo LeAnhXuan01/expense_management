@@ -1,12 +1,11 @@
 import 'package:expense_management/view/bill/bill_list_screen.dart';
-import 'package:expense_management/view/bill/creat_bill_screen.dart';
+import 'package:expense_management/view/bill/create_bill_screen.dart';
 import 'package:expense_management/view/budget/budget_list_screen.dart';
 import 'package:expense_management/view/budget/create_budget_screen.dart';
 import 'package:expense_management/view/category/category_list_screen.dart';
 import 'package:expense_management/view/home_screen.dart';
 import 'package:expense_management/view/intro/onboarding_screen.dart';
 import 'package:expense_management/view/password_retrieval_screen.dart';
-import 'package:expense_management/view/statistics/statistics_screen.dart';
 import 'package:expense_management/view/category/create_categories_screen.dart';
 import 'package:expense_management/view/transaction/component/expense_category_screen.dart';
 import 'package:expense_management/view/transaction/component/income_category_screen.dart';
@@ -43,7 +42,7 @@ Map<String, WidgetBuilder> routes = {
   '/bottom-navigator': (context) =>  BottomNavigation(),
   '/wallets': (context) =>  WalletScreen(),
   '/bill-list': (context) =>  BillListScreen(),
-  '/create-bill': (context) =>  CreatBillScreen(),
+  '/create-bill': (context) =>  CreateBillScreen(),
   '/create-budget': (context) =>  CreateBudgetScreen(),
   '/budget-list': (context) =>  BudgetListScreen(),
   '/category-list': (context) =>  CategoryListScreen(),

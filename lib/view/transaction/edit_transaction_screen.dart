@@ -1,8 +1,6 @@
 import 'package:expense_management/model/category_model.dart';
-import 'package:expense_management/model/enum.dart';
 import 'package:expense_management/model/transaction_model.dart';
 import 'package:expense_management/view_model/transaction/edit_transaction_view_model.dart';
-import 'package:expense_management/view_model/transaction/transaction_history_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +12,7 @@ import 'component/expense_category_screen.dart';
 import 'component/image_detail_screen.dart';
 import 'component/income_category_screen.dart';
 import 'component/wallet_list_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class EditTransactionScreen extends StatefulWidget {
   final Transactions transaction;
@@ -53,7 +52,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                     widget.transaction.transactionId, context);
                             if (updatedTransaction != null) {
                               await CustomSnackBar_2.show(
-                                  context, 'Cập nhật thành công');
+                                  context, tr('save_success'));
                               Navigator.pop(context, updatedTransaction);
                             }
                           }
@@ -79,8 +78,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                         children: [
                           Row(
                             children: [
-                              Flexible(
-                                flex: 2,
+                              Expanded(
                                 child: TextField(
                                   controller: viewModel.amountController,
                                   inputFormatters: [
@@ -91,56 +89,21 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                         double.tryParse(value) ?? 0.0);
                                   },
                                   decoration: InputDecoration(
-                                    labelText: 'Số tiền',
+                                    labelText: tr('amount_label'),
                                   ),
                                   keyboardType: TextInputType.number,
-                                ),
-                              ),
-                              SizedBox(width: 10),
-                              Flexible(
-                                flex: 1,
-                                child: DropdownButtonFormField<Currency>(
-                                  value: viewModel.selectedCurrency,
-                                  items:
-                                      Currency.values.map((Currency currency) {
-                                    return DropdownMenuItem<Currency>(
-                                      value: currency,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(currency == Currency.VND
-                                              ? 'VND'
-                                              : 'USD'),
-                                          Text(currency == Currency.VND
-                                              ? '₫'
-                                              : '\$'),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                                  onChanged: (Currency? value) {
-                                    if (value != null) {
-                                      viewModel.setSelectedCurrency(value);
-                                    }
-                                  },
-                                  decoration: InputDecoration(
-                                    labelText: 'Đơn vị tiền tệ',
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w500,
+                                    color: viewModel.isExpenseTabSelected ? Colors.red : Colors.green,
                                   ),
-                                  selectedItemBuilder: (BuildContext context) {
-                                    return Currency.values
-                                        .map((Currency currency) {
-                                      return Row(
-                                        children: [
-                                          Text(currency == Currency.VND
-                                              ? '₫'
-                                              : '\$'),
-                                        ],
-                                      );
-                                    }).toList();
-                                  },
+                                  textAlign: TextAlign.right,
                                 ),
                               ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: Text("₫", style: TextStyle(fontSize: 28)),
+                              )
                             ],
                           ),
                           SizedBox(height: 20),
@@ -178,11 +141,11 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                     style: TextStyle(fontSize: 18),
                                   )
                                 : Text(
-                                    'Chọn danh mục',
+                                    tr('category_placeholder'),
                                     style: TextStyle(fontSize: 18),
                                   ),
                             trailing: Text(
-                              'Tất cả  >',
+                              tr('all_text'),
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.green,
@@ -213,7 +176,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Danh mục hay dùng',
+                                  Text(tr('frequent_categories'),
                                       style: TextStyle(fontSize: 18)),
                                   GestureDetector(
                                     onTap: () {
@@ -332,11 +295,11 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                     overflow: TextOverflow.ellipsis,
                                   )
                                 : Text(
-                                    'Chọn ví tiền',
+                                    tr('wallet_placeholder'),
                                     style: TextStyle(fontSize: 20),
                                   ),
                             trailing: Text(
-                              'Tất cả  >',
+                              tr('all_text'),
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.green,
@@ -367,10 +330,11 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                   onTap: () async {
                                     final DateTime? picked =
                                         await showDatePicker(
+                                          locale: context.locale,
                                       context: context,
                                       initialDate: viewModel.selectedDate,
                                       firstDate: DateTime(1999),
-                                      lastDate: DateTime.now(),
+                                      lastDate: DateTime(2100),
                                     );
                                     if (picked != null &&
                                         picked != viewModel.selectedDate) {
@@ -378,7 +342,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                     }
                                   },
                                   decoration: InputDecoration(
-                                    labelText: 'Chọn ngày',
+                                    labelText: tr('select_date'),
                                   ),
                                 ),
                               ),
@@ -392,6 +356,13 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                         await showTimePicker(
                                       context: context,
                                       initialTime: viewModel.selectedHour,
+                                          builder: (BuildContext context, Widget? child) {
+                                            return Localizations.override(
+                                              context: context,
+                                              locale: context.locale,
+                                              child: child,
+                                            );
+                                          },
                                     );
                                     if (picked != null &&
                                         picked != viewModel.selectedHour) {
@@ -399,7 +370,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                     }
                                   },
                                   decoration: InputDecoration(
-                                    labelText: 'Chọn giờ',
+                                    labelText: tr('select_time'),
                                   ),
                                 ),
                               ),
@@ -415,7 +386,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                               viewModel.setNote(value);
                             },
                             decoration: InputDecoration(
-                              labelText: 'Ghi chú',
+                              labelText: tr('select_time'),
                             ),
                             keyboardType: TextInputType.text,
                           ),
@@ -575,13 +546,13 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                             widget.transaction.transactionId, context);
                                     if (updatedTransaction != null) {
                                       await CustomSnackBar_2.show(
-                                          context, 'Cập nhật thành công');
+                                          context, tr('save_success'));
                                       Navigator.pop(
                                           context, updatedTransaction);
                                     }
                                   }
                                 : null,
-                            text: 'Lưu giao dịch',
+                            text: tr('save_button'),
                           ),
                         ],
                       ),

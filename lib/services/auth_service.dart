@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 //register
   Future<User?> createUserWithEmailAndPassword(String email, String password) async {
     try {
@@ -51,6 +53,29 @@ class AuthService {
 
   Future<void> updateUserPassword(User user, String newPassword) async {
     await user.updatePassword(newPassword);
+  }
+
+  // Đăng nhập bằng Google
+  Future<UserCredential> signInWithGoogle() async{
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  // Đăng xuất
+  Future<void> signOut() async {
+    try {
+      await _firebaseAuth.signOut();
+      await _googleSignIn.signOut();
+    } catch (e) {
+      throw Exception('Đã xảy ra lỗi. Vui lòng thử lại.');
+    }
   }
 
 }

@@ -7,7 +7,6 @@ class Transfer {
   final String fromWallet;
   final String toWallet;
   final double amount;
-  final Currency currency;
   final DateTime date;
   final TimeOfDay hour;
   final String note;
@@ -18,7 +17,6 @@ class Transfer {
     required this.fromWallet,
     required this.toWallet,
     required this.amount,
-    required this.currency,
     required this.date,
     required this.hour,
     this.note = '',
@@ -31,7 +29,6 @@ class Transfer {
       'fromWallet': fromWallet,
       'toWallet': toWallet,
       'amount': amount,
-      'currency': currency == Currency.VND ? 'VND' : 'USD',
       'date': date.toIso8601String(),
       'hour': '${hour.hour}:${hour.minute.toString().padLeft(2, '0')}',
       'note': note,
@@ -45,7 +42,6 @@ class Transfer {
       fromWallet: map['fromWallet'],
       toWallet: map['toWallet'],
       amount: map['amount'],
-      currency: map['currency'] == 'VND' ? Currency.VND : Currency.USD,
       date: DateTime.parse(map['date']), // Chuyển đổi từ chuỗi ISO 8601 sang DateTime
       hour: TimeOfDay(
           hour: int.parse(map['hour'].split(':')[0]),

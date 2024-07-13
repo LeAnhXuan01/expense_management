@@ -1,5 +1,4 @@
 import 'package:expense_management/utils/utils.dart';
-import 'package:expense_management/view_model/transaction/transaction_history_view_model.dart';
 import 'package:expense_management/widget/custom_header_2.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -12,7 +11,7 @@ import '../../model/wallet_model.dart';
 import '../../view_model/statistics/statistics_view_model.dart';
 import '../../widget/multi_category_selection_dialog.dart';
 import '../../widget/multi_wallet_selection_dialog.dart';
-import '../transaction/edit_transaction_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class StatisticsScreen extends StatelessWidget {
   @override
@@ -31,7 +30,7 @@ class StatisticsScreen extends StatelessWidget {
                   body: Column(
                     children: [
                       CustomHeader_2(
-                        title: 'Thống kê',
+                        title: tr('statistics'),
                         leftAction: IconButton(
                           icon: Icon(Icons.category, color: Colors.white),
                           onPressed: () {
@@ -89,11 +88,11 @@ class StatisticsScreen extends StatelessWidget {
                                 labelColor: Colors.green,
                                 unselectedLabelColor: Colors.grey,
                                 tabs: [
-                                  Tab(text: 'Ngày'),
-                                  Tab(text: 'Tuần'),
-                                  Tab(text: 'Tháng'),
-                                  Tab(text: 'Năm'),
-                                  Tab(text: 'Tuỳ chỉnh'),
+                                  Tab(text: tr('day')),
+                                  Tab(text: tr('week')),
+                                  Tab(text: tr('month')),
+                                  Tab(text: tr('year')),
+                                  Tab(text: tr('custom')),
                                 ],
                                 onTap: (int index) {
                                   switch (index) {
@@ -117,6 +116,7 @@ class StatisticsScreen extends StatelessWidget {
                               ),
                               Expanded(
                                 child: TabBarView(
+                                  physics: NeverScrollableScrollPhysics(),
                                   children: [
                                     StatisticsChart(viewModel: viewModel),
                                     StatisticsChart(viewModel: viewModel),
@@ -133,22 +133,22 @@ class StatisticsScreen extends StatelessWidget {
                       Expanded(
                         child: viewModel.selectedIncomeTransactions.isNotEmpty
                             ? TransactionList(
-                          title: 'Thời gian: ${viewModel.currentIncomeDateKey}',
+                          title: '${tr('time')}${viewModel.currentIncomeDateKey}',
                           transactions: viewModel.selectedIncomeTransactions,
                           categoryMap: viewModel.categoryMap,
                           totalAmount: viewModel.currentIncomeTotal,
-                          type: TransactionType.income,
+                          type: Type.income,
                         )
                             : viewModel.selectedExpenseTransactions.isNotEmpty
                             ? TransactionList(
-                          title: 'Thời gian: ${viewModel.currentExpenseDateKey}',
+                          title: '${tr('time')}${viewModel.currentExpenseDateKey}',
                           transactions: viewModel.selectedExpenseTransactions,
                           categoryMap: viewModel.categoryMap,
                           totalAmount: viewModel.currentExpenseTotal,
-                          type: TransactionType.expense,
+                          type: Type.expense,
                         )
                             : Center(
-                            child: Text('Nhấn vào cột để xem chi tiết')),
+                            child: Text(tr('tap_to_see_details'))),
                       ),
                     ],
                   ),
@@ -231,11 +231,11 @@ class StatisticsChart extends StatelessWidget {
                 if (seriesIndex == 0) {
                   final data = viewModel.incomeData[pointIndex];
                   viewModel.setSelectedTransactions(
-                      TransactionType.income, data.date);
+                      Type.income, data.date);
                 } else if (seriesIndex == 1) {
                   final data = viewModel.expenseData[pointIndex];
                   viewModel.setSelectedTransactions(
-                      TransactionType.expense, data.date);
+                      Type.expense, data.date);
                 }
               },
 
@@ -244,7 +244,7 @@ class StatisticsChart extends StatelessWidget {
                   dataSource: viewModel.incomeData,
                   xValueMapper: (ChartData data, _) => data.date,
                   yValueMapper: (ChartData data, _) => data.amount,
-                  name: 'Thu nhập',
+                  name: tr('income'),
                   color: Colors.green,
                   enableTooltip: true,
                   selectionBehavior: SelectionBehavior(enable: true),
@@ -253,7 +253,7 @@ class StatisticsChart extends StatelessWidget {
                   dataSource: viewModel.expenseData,
                   xValueMapper: (ChartData data, _) => data.date,
                   yValueMapper: (ChartData data, _) => data.amount,
-                  name: 'Chi tiêu',
+                  name: tr('expense'),
                   color: Colors.red,
                   enableTooltip: true,
                   selectionBehavior: SelectionBehavior(enable: true),
@@ -262,7 +262,7 @@ class StatisticsChart extends StatelessWidget {
                   dataSource: viewModel.profitData,
                   xValueMapper: (ChartData data, _) => data.date,
                   yValueMapper: (ChartData data, _) => data.amount,
-                  name: 'Lợi nhuận',
+                  name: tr('Profit'),
                   color: Colors.blue,
                   enableTooltip: true,
                   selectionBehavior: SelectionBehavior(enable: true),
@@ -271,7 +271,7 @@ class StatisticsChart extends StatelessWidget {
                   dataSource: viewModel.lossData,
                   xValueMapper: (ChartData data, _) => data.date,
                   yValueMapper: (ChartData data, _) => data.amount,
-                  name: 'Lỗ',
+                  name: tr('loss'),
                   color: Colors.orange,
                   enableTooltip: true,
                   selectionBehavior: SelectionBehavior(enable: true),
@@ -290,7 +290,7 @@ class TransactionList extends StatefulWidget {
   final List<Transactions> transactions;
   final Map<String, Category> categoryMap;
   final double totalAmount;
-  final TransactionType type;
+  final Type type;
 
   TransactionList({
     required this.title,
@@ -307,7 +307,6 @@ class TransactionList extends StatefulWidget {
 class _TransactionListState extends State<TransactionList> {
   @override
   Widget build(BuildContext context) {
-    print('TransactionList built with ${widget.transactions.length} transactions');
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
@@ -318,9 +317,9 @@ class _TransactionListState extends State<TransactionList> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           Text(
-            widget.type == TransactionType.income
-                ? 'Tổng thu nhập: ${formatTotalBalance(widget.totalAmount)} ₫'
-                : 'Tổng chi tiêu: ${formatTotalBalance(widget.totalAmount)} ₫',
+            widget.type == Type.income
+                ? tr('total_income', namedArgs: {'amount': formatTotalBalance(widget.totalAmount)})
+                : tr('total_expense', namedArgs: {'amount': formatTotalBalance(widget.totalAmount)}),
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           Expanded(
@@ -329,27 +328,27 @@ class _TransactionListState extends State<TransactionList> {
               itemBuilder: (context, index) {
                 final transaction = widget.transactions[index];
                 final category = widget.categoryMap[transaction.categoryId];
-                final double transactionAmountInVND = convertToVND(transaction.amount, transaction.currency);
-                final double transactionPercentage = (transactionAmountInVND / widget.totalAmount) * 100;
+                final double transactionAmount = transaction.amount;
+                final double transactionPercentage = (transactionAmount / widget.totalAmount) * 100;
 
                 if (category == null) {
                   return ListTile(
-                    title: Text('Không xác định.'),
+                    title: Text(tr('no_category')),
                     // subtitle: Text(formatDate(transaction.date)),
                     subtitle: LinearProgressIndicator(
                       value: transactionPercentage,
                       backgroundColor: Colors.grey[300],
-                      color: transaction.type == TransactionType.income
+                      color: transaction.type == Type.income
                           ? Colors.green
                           : Colors.red,
                     ),
                     trailing: Column(
                       children: [
                         Text(
-                          '${formatAmount(transaction.amount, transaction.currency)} ${transaction.currency == Currency.VND ? '₫' : '\$'}',
+                          '${formatAmount(transaction.amount)} đ',
                           style: TextStyle(
                             fontSize: 16,
-                              color: transaction.type == TransactionType.income
+                              color: transaction.type == Type.income
                                   ? Colors.green
                                   : Colors.red),
                         ),
@@ -375,7 +374,7 @@ class _TransactionListState extends State<TransactionList> {
                   subtitle: LinearProgressIndicator(
                       value: transactionPercentage / 10,
                       backgroundColor: Colors.grey[300],
-                      color: transaction.type == TransactionType.income
+                      color: transaction.type == Type.income
                           ? Colors.green
                           : Colors.red,
                     ),
@@ -383,11 +382,10 @@ class _TransactionListState extends State<TransactionList> {
                   trailing: Column(
                     children: [
                       Text(
-                        '${formatAmount_2(transaction.amount, transaction.currency)} '
-                        '${transaction.currency == Currency.VND ? '₫' : '\$'}',
+                        '${formatAmount_2(transaction.amount)} đ',
                         style: TextStyle(
                             fontSize: 16,
-                            color: transaction.type == TransactionType.income
+                            color: transaction.type == Type.income
                                 ? Colors.green
                                 : Colors.red),
                       ),

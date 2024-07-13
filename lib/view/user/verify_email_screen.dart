@@ -1,9 +1,9 @@
 import 'dart:async';
-
 import 'package:expense_management/widget/custom_header_2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../view_model/user/register_view_model.dart';
 import '../../widget/custom_ElevatedButton_1.dart';
 import '../../widget/custom_snackbar_1.dart';
@@ -36,7 +36,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
   void _sendEmailVerification(RegisterViewModel viewModel) async {
     if (_hasRecentlySentVerification) {
-      CustomSnackBar_2.show(context, 'Vui lòng thử lại sau ít phút');
+      CustomSnackBar_2.show(context, tr('try_again_later'));
       return;
     }
 
@@ -53,20 +53,20 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
           _countdown = 60;
         });
 
-        CustomSnackBar_2.show(context, 'Email xác thực đã được gửi lại');
+        CustomSnackBar_2.show(context, tr('verification_email_sent_again'));
         _startCountdown();
       }
     } catch (e) {
       print('Error sending email verification: $e');
       if (e is FirebaseAuthException && e.code == 'too-many-requests') {
-        CustomSnackBar_1.show(context, 'Quá nhiều yêu cầu gửi email xác thực. Vui lòng thử lại sau ít phút.');
+        CustomSnackBar_1.show(context, tr('too_many_requests'));
         setState(() {
           _hasRecentlySentVerification = true;
           _countdown = 60;
         });
         _startCountdown();
       } else {
-        CustomSnackBar_1.show(context, 'Có lỗi xảy ra khi gửi email xác thực. Vui lòng thử lại.');
+        CustomSnackBar_1.show(context, tr('error_sending_verification_email'));
       }
     }
 
@@ -86,21 +86,32 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     return Scaffold(
       body: Consumer<RegisterViewModel>(
         builder: (context, viewModel, child) {
-          return Column(
-            children: [
-              CustomHeader_2(title: 'Xác thực Email'),
-              SizedBox(height: 150),
-              Center(
-                child: Padding(
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                CustomHeader_2(title: tr('verify_email')),
+                Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Center(
+                          child: Image.asset(
+                            'assets/images/email.png',
+                            height: 250,
+                            width: 250,
+                          )),
+                      SizedBox(
+                        height: 30,
+                      ),
                       Text.rich(
                         TextSpan(
                           children: [
                             TextSpan(
-                              text: 'Vui lòng kiểm tra email ',
+                              text: tr('check_email'),
                               style: TextStyle(fontSize: 16),
                             ),
                             TextSpan(
@@ -112,7 +123,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                               ),
                             ),
                             TextSpan(
-                              text: ' và nhấp vào liên kết xác thực để hoàn tất quá trình đăng ký.',
+                              text: tr('and_click_verification_link'),
                               style: TextStyle(fontSize: 16),
                             ),
                           ],
@@ -128,32 +139,32 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                             if (user.emailVerified) {
                               await viewModel.monitorEmailVerification(
                                   user, viewModel.passwordController.text);
-                              await CustomSnackBar_2.show(context, 'Đăng ký thành công');
+                              await CustomSnackBar_2.show(context, tr('registration_successful'));
                               Navigator.pushReplacementNamed(context, '/login');
                             } else {
-                              CustomSnackBar_1.show(context, 'Email chưa được xác thực. Vui lòng kiểm tra lại.');
+                              CustomSnackBar_1.show(context, tr('email_not_verified'));
                             }
                           }
                         },
-                        text: 'Tôi đã xác thực',
+                        text: tr('i_have_verified'),
                       ),
                       SizedBox(height: 20),
                       CustomElavatedButton_1(
                         onPressed: (_isSendingVerification || _hasRecentlySentVerification)
                             ? null
                             : () => _sendEmailVerification(viewModel),
-                        text: 'Gửi lại email xác thực',
+                        text: tr('resend_verification_email'),
                       ),
                       if (_hasRecentlySentVerification)
                         Text(
-                          'Vui lòng chờ $_countdown giây trước khi gửi lại email.',
+                          tr('wait_seconds_before_resending', namedArgs: {'seconds': '$_countdown'}),
                           style: TextStyle(color: Colors.red),
                         ),
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),

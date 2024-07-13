@@ -32,7 +32,7 @@ class EditCategoryViewModel extends ChangeNotifier {
     nameCategory.text = category.name;
     selectedIcon =  parseIcon(category.icon);
     selectedColor = parseColor(category.color);
-    currentIconsList = category.type == TransactionType.income ? incomeIcons : expenseIcons;
+    currentIconsList = category.type == Type.income ? incomeIcons : expenseIcons;
     showPlusButtonIcon = true;
     showPlusButtonColor = true;
     updateButtonState();
@@ -70,7 +70,7 @@ class EditCategoryViewModel extends ChangeNotifier {
           categoryId: categoryId,
           userId: user.uid,
           name: nameCategory.text,
-          type: currentIconsList == incomeIcons ? TransactionType.income : TransactionType.expense,
+          type: currentIconsList == incomeIcons ? Type.income : Type.expense,
           icon: selectedIcon.toString(),
           color: selectedColor.toString(),
           createdAt: createdAt,

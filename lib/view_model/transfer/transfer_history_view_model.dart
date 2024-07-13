@@ -1,10 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:expense_management/model/transfer_model.dart';
 import 'package:expense_management/model/wallet_model.dart';
 import 'package:expense_management/services/transfer_service.dart';
 import 'package:expense_management/services/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
 import '../../utils/wallet_utils.dart';
 
 class TransferHistoryViewModel extends ChangeNotifier {
@@ -154,9 +154,9 @@ class TransferHistoryViewModel extends ChangeNotifier {
       // Hoàn lại số dư của ví nguồn và ví đích
       final transferHelper = TransferHelper();
       await transferHelper.updateWalletBalance(oldTransfer.fromWallet,
-          oldTransfer.amount, oldTransfer.currency, true);
+          oldTransfer.amount, true);
       await transferHelper.updateWalletBalance(oldTransfer.toWallet,
-          oldTransfer.amount, oldTransfer.currency, false);
+          oldTransfer.amount, false);
 
       await _transferService.deleteTransfer(transferId);
 

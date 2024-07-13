@@ -161,10 +161,11 @@ class _CreateTransferScreenState extends State<CreateTransferScreen> {
                                   controller: viewModel.dateController,
                                   onTap: () async {
                                     final DateTime? picked = await showDatePicker(
+                                      locale: const Locale('vi', 'VN'),
                                       context: context,
                                       initialDate: viewModel.selectedDate,
-                                      firstDate: DateTime(2000),
-                                      lastDate: DateTime.now(),
+                                      firstDate: DateTime(1999),
+                                      lastDate: DateTime(2100),
                                     );
                                     if (picked != null &&
                                         picked != viewModel.selectedDate) {
@@ -185,6 +186,13 @@ class _CreateTransferScreenState extends State<CreateTransferScreen> {
                                     final TimeOfDay? picked = await showTimePicker(
                                       context: context,
                                       initialTime: viewModel.selectedHour,
+                                      builder: (BuildContext context, Widget? child) {
+                                        return Localizations.override(
+                                          context: context,
+                                          locale: const Locale('vi', 'VN'),
+                                          child: child,
+                                        );
+                                      },
                                     );
                                     if (picked != null && picked != viewModel.selectedHour) {
                                       viewModel.setSelectedHour(picked);

@@ -4,7 +4,7 @@ class Profile {
   String profileId;
   String userId;
   String displayName;
-  String birthDate;
+  DateTime birthDate;
   Gender gender;
   String address;
   String profileImageUrl;
@@ -25,7 +25,7 @@ class Profile {
       'profileId': profileId,
       'userId': userId,
       'displayName': displayName,
-      'birthDate': birthDate,
+      'birthDate': birthDate.toIso8601String(),
       'gender': gender.index,
       'address': address,
       'job': job,
@@ -38,23 +38,11 @@ class Profile {
       profileId: map['profileId'],
       userId: map['userId'],
       displayName: map['displayName'],
-      birthDate: map['birthDate'],
+      birthDate: DateTime.parse(map['birthDate']),
       gender: Gender.values[map['gender']],
       address: map['address'],
       job: map['job'],
       profileImageUrl: map['profileImageUrl'],
     );
   }
-  // factory Profile.fromMap(Map<String, dynamic> map) {
-  //   return Profile(
-  //     profileId: map['profileId'] ?? '',
-  //     userId: map['userId'] ?? '',
-  //     displayName: map['displayName'] ?? '',
-  //     birthDate: map['birthDate'] ?? '',
-  //     gender: Gender.values[map['gender'] ?? 0], // Assuming 0 is the default for Gender
-  //     address: map['address'] ?? '',
-  //     job: map['job'] ?? '',
-  //     profileImageUrl: map['profileImageUrl'] ?? '',
-  //   );
-  // }
 }

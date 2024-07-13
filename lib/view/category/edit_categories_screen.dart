@@ -95,7 +95,7 @@ class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
                                 ),
                               ),
                               Text(
-                                widget.category.type == TransactionType.income ? 'Thu nhập' : 'Chi tiêu',
+                                widget.category.type == Type.income ? 'Thu nhập' : 'Chi tiêu',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.black.withOpacity(0.7),

@@ -2,8 +2,6 @@ import 'package:expense_management/widget/custom_snackbar_1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_management/model/transfer_model.dart';
-import 'package:intl/intl.dart';
-import '../../model/enum.dart';
 import '../../model/wallet_model.dart';
 import '../../services/transfer_service.dart';
 import '../../services/wallet_service.dart';
@@ -13,7 +11,6 @@ import '../../utils/wallet_utils.dart';
 class CreateTransferViewModel extends ChangeNotifier {
   final TransferService _transferService = TransferService();
   final WalletService _walletService = WalletService();
-  final TransferHelper _transferHelper = TransferHelper();
 
   final TextEditingController amountController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
@@ -103,7 +100,6 @@ class CreateTransferViewModel extends ChangeNotifier {
         fromWallet: selectedFromWallet!.walletId,
         toWallet: selectedToWallet!.walletId,
         amount: amount,
-        currency: Currency.VND,
         date: selectedDate,
         hour: TimeOfDay(hour: selectedHour.hour, minute: selectedHour.minute),
         note: noteController.text,
@@ -112,13 +108,13 @@ class CreateTransferViewModel extends ChangeNotifier {
       try {
         final transferHelper = TransferHelper();
         final isBalanceSufficient = await transferHelper.checkBalance(
-            newTransfer.fromWallet, newTransfer.amount, newTransfer.currency);
+            newTransfer.fromWallet, newTransfer.amount);
 
         if (!isBalanceSufficient) {
           CustomSnackBar_1.show(context, 'Số dư ví nguồn không đủ');
           return null;
         }
-        // Tạo chuyển khoản
+
         await _transferService.createTransfer(newTransfer);
         // Cập nhật số dư của ví nguồn và ví đích
         await transferHelper.updateWalletsForTransfer(newTransfer);

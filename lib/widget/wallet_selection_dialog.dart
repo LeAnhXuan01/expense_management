@@ -2,7 +2,6 @@ import 'package:expense_management/view_model/wallet/wallet_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_management/model/wallet_model.dart';
 import 'package:provider/provider.dart';
-import '../model/enum.dart';
 import '../utils/utils.dart';
 
 class WalletSelectionDialog extends StatelessWidget {
@@ -50,7 +49,7 @@ class WalletSelectionDialog extends StatelessWidget {
                             ),
                             title: Text(wallet.name),
                             subtitle: Text(
-                              '${formatAmount(wallet.initialBalance, wallet.currency)} ${wallet.currency == Currency.VND ? '₫' : '\$'}',
+                              '${formatAmount(wallet.initialBalance)} ₫',
                             ),
                             onTap: () {
                               onSelect(wallet);

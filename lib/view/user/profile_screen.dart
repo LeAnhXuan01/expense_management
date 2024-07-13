@@ -7,6 +7,7 @@ import '../../model/profile_model.dart';
 import '../../view_model/user/edit_profile_view_model.dart';
 import '../../widget/custom_ElevatedButton_1.dart';
 import 'edit_profile_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -23,7 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (context, viewModel, child) {
           return Column(
             children: [
-              CustomHeader_2(title: 'Hồ sơ'),
+              CustomHeader_2(title: tr('profile')),
               Expanded(
                 child: SingleChildScrollView(
                   child: Padding(
@@ -35,16 +36,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           backgroundImage: viewModel.imageFile != null
                               ? FileImage(File(viewModel.imageFile!.path))
                               : (viewModel.networkImageUrl != null
-                                      ? NetworkImage(viewModel.networkImageUrl!)
-                                      : AssetImage('assets/images/profile.png'))
-                                  as ImageProvider,
+                              ? NetworkImage(viewModel.networkImageUrl!)
+                              : AssetImage('assets/images/profile.png'))
+                          as ImageProvider,
                         ),
                         SizedBox(height: 5.0),
                         Text(
-                            viewModel.displayName,
-                            style: TextStyle(
-                                fontSize: 20.0, fontWeight: FontWeight.bold),
-                          ),
+                          viewModel.displayName,
+                          style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                        ),
                         SizedBox(height: 10),
                         GestureDetector(
                           child: Container(
@@ -54,7 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             child: Text(
-                              'Sửa hồ sơ',
+                              tr('edit_profile'),
                               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
                             ),
                           ),
@@ -70,14 +70,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             }
                           },
                         ),
-
                         SizedBox(height: 50.0),
                         // Settings Section
-                            Text(
-                              'Cài đặt',
-                              style: TextStyle(
-                                  fontSize: 18.0, fontWeight: FontWeight.bold),
-                            ),
+                        Text(
+                          tr('settings'),
+                          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                        ),
                         Divider(),
                         ListTile(
                           onTap: () {
@@ -85,7 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Navigator.pushNamed(context, '/change-password');
                           },
                           leading: Icon(Icons.lock),
-                          title: Text('Đổi mật khẩu'),
+                          title: Text(tr('change_password')),
                         ),
                         ListTile(
                           onTap: () {
@@ -93,22 +91,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: Text('Chọn ngôn ngữ'),
-                                content:
-                                    Text('Chọn ngôn ngữ bạn muốn sử dụng:'),
+                                title: Text(tr('select_language')),
+                                content: Text(tr('select_language')),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
-                                      // Set language to Vietnamese
-                                      // ... Update language settings
+                                      context.setLocale(Locale('vi'));
                                       Navigator.pop(context);
                                     },
                                     child: Text('Tiếng Việt'),
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      // Set language to English
-                                      // ... Update language settings
+                                      context.setLocale(Locale('en'));
                                       Navigator.pop(context);
                                     },
                                     child: Text('English'),
@@ -118,7 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             );
                           },
                           leading: Icon(Icons.language),
-                          title: Text('Thay đổi ngôn ngữ'),
+                          title: Text(tr('change_language')),
                         ),
                         ListTile(
                           onTap: () {
@@ -126,9 +121,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: Text('Chọn loại tiền tệ'),
-                                content:
-                                    Text('Chọn loại tiền tệ bạn muốn sử dụng:'),
+                                title: Text(tr('select_currency')),
+                                content: Text(tr('select_currency')),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
@@ -151,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             );
                           },
                           leading: Icon(Icons.monetization_on),
-                          title: Text('Thay đổi loại tiền tệ'),
+                          title: Text(tr('change_currency')),
                         ),
                         SizedBox(height: 20.0),
                         // Logout Button
@@ -159,10 +153,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           height: 50,
                           width: double.maxFinite,
                           child: CustomElavatedButton_1(
-                            text: 'Đăng xuất',
+                            text: tr('logout'),
                             onPressed: () {
-                              FirebaseAuth.instance.signOut();
-                              Navigator.pushReplacementNamed(context, '/login');
+                              _showSignOutConfirmationDialog(context, viewModel);
                             },
                           ),
                         ),
@@ -177,4 +170,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+  void _showSignOutConfirmationDialog(BuildContext context, EditProfileViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(tr('confirm_logout')),
+          content: Text(tr('are_you_sure_you_want_to_logout')),
+          actions: <Widget>[
+            TextButton(
+              child: Text(tr('cancel'), style: TextStyle(color: Colors.red),),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(tr('logout'), style: TextStyle(color: Colors.blue),),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                viewModel.signOut(context); // Call sign out function
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }

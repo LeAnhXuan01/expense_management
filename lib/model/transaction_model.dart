@@ -5,8 +5,7 @@ class Transactions {
   final String transactionId;
   final String userId;
   final double amount;
-  final Currency currency;
-  final TransactionType type;
+  final Type type;
   final String walletId;
   final String categoryId;
   final DateTime date;
@@ -18,7 +17,6 @@ class Transactions {
     required this.transactionId,
     required this.userId,
     required this.amount,
-    required this.currency,
     required this.type,
     required this.walletId,
     required this.categoryId,
@@ -33,7 +31,6 @@ class Transactions {
       'transactionId': transactionId,
       'userId': userId,
       'amount': amount,
-      'currency': currency == Currency.VND ? 'VND' : 'USD',
       'type': type.index,
       'walletId': walletId,
       'categoryId': categoryId,
@@ -49,8 +46,7 @@ class Transactions {
       transactionId: map['transactionId'],
       userId: map['userId'],
       amount: map['amount'],
-      currency: map['currency'] == 'VND' ? Currency.VND : Currency.USD,
-      type: TransactionType.values[map['type']],
+      type: Type.values[map['type']],
       walletId: map['walletId'],
       categoryId: map['categoryId'],
       date: DateTime.parse(map['date']), // Chuyển đổi từ chuỗi ISO 8601 sang DateTime

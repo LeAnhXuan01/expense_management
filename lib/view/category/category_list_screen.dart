@@ -106,7 +106,7 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                   await viewModel.loadCategories();
                   setState(() {
                     _selectedTabIndex =
-                        newCategory.type == TransactionType.income ? 0 : 1;
+                        newCategory.type == Type.income ? 0 : 1;
                   });
                 }
               },

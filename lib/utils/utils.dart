@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../model/enum.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 Color parseColor(String colorString) {
   final colorValue = int.parse(colorString.split('(0x')[1].split(')')[0], radix: 16);
@@ -21,7 +21,7 @@ IconData parseIcon(String iconString) {
   }
 }
 
-String formatAmount(double amount, Currency currency) {
+String formatAmount(double amount) {
   final formatter = NumberFormat('#,###', 'vi_VN');
 
   if (amount >= 1000000000) {
@@ -35,7 +35,7 @@ String formatAmount(double amount, Currency currency) {
   }
 }
 
-String formatAmount_2(double amount, Currency currency) {
+String formatAmount_2(double amount) {
   final formatter = NumberFormat('#,###.##', 'vi_VN');
 
   if (amount >= 1000000000) {
@@ -93,11 +93,8 @@ String formatAmountChart(double totalBalance) {
   }
 }
 
-String chartTotalAmountFormat(double totalAmount, Currency currency) {
+String chartTotalAmountFormat(double totalAmount) {
   final formatter = NumberFormat('#,###', 'vi_VN');
-  if (currency == Currency.USD) {
-    totalAmount *= 25442.5;
-  }
 
   if (totalAmount >= 1000000000) {
     return '${formatter.format((totalAmount / 1))} ₫';
@@ -114,7 +111,7 @@ DateTime parseDateKey(String dateKey, String selectedTimeframe) {
   switch (selectedTimeframe) {
     case 'day':
     // Format: 'dd-MM-yyyy'
-      final parts = dateKey.split('-');
+      final parts = dateKey.split('/');
       if (parts.length == 3) {
         return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
       } else {
@@ -122,36 +119,38 @@ DateTime parseDateKey(String dateKey, String selectedTimeframe) {
       }
     case 'custom':
     // Format: 'Từ dd-MM-yyyy đến dd-MM-yyyy'
-      final customPattern = RegExp(r'Từ (\d{1,2}-\d{1,2}-\d{4}) đến (\d{1,2}-\d{1,2}-\d{4})');
+      final customPattern = RegExp(r'(\d{1,2}/\d{1,2}/\d{4}) - (\d{1,2}/\d{1,2}/\d{4})');
       final customMatch = customPattern.firstMatch(dateKey);
       if (customMatch != null) {
-        final startDateParts = customMatch.group(1)!.split('-');
+        final startDateParts = customMatch.group(1)!.split('/');
         return DateTime(int.parse(startDateParts[2]), int.parse(startDateParts[1]), int.parse(startDateParts[0]));
       } else {
         throw FormatException('Invalid custom format in dateKey: $dateKey');
       }
     case 'week':
     // Format: 'Từ dd-MM-yyyy đến dd-MM-yyyy'
-      final weekPattern = RegExp(r'Từ (\d{1,2}-\d{1,2}-\d{4}) đến (\d{1,2}-\d{1,2}-\d{4})');
+      final weekPattern = RegExp(r'(\d{1,2}/\d{1,2}/\d{4}) - (\d{1,2}/\d{1,2}/\d{4})');
       final match = weekPattern.firstMatch(dateKey);
       if (match != null) {
-        final startDateParts = match.group(1)!.split('-');
+        final startDateParts = match.group(1)!.split('/');
         return DateTime(int.parse(startDateParts[2]), int.parse(startDateParts[1]), int.parse(startDateParts[0]));
       } else {
         throw FormatException('Invalid week format in dateKey: $dateKey');
       }
     case 'month':
-    // Format: 'Tháng MM-yyyy'
-      final parts = dateKey.split(' ');
+    // Format: 'Tháng MM/yyyy'
+      final parts = dateKey.split('/');
       if (parts.length == 2) {
-        final monthYearParts = parts[1].split('-');
-        return DateTime(int.parse(monthYearParts[1]), int.parse(monthYearParts[0]));
+        final month = int.parse(parts[0]);
+        final year = int.parse(parts[1]);
+        return DateTime(year, month);
       } else {
         throw FormatException('Invalid month format in dateKey: $dateKey');
       }
+
     case 'year':
     // Format: 'năm yyyy'
-      final yearPattern = RegExp(r'Năm (\d{4})');
+      final yearPattern = RegExp(r'(\d{4})');
       final match = yearPattern.firstMatch(dateKey);
       if (match != null) {
         final year = int.parse(match.group(1)!);
@@ -164,18 +163,21 @@ DateTime parseDateKey(String dateKey, String selectedTimeframe) {
   }
 }
 
+String formatDate_2(DateTime date) {
+  return DateFormat('dd/MM/yyyy').format(date);
+}
+
 String formatDate(DateTime date) {
   final daysOfWeek = [
-    'Chủ Nhật',
-    'Thứ Hai',
-    'Thứ Ba',
-    'Thứ Tư',
-    'Thứ Năm',
-    'Thứ Sáu',
-    'Thứ Bảy'
+    tr('sunday'),
+    tr('monday'),
+    tr('tuesday'),
+    tr('wednesday'),
+    tr('thursday'),
+    tr('friday'),
+    tr('saturday')
   ];
-  final dayOfWeek =
-  daysOfWeek[date.weekday % 7]; // % 7 để điều chỉnh Chủ Nhật về index 0
+  final dayOfWeek = daysOfWeek[date.weekday % 7]; // % 7 để điều chỉnh Chủ Nhật về index 0
   return "$dayOfWeek - ${date.day}/${date.month}/${date.year}";
 }
 
@@ -186,37 +188,16 @@ String formatHour(TimeOfDay time) {
 String getGreeting() {
   final hour = DateTime.now().hour;
   if (hour < 12) {
-    return 'Chào buổi sáng';
+    return tr('morning');
   } else if (hour < 19) {
-    return 'Chào buổi chiều';
+    return tr('afternoon');
   } else {
-    return 'Chào buổi tối';
+    return tr('evening');
   }
 }
 
-class CurrencyUtils {
-  static final double exchangeRate = 25442.5; // 1 USD = 25442.5 VND
-
-  static double convertCurrency(double amount, Currency fromCurrency, Currency toCurrency) {
-    if (fromCurrency == toCurrency) {
-      return amount;
-    }
-
-    switch (fromCurrency) {
-      case Currency.VND:
-        return toCurrency == Currency.USD ? amount / exchangeRate : amount;
-      case Currency.USD:
-        return toCurrency == Currency.VND ? amount * exchangeRate : amount;
-      default:
-        return amount;
-    }
-  }
-}
-
-double convertToVND(double amount, Currency currency) {
-  const double exchangeRate = 25442.5;
-  if (currency == Currency.USD) {
-    return amount * exchangeRate;
-  }
-  return amount;
+bool isSameDate(DateTime date1, DateTime date2) {
+  return date1.year == date2.year &&
+      date1.month == date2.month &&
+      date1.day == date2.day;
 }

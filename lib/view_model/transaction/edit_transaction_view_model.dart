@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:expense_management/model/category_model.dart';
 import 'package:expense_management/model/enum.dart';
 import 'package:expense_management/model/wallet_model.dart';
@@ -8,7 +9,6 @@ import 'package:expense_management/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import '../../services/category_service.dart';
 import '../../services/wallet_service.dart';
 import '../../utils/wallet_utils.dart';
@@ -26,9 +26,8 @@ class EditTransactionViewModel extends ChangeNotifier {
   final TextEditingController hourController = TextEditingController();
 
   String transactionTypeTitle = 'Thu nhập';
-  bool isIncomeTabSelected = true;
+  bool isExpenseTabSelected = true;
   double amount = 0.0;
-  Currency selectedCurrency = Currency.VND;
   Category? selectedCategory;
   bool showPlusButtonCategory = true;
   List<Category> frequentCategories = [];
@@ -50,10 +49,9 @@ class EditTransactionViewModel extends ChangeNotifier {
   }
 
   Future<void> initialize(Transactions transaction) async {
-    transactionTypeTitle = transaction.type == TransactionType.income ? 'Thu nhập' : 'Chi tiêu';
-    isIncomeTabSelected = transaction.type == TransactionType.income;
+    transactionTypeTitle = transaction.type == Type.expense ? 'Chi tiêu' : 'Thu nhập';
+    isExpenseTabSelected = transaction.type == Type.expense;
     amountController.text = transaction.amount.toStringAsFixed(0);
-    selectedCurrency = transaction.currency;
     selectedCategory = await _categoryService.getCategoryById(transaction.categoryId);
     selectedWallet = await _walletService.getWalletById(transaction.walletId);
     selectedDate = transaction.date;
@@ -93,23 +91,6 @@ class EditTransactionViewModel extends ChangeNotifier {
   void setAmount(double value) {
     amount = value;
     updateButtonState();
-  }
-
-  // void setCurrency(Currency value) {
-  //   selectedCurrency = value;
-  //   notifyListeners();
-  // }
-
-  void setSelectedCurrency(Currency currency) {
-    final cleanedBalance = amountController.text.replaceAll('.', '');
-    final currentBalance = double.parse(cleanedBalance);
-
-    final newBalance = CurrencyUtils.convertCurrency(currentBalance, selectedCurrency, currency);
-
-    selectedCurrency = currency;
-    amountController.text = NumberFormat('#,###', 'vi_VN').format(newBalance);
-
-    notifyListeners();
   }
 
   void setSelectedCategory(Category? category) {
@@ -198,7 +179,7 @@ class EditTransactionViewModel extends ChangeNotifier {
 
   void updateTransactionTypeTitle(String newTitle) {
     transactionTypeTitle = newTitle;
-    isIncomeTabSelected = newTitle == 'Thu nhập';
+    isExpenseTabSelected = newTitle == 'Chi tiêu';
     selectedCategory = null;
     isFrequentCategoriesLoaded = false;
     loadFrequentCategories();
@@ -210,10 +191,10 @@ class EditTransactionViewModel extends ChangeNotifier {
     if (user != null) {
       try {
         List<Category> categories;
-        if (isIncomeTabSelected) {
-          categories = await _categoryService.getIncomeCategoryFrequent(user.uid);
-        } else {
+        if (isExpenseTabSelected) {
           categories = await _categoryService.getExpenseCategoryFrequent(user.uid);
+        } else {
+          categories = await _categoryService.getIncomeCategoryFrequent(user.uid);
         }
         frequentCategories = categories;
         isFrequentCategoriesLoaded = true;
@@ -224,11 +205,11 @@ class EditTransactionViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> checkBalance(double amount, Currency currency, TransactionType type, {Transactions? oldTransaction}) async {
+  Future<bool> checkBalance(double amount, Type type, {Transactions? oldTransaction}) async {
     if (selectedWallet == null) {
       return false;
     }
-    return await _transactionHelper.checkBalance(selectedWallet!.walletId, amount, currency, type, oldTransaction: oldTransaction);
+    return await _transactionHelper.checkBalance(selectedWallet!.walletId, amount, type, oldTransaction: oldTransaction);
   }
 
   Future<Transactions?> updateTransaction(String transactionId, BuildContext context) async {
@@ -237,7 +218,7 @@ class EditTransactionViewModel extends ChangeNotifier {
       final cleanedAmount = amountController.text.replaceAll('.', '');
       final amount = double.parse(cleanedAmount);
 
-      final transactionType = isIncomeTabSelected ? TransactionType.income : TransactionType.expense;
+      final transactionType = isExpenseTabSelected ? Type.expense : Type.income;
 
       // Lấy giao dịch cũ
       final oldTransaction = await _transactionService.getTransactionById(transactionId);
@@ -247,7 +228,7 @@ class EditTransactionViewModel extends ChangeNotifier {
       }
 
       // Kiểm tra số dư trước khi cập nhật giao dịch
-      final sufficientBalance = await checkBalance(amount, selectedCurrency, transactionType, oldTransaction: oldTransaction);
+      final sufficientBalance = await checkBalance(amount, transactionType, oldTransaction: oldTransaction);
       if (!sufficientBalance) {
         CustomSnackBar_1.show(context, 'Số dư ví không đủ');
         return null;
@@ -260,12 +241,10 @@ class EditTransactionViewModel extends ChangeNotifier {
         imageUrls.add(imageUrl);
       }
 
-      // Tạo đối tượng giao dịch cập nhật
       final updatedTransaction = Transactions(
         transactionId: transactionId,
         userId: user.uid,
         amount: amount,
-        currency: selectedCurrency,
         type: transactionType,
         walletId: selectedWallet!.walletId,
         categoryId: selectedCategory!.categoryId,
@@ -276,7 +255,7 @@ class EditTransactionViewModel extends ChangeNotifier {
       );
 
       try {
-        // Cập nhật giao dịch
+
         await _transactionService.updateTransaction(updatedTransaction);
         // Cập nhật số dư ví sau khi cập nhật giao dịch
         await _transactionHelper.updateWalletsForTransactionUpdate(updatedTransaction, oldTransaction);

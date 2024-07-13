@@ -1,11 +1,11 @@
 import 'dart:io';
-import 'package:expense_management/view/wallet/wallets_screen.dart';
 import 'package:expense_management/view_model/user/edit_profile_view_model.dart';
 import 'package:expense_management/view_model/wallet/wallet_view_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../utils/utils.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key});
@@ -16,15 +16,28 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isBalanceVisible = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final walletViewModel = Provider.of<WalletViewModel>(context, listen: false);
-      walletViewModel.loadWallets(); // Tải lại ví khi màn hình được hiển thị
-      final profileViewModel = Provider.of<EditProfileViewModel>(context, listen: false);
-      profileViewModel.loadProfile();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _loadData();
+    });
+  }
+
+  Future<void> _loadData() async {
+    final walletViewModel = Provider.of<WalletViewModel>(context, listen: false);
+    final profileViewModel = Provider.of<EditProfileViewModel>(context, listen: false);
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
+    await Future.wait([
+      walletViewModel.loadWallets(),
+      profileViewModel.loadProfile(),
+    ]);
+    setState(() {
+      _isLoading = false; // Hide loading indicator
     });
   }
 
@@ -33,11 +46,18 @@ class _HomeScreenState extends State<HomeScreen> {
     print('build called');
     return Scaffold(
       backgroundColor: Colors.grey[300],
-      body: _buildBody(),
+      body: RefreshIndicator(
+        onRefresh: _loadData,
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : _buildBody(),
+      ),
     );
   }
+
   Widget _buildBody() {
-    return  SingleChildScrollView(
+    return SingleChildScrollView(
+      physics: AlwaysScrollableScrollPhysics(),
       child: Column(
         children: [
           _buildHeader(),
@@ -46,55 +66,56 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-  Widget _buildHeader() {
-    return  Consumer<EditProfileViewModel>(
-        builder: (context, viewModel, child){
-          User? user = FirebaseAuth.instance.currentUser;
-          String displayName = viewModel.displayName ?? (user != null ? user.email!.split('@')[0] : 'Người dùng');
 
-          return Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Colors.lightBlueAccent,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(25),
-                bottomRight: Radius.circular(25),
-              ),
+  Widget _buildHeader() {
+    return Consumer<EditProfileViewModel>(
+      builder: (context, viewModel, child) {
+        User? user = FirebaseAuth.instance.currentUser;
+        String displayName = viewModel.displayName ?? (user != null ? user.email!.split('@')[0] : tr('user'));
+
+        return Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            color: Colors.lightBlueAccent,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(25),
+              bottomRight: Radius.circular(25),
             ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 35, horizontal: 5),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: viewModel.imageFile != null
-                            ? FileImage(File(viewModel.imageFile!.path))
-                            : (viewModel.networkImageUrl != null
-                            ? NetworkImage(viewModel.networkImageUrl!)
-                            : AssetImage('assets/images/profile.png')) as ImageProvider,
-                      ),
-                      SizedBox(width: 20),
-                      Expanded(
-                        child: Text(
-                          '${getGreeting()},\n$displayName!',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 25,
-                              fontWeight: FontWeight.w600
-                          ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 35, horizontal: 5),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage: viewModel.imageFile != null
+                          ? FileImage(File(viewModel.imageFile!.path))
+                          : (viewModel.networkImageUrl != null
+                          ? NetworkImage(viewModel.networkImageUrl!)
+                          : AssetImage('assets/images/profile.png')) as ImageProvider<Object>,
+                    ),
+                    SizedBox(width: 20),
+                    Expanded(
+                      child: Text(
+                        '${getGreeting()},\n$displayName!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 25,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  _buildBalance(),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                _buildBalance(),
+              ],
             ),
-          );
-        }
+          ),
+        );
+      },
     );
   }
 
@@ -121,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tổng số dư',
+                  tr('total_balance'),
                   style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.w400),
                 ),
                 Row(
@@ -153,6 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+
   Widget _buildUtilities() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
@@ -166,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildUtilityCard(
             icon: Icons.receipt,
             color: Colors.grey,
-            title: 'Hóa đơn',
+            title: tr('utility_bill'),
             onTap: () {
               Navigator.pushNamed(context, '/bill-list');
             },
@@ -174,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildUtilityCard(
             icon: Icons.category,
             color: Colors.green,
-            title: 'Danh mục',
+            title: tr('utility_category'),
             onTap: () {
               Navigator.pushNamed(context, '/category-list');
             },
@@ -182,22 +204,19 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildUtilityCard(
             icon: Icons.wallet,
             color: Colors.yellow,
-            title: 'Ví tiền',
-            // onTap: () {
-            //   Navigator.pushNamed(context, '/wallets');
-            // },
+            title: tr('utility_wallet'),
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => WalletScreen())).then((_) {
-                // Cập nhật ví khi quay lại từ màn hình lịch sử chuyển khoản
-                final walletViewModel = Provider.of<WalletViewModel>(context, listen: false);
-                walletViewModel.loadWallets();
-              });
+              // Navigator.push(context, MaterialPageRoute(builder: (context) => WalletScreen())).then((_) {
+              //   final walletViewModel = Provider.of<WalletViewModel>(context, listen: false);
+              //   walletViewModel.loadWallets();
+              // });
+              Navigator.pushNamed(context, '/wallets');
             },
           ),
           _buildUtilityCard(
             icon: Icons.account_balance_wallet,
             color: Colors.blue,
-            title: 'Lập hạn mức',
+            title: tr('utility_budget'),
             onTap: () {
               Navigator.pushNamed(context, '/budget-list');
             },
@@ -207,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildUtilityCard({required IconData icon, required Color color,required String title, required VoidCallback onTap}) {
+  Widget _buildUtilityCard({required IconData icon, required Color color, required String title, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Card(

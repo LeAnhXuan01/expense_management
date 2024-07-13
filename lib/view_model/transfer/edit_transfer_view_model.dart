@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:expense_management/widget/custom_snackbar_1.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,16 +6,10 @@ import 'package:expense_management/model/transfer_model.dart';
 import 'package:expense_management/model/wallet_model.dart';
 import 'package:expense_management/services/transfer_service.dart';
 import 'package:expense_management/services/wallet_service.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import '../../model/enum.dart';
-import '../../services/wallet_service.dart';
 import '../../utils/utils.dart';
 import 'package:collection/collection.dart';
 import '../../utils/wallet_utils.dart';
-import '../../utils/wallet_utils.dart';
-import '../../utils/wallet_utils.dart';
-import '../wallet/wallet_view_model.dart';
+
 
 class EditTransferViewModel extends ChangeNotifier {
   final TransferService _transferService = TransferService();
@@ -141,7 +136,6 @@ class EditTransferViewModel extends ChangeNotifier {
           fromWallet: selectedFromWallet!.walletId,
           toWallet: selectedToWallet!.walletId,
           amount: amount,
-          currency: Currency.VND,
           date: selectedDate,
           hour: TimeOfDay(hour: selectedHour.hour, minute: selectedHour.minute),
           note: noteController.text,
@@ -159,8 +153,7 @@ class EditTransferViewModel extends ChangeNotifier {
         // Kiểm tra số dư ví nguồn cho giao dịch mới
         final isBalanceSufficient = await transferHelper.checkBalance(
             updateTransfer.fromWallet,
-            updateTransfer.amount,
-            updateTransfer.currency);
+            updateTransfer.amount);
         if (!isBalanceSufficient) {
           CustomSnackBar_1.show(context, 'Số dư ví nguồn không đủ');
           return null;

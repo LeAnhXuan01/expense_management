@@ -5,6 +5,7 @@ import '../view/statistics/statistics_screen.dart';
 import '../view/transaction/create_transaction_screen.dart';
 import '../view/transaction/transaction_history_screen.dart';
 import '../view/user/profile_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class BottomNavigation extends StatefulWidget {
   @override
@@ -35,26 +36,26 @@ class _BottomNavigationState extends State<BottomNavigation> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedLabelStyle: TextStyle(fontWeight: FontWeight.w500),
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.house),
-            label: 'Trang chủ',
+            label: tr('home_label'),
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.list),
-            label: 'Lịch sử',
+            label: tr('history_label'),
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.plus),
-            label: 'Tạo',
+            label: tr('create_label'),
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.chartSimple),
-            label: 'Thống kê',
+            label: tr('statistics_label'),
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.user),
-            label: 'Hồ sơ',
+            label: tr('profile_label'),
           ),
         ],
         currentIndex: _selectedIndex,

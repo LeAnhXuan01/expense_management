@@ -1,1 +1,38 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"expense-management-da149","appId":"1:460711583191:android:d372813a04f2bf75f9ff92","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"expense-management-da149","configurations":{"android":"1:460711583191:android:d372813a04f2bf75f9ff92","ios":"1:460711583191:ios:142e22978a89f942f9ff92"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "expense-management-da149",
+          "appId": "1:460711583191:android:d372813a04f2bf75f9ff92",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "expense-management-da149",
+          "configurations": {
+            "android": "1:460711583191:android:d372813a04f2bf75f9ff92",
+            "ios": "1:460711583191:ios:142e22978a89f942f9ff92"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ]
+}

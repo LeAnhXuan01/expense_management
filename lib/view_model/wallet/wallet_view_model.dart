@@ -92,10 +92,6 @@ class WalletViewModel extends ChangeNotifier {
 
     for (var wallet in _wallets) {
       double balance = wallet.initialBalance;
-      if (wallet.currency == Currency.USD) {
-        // Convert USD to VND (using a fixed exchange rate)
-        balance *= 25442.5;
-      }
       if (!wallet.excludeFromTotal) {
         total += balance;
       }
@@ -104,4 +100,9 @@ class WalletViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearSearch(){
+    searchQuery = '';
+    searchController.clear();
+    filterWallets('');
+  }
 }

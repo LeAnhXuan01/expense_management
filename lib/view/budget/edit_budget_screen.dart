@@ -31,7 +31,7 @@ class EditBudgetScreen extends StatelessWidget {
                 CustomHeader_1(
                   title: 'Sửa hạn mức',
                   action: IconButton(
-                    icon: Icon(Icons.save, color: Colors.white),
+                    icon: Icon(Icons.check, color: Colors.white),
                     onPressed: viewModel.enableButton
                         ? () async {
                             final updatedBudget =
@@ -67,11 +67,11 @@ class EditBudgetScreen extends StatelessWidget {
                                     decoration:
                                         InputDecoration(labelText: 'Số tiền'),
                                     style: TextStyle(
-                                      fontSize: 25,
+                                      fontSize: 28,
                                       color: Colors.green,
                                       fontWeight: FontWeight.w500,
                                     ),
-                                    textAlign: TextAlign.center,
+                                    textAlign: TextAlign.right,
                                     keyboardType: TextInputType.number,
                                     onChanged: (_) =>
                                         viewModel.updateButtonState(),
@@ -82,7 +82,7 @@ class EditBudgetScreen extends StatelessWidget {
                                   child: Text(
                                     '₫',
                                     style: TextStyle(
-                                      fontSize: 25,
+                                      fontSize: 28,
                                     ),
                                   ),
                                 ),
@@ -283,11 +283,11 @@ class EditBudgetScreen extends StatelessWidget {
                               },
                             ),
                             SizedBox(height: 16),
-                            DropdownButtonFormField<RepeatBudget>(
+                            DropdownButtonFormField<Repeat>(
                               value: model.selectedRepeat,
                               items: model.repeatOptions
                                   .map((option) =>
-                                      DropdownMenuItem<RepeatBudget>(
+                                      DropdownMenuItem<Repeat>(
                                         value: option,
                                         child: Text(model.getRepeatBudgetString(
                                             option)), // Convert RepeatBudget to string here
@@ -308,9 +308,10 @@ class EditBudgetScreen extends StatelessWidget {
                               readOnly: true,
                               onTap: () async {
                                 final DateTime? picked = await showDatePicker(
+                                  locale: const Locale('vi', 'VN'),
                                   context: context,
                                   initialDate: viewModel.startDate,
-                                  firstDate: DateTime.now(),
+                                  firstDate: DateTime(1999),
                                   lastDate: DateTime(2100),
                                 );
                                 if (picked != null &&
@@ -331,10 +332,11 @@ class EditBudgetScreen extends StatelessWidget {
                               readOnly: true,
                               onTap: () async {
                                 final DateTime? picked = await showDatePicker(
+                                  locale: const Locale('vi', 'VN'),
                                   context: context,
                                   initialDate:
                                       viewModel.endDate ?? DateTime.now(),
-                                  firstDate: DateTime.now(),
+                                  firstDate: DateTime(1999),
                                   lastDate: DateTime(2100),
                                 );
                                 if (picked != null &&

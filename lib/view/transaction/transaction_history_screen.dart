@@ -1,22 +1,32 @@
-import 'package:expense_management/model/enum.dart';
-import 'package:expense_management/widget/custom_header_5.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../model/enum.dart';
 import '../../model/transaction_model.dart';
 import '../../utils/utils.dart';
 import '../../view_model/transaction/transaction_history_view_model.dart';
 import '../../view_model/wallet/wallet_view_model.dart';
 import '../../widget/custom_ElevatedButton_2.dart';
+import '../../widget/custom_header_5.dart';
 import '../../widget/custom_snackbar_2.dart';
 import 'edit_transaction_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
+  const TransactionHistoryScreen({super.key});
+
   @override
-  _TransactionHistoryScreenState createState() =>
-      _TransactionHistoryScreenState();
+  _TransactionHistoryScreenState createState() => _TransactionHistoryScreenState();
 }
 
-class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
+class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -28,7 +38,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             body: Column(
               children: [
                 CustomHeader_5(
-                  title: 'Lịch sử giao dịch',
+                  title: tr('transaction_history'),
                   filterAction: Builder(
                     builder: (context) => IconButton(
                       icon: Icon(Icons.filter_list, color: Colors.white),
@@ -54,8 +64,31 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                     viewModel.clearSearch();
                   },
                 ),
+                TabBar(
+                  controller: _tabController,
+                  tabs: [
+                    Tab(text: tr('all')),
+                    Tab(text: tr('income')),
+                    Tab(text: tr('expense')),
+                  ],
+                  onTap: (index) {
+                    viewModel.filterByTab(index);
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top:8.0),
+                  child: _buildTotals(viewModel),
+                ),
                 Expanded(
-                  child: _buildTransactionList(viewModel),
+                  child: TabBarView(
+                    physics: NeverScrollableScrollPhysics(),
+                    controller: _tabController,
+                    children: [
+                      _buildTransactionList(viewModel),
+                      _buildTransactionList(viewModel),
+                      _buildTransactionList(viewModel),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -63,6 +96,23 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         },
       ),
     );
+  }
+
+  Widget _buildTotals(TransactionHistoryViewModel viewModel) {
+    if (_tabController.index == 0) {
+      return Column(
+        children: [
+          Text(tr('total_income', namedArgs: {'amount': viewModel.formatAmount(viewModel.totalIncome)}), style: TextStyle(color: Colors.green, fontSize: 16, fontWeight: FontWeight.w500)),
+          SizedBox(height: 5),
+          Text(tr('total_expense', namedArgs: {'amount': viewModel.formatAmount(viewModel.totalExpense)}), style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),),
+        ],
+      );
+    } else if (_tabController.index == 1) {
+      return Text(tr('total_income', namedArgs: {'amount': viewModel.formatAmount(viewModel.totalIncome)}), style: TextStyle(color: Colors.green, fontSize: 16, fontWeight: FontWeight.w500),);
+    } else if (_tabController.index == 2) {
+      return Text(tr('total_expense', namedArgs: {'amount': viewModel.formatAmount(viewModel.totalExpense)}), style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),);
+    }
+    return Container();
   }
 
   Widget _buildTransactionList(TransactionHistoryViewModel viewModel) {
@@ -73,15 +123,17 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     }
     if (viewModel.filteredTransactions.isEmpty) {
       return Center(
-        child: Text('Không có kết quả phù hợp với bộ lọc.'),
+        child: Text(tr('no_results')),
       );
     }
     return ListView.builder(
       itemCount: viewModel.groupedTransactions.length,
       itemBuilder: (context, index) {
+        if (index >= viewModel.groupedTransactions.length) {
+          return SizedBox(); // Trả về widget trống nếu chỉ số vượt quá giới hạn
+        }
         String date = viewModel.groupedTransactions.keys.elementAt(index);
-        List<Transactions> transactions =
-        viewModel.groupedTransactions[date]!;
+        List<Transactions> transactions = viewModel.groupedTransactions[date]!;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -96,13 +148,13 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
               final wallet = viewModel.getWalletByTransaction(transaction);
               final category = viewModel.getCategoryByTransaction(transaction);
 
-              String walletName = 'Không có ví';
+              String walletName = tr('no_wallet');
 
               if (wallet != null) {
                 walletName = wallet.name;
               }
 
-              String categoryName = 'Không có danh mục';
+              String categoryName =  tr('no_category');
               IconData categoryIcon = Icons.category;
               Color categoryColor = Colors.grey;
 
@@ -112,8 +164,6 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 categoryColor = parseColor(category.color);
               }
 
-              final formattedAmount =
-              formatAmount(transaction.amount, transaction.currency);
               final formattedTime = formatHour(transaction.hour);
               final note = transaction.note;
 
@@ -121,13 +171,11 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 key: Key(transaction.transactionId),
                 direction: DismissDirection.endToStart,
                 onDismissed: (direction) async {
-                  final walletViewModel =
-                  Provider.of<WalletViewModel>(context, listen: false);
-                  await viewModel.deleteTransaction(
-                      transaction.transactionId, walletViewModel);
+                  final walletViewModel = Provider.of<WalletViewModel>(context, listen: false);
+                  await viewModel.deleteTransaction(transaction.transactionId, walletViewModel);
                   CustomSnackBar_2.show(
                     context,
-                    'Đã xóa giao dịch',
+                    tr('deleted_transaction'),
                   );
                 },
                 background: Container(
@@ -181,19 +229,16 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                         if (transaction.images.isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(left: 8.0),
-                            child: Icon(Icons.image,
-                                size: 16, color: Colors.grey[700]),
+                            child: Icon(Icons.image, size: 16, color: Colors.grey[700]),
                           ),
                       ],
                     ),
                     trailing: Text(
-                      '${formatAmount_2(transaction.amount, transaction.currency)} ${transaction.currency == Currency.VND ? '₫' : '\$'}',
+                      '${formatAmount_2(transaction.amount)} đ',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: transaction.type == TransactionType.income
-                            ? Colors.green
-                            : Colors.red,
+                        color: transaction.type == Type.income ? Colors.green : Colors.red,
                       ),
                     ),
                     onTap: () async {
@@ -219,8 +264,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     );
   }
 
-  Widget _buildFilterDrawer(
-      BuildContext context, TransactionHistoryViewModel viewModel) {
+  Widget _buildFilterDrawer(BuildContext context, TransactionHistoryViewModel viewModel) {
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.8,
       child: Padding(
@@ -230,12 +274,12 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
           children: [
             SizedBox(height: 30),
             Text(
-              'Bộ lọc tìm kiếm:',
+              tr('search_filters'),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             Divider(),
             ListTile(
-              title: Text('Khoảng thời gian'),
+              title: Text(tr('date_range')),
               trailing: Icon(Icons.calendar_today),
               onTap: () async {
                 DateTimeRange? picked = await showDateRangePicker(
@@ -251,22 +295,20 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
               },
             ),
             ListTile(
-              title: Text('Ví'),
+              title: Text(tr('wallet')),
               trailing: Icon(Icons.account_balance_wallet),
               onTap: () async {
                 await showDialog<String>(
                   context: context,
                   builder: (BuildContext context) {
                     return SimpleDialog(
-                      title: Center(child: Text('Chọn ví')),
+                      title: Center(child: Text(tr('choose_wallet'))),
                       children: viewModel.walletMap.entries.map((entry) {
                         final wallet = entry.value;
-                        final isSelected =
-                            entry.key == viewModel.selectedWalletId;
+                        final isSelected = entry.key == viewModel.selectedWalletId;
                         return SimpleDialogOption(
                           onPressed: () {
-                            Navigator.pop(
-                                context, entry.key); // Select wallet
+                            Navigator.pop(context, entry.key); // Select wallet
                           },
                           child: ListTile(
                             leading: CircleAvatar(
@@ -277,9 +319,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                               ),
                             ),
                             title: Text(wallet.name),
-                            trailing: isSelected
-                                ? Icon(Icons.check, color: Colors.green)
-                                : null,
+                            trailing: isSelected ? Icon(Icons.check, color: Colors.green) : null,
                           ),
                         );
                       }).toList(),
@@ -293,61 +333,8 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 Navigator.of(context).pop();
               },
             ),
-            ListTile(
-              title: Text('Loại'),
-              trailing: DropdownButton<String>(
-                value: viewModel.selectedTypeFilter,
-                items: [
-                  DropdownMenuItem(
-                    value: 'Tất cả',
-                    child: Text('Tất cả'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Thu nhập',
-                    child: Text('Thu nhập'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Chi tiêu',
-                    child: Text('Chi tiêu'),
-                  ),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    viewModel.filterByType(value);
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-            ),
-            // ListTile(
-            //   title: Text('Sắp xếp'),
-            //   trailing: DropdownButton<String>(
-            //     value: viewModel.currentSortCriteria,
-            //     items: [
-            //       DropdownMenuItem(
-            //         value: 'date',
-            //         child: Text('Theo ngày'),
-            //       ),
-            //       DropdownMenuItem(
-            //         value: 'amount',
-            //         child: Text('Theo số tiền'),
-            //       ),
-            //     ],
-            //     onChanged: (value) {
-            //       if (value != null) {
-            //         viewModel.setCurrentSortCriteria(value);
-            //         if (value == 'date') {
-            //           viewModel.sortTransactionsByDate();
-            //         } else if (value == 'amount') {
-            //           viewModel.sortTransactionsByAmount();
-            //         }
-            //         Navigator.of(context).pop();
-            //       }
-            //     },
-            //   ),
-            // ),
             CustomElevatedButton_2(
-              text: 'Xóa bộ lọc',
+              text: tr('clear_filters'),
               onPressed: () {
                 viewModel.clearFilters();
                 Navigator.of(context).pop();

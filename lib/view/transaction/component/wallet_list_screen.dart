@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../model/enum.dart';
 import '../../../utils/utils.dart';
 import '../../../view_model/wallet/wallet_view_model.dart';
 import '../../../widget/custom_header_3.dart';
@@ -67,7 +66,7 @@ class _WalletListScreenState extends State<WalletListScreen> {
                           ),
                           title: Text(wallet.name),
                           subtitle: Text(
-                            '${formatAmount(wallet.initialBalance, wallet.currency)} ${wallet.currency == Currency.VND ? '₫' : '\$'}',
+                            '${formatAmount(wallet.initialBalance)} đ',
                           ),
                           onTap: () {
                             Navigator.pop(context, wallet);

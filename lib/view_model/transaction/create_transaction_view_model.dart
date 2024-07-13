@@ -23,10 +23,9 @@ class CreateTransactionViewModel extends ChangeNotifier {
   final TextEditingController dateController = TextEditingController();
   final TextEditingController hourController = TextEditingController();
 
-  String transactionTypeTitle = 'Thu nhập';
-  bool isIncomeTabSelected = true;
+  String transactionTypeTitle = 'Chi tiêu';
+  bool isExpenseTabSelected = true;
   double amount = 0.0;
-  Currency selectedCurrency = Currency.VND;
   Category? selectedCategory;
   bool showPlusButtonCategory = true;
   List<Category> frequentCategories = [];
@@ -59,18 +58,6 @@ class CreateTransactionViewModel extends ChangeNotifier {
   void setAmount(double value) {
     amount = value;
     updateButtonState();
-  }
-  
-  void setSelectedCurrency(Currency currency) {
-    final cleanedBalance = amountController.text.replaceAll('.', '').replaceAll('₫', '').replaceAll('\$', '');
-    final currentBalance = double.tryParse(cleanedBalance) ?? 0;
-
-    final newBalance = CurrencyUtils.convertCurrency(currentBalance, selectedCurrency, currency);
-
-    selectedCurrency = currency;
-    amountController.text = NumberFormat('#,###', 'vi_VN').format(newBalance);
-
-    notifyListeners();
   }
 
   void setSelectedCategory(Category? category) {
@@ -150,7 +137,7 @@ class CreateTransactionViewModel extends ChangeNotifier {
 
   void updateTransactionTypeTitle(String newTitle) {
     transactionTypeTitle = newTitle;
-    isIncomeTabSelected = newTitle == 'Thu nhập';
+    isExpenseTabSelected = newTitle == 'Chi tiêu';
     selectedCategory = null;
     isFrequentCategoriesLoaded = false;
     loadFrequentCategories();
@@ -162,10 +149,10 @@ class CreateTransactionViewModel extends ChangeNotifier {
     if (user != null) {
       try {
         List<Category> categories;
-        if (isIncomeTabSelected) {
-          categories = await _categoryService.getIncomeCategoryFrequent(user.uid);
-        } else {
+        if (isExpenseTabSelected) {
           categories = await _categoryService.getExpenseCategoryFrequent(user.uid);
+        } else {
+          categories = await _categoryService.getIncomeCategoryFrequent(user.uid);
         }
         frequentCategories = categories;
         isFrequentCategoriesLoaded = true;
@@ -176,21 +163,23 @@ class CreateTransactionViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> checkBalance(double amount, Currency currency, TransactionType type) async {
+
+
+  Future<bool> checkBalance(double amount, Type type) async {
     if (selectedWallet == null) {
       return false;
     }
-    return await _transactionHelper.checkBalance(selectedWallet!.walletId, amount, currency, type);
+    return await _transactionHelper.checkBalance(selectedWallet!.walletId, amount, type);
   }
 
   Future<Transactions?> createTransaction(BuildContext context) async {
     final user = FirebaseAuth.instance.currentUser;
-    if(user != null){
+    if (user != null) {
       final cleanedAmount = amountController.text.replaceAll('.', '');
       final amount = double.parse(cleanedAmount);
 
-      final transactionType = isIncomeTabSelected ? TransactionType.income : TransactionType.expense;
-      final sufficientBalance = await checkBalance(amount, selectedCurrency, transactionType);
+      final transactionType = isExpenseTabSelected ? Type.expense : Type.income;
+      final sufficientBalance = await checkBalance(amount, transactionType);
       if (!sufficientBalance) {
         CustomSnackBar_1.show(context, 'Số dư ví không đủ');
         return null;
@@ -206,7 +195,6 @@ class CreateTransactionViewModel extends ChangeNotifier {
         transactionId: '',
         userId: user.uid,
         amount: amount,
-        currency: selectedCurrency,
         type: transactionType,
         walletId: selectedWallet!.walletId,
         categoryId: selectedCategory!.categoryId,
@@ -215,11 +203,11 @@ class CreateTransactionViewModel extends ChangeNotifier {
         note: note,
         images: imageUrls,
       );
-      try{
+      try {
         await _transactionService.createTransaction(newTransaction);
         await _transactionHelper.updateWalletBalance(newTransaction, isCreation: true, isDeletion: false);
         return newTransaction;
-      }catch (e){
+      } catch (e) {
         print('Error creating transaction: $e');
         return null;
       }
@@ -227,10 +215,10 @@ class CreateTransactionViewModel extends ChangeNotifier {
     return null;
   }
 
+
   void resetFields() {
     amountController.clear();
     noteController.clear();
-    selectedCurrency = Currency.VND;
     selectedDate = DateTime.now();
     selectedHour = TimeOfDay.now();
     selectedCategory = null;

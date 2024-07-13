@@ -8,7 +8,6 @@ class Wallet {
   final String name;
   final String icon;
   final String color;
-  final Currency currency;
   final bool excludeFromTotal;
   final DateTime createdAt;
   final bool isDefault;
@@ -20,7 +19,6 @@ class Wallet {
     required this.name,
     required this.icon,
     required this.color,
-    required this.currency,
     this.excludeFromTotal = false,
     required this.createdAt,
     this.isDefault = false,
@@ -34,7 +32,6 @@ class Wallet {
       'name': name,
       'icon': icon,
       'color': color,
-      'currency': currency == Currency.VND ? 'VND' : 'USD',
       'excludeFromTotal': excludeFromTotal,
       'createdAt': createdAt,
       'isDefault': isDefault,
@@ -49,7 +46,6 @@ class Wallet {
       name: map['name'],
       icon: map['icon'],
       color: map['color'],
-      currency: map['currency'] == 'VND' ? Currency.VND : Currency.USD,
       excludeFromTotal: map['excludeFromTotal'],
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       isDefault: map['isDefault'],
