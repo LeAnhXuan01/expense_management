@@ -6,11 +6,12 @@ class TransferService {
 
   Future<void> createTransfer(Transfer transfer) async {
     try {
-      DocumentReference docRef = await _firestore.collection('transfers').add(transfer.toMap());
+      DocumentReference docRef =
+          await _firestore.collection('transfers').add(transfer.toMap());
       await docRef.update({'transferId': docRef.id});
     } catch (e) {
       print("Error creating transfer: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -22,19 +23,16 @@ class TransferService {
           .update(transfer.toMap());
     } catch (e) {
       print("Error updating transfer: $e");
-      throw e;
+      rethrow;
     }
   }
 
   Future<void> deleteTransfer(String transferId) async {
     try {
-      await _firestore
-          .collection('transfers')
-          .doc(transferId)
-          .delete();
+      await _firestore.collection('transfers').doc(transferId).delete();
     } catch (e) {
       print("Error deleting transfer: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -46,19 +44,19 @@ class TransferService {
           .orderBy('date', descending: true)
           .get();
 
-      return querySnapshot.docs.map((doc) => Transfer.fromMap(doc.data() as Map<String, dynamic>)).toList();
+      return querySnapshot.docs
+          .map((doc) => Transfer.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       print("Error getting transfers: $e");
-      throw e;
+      rethrow;
     }
   }
 
   Future<Transfer?> getTransferById(String transferId) async {
     try {
-      DocumentSnapshot docSnapshot = await _firestore
-          .collection('transfers')
-          .doc(transferId)
-          .get();
+      DocumentSnapshot docSnapshot =
+          await _firestore.collection('transfers').doc(transferId).get();
 
       if (docSnapshot.exists) {
         return Transfer.fromMap(docSnapshot.data() as Map<String, dynamic>);
@@ -68,7 +66,7 @@ class TransferService {
       }
     } catch (e) {
       print("Error getting transfer by ID: $e");
-      throw e;
+      rethrow;
     }
   }
 }

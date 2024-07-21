@@ -64,16 +64,6 @@ class CreateCategoryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetFields() {
-    nameCategory.clear();
-    selectedIcon = null;
-    selectedColor = null;
-    enableButton = false;
-    showPlusButtonIcon = true;
-    showPlusButtonColor = true;
-    notifyListeners();
-  }
-
   Future<Category?> createCategory() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -97,5 +87,21 @@ class CreateCategoryViewModel extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  void resetFields() {
+    nameCategory.clear();
+    selectedIcon = null;
+    selectedColor = null;
+    enableButton = false;
+    showPlusButtonIcon = true;
+    showPlusButtonColor = true;
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    nameCategory.dispose();
+    super.dispose();
   }
 }

@@ -17,7 +17,7 @@ import 'package:easy_localization/easy_localization.dart';
 class EditTransactionScreen extends StatefulWidget {
   final Transactions transaction;
 
-  EditTransactionScreen({required this.transaction});
+  const EditTransactionScreen({super.key, required this.transaction});
 
   @override
   _EditTransactionScreenState createState() => _EditTransactionScreenState();
@@ -44,7 +44,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
               children: [
                 CustomHeader_4(
                   rightAction: IconButton(
-                    icon: Icon(Icons.check, color: Colors.white),
+                    icon: const Icon(Icons.save, color: Colors.white),
                     onPressed: viewModel.enableButton
                         ? () async {
                             final updatedTransaction =
@@ -63,7 +63,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                     viewModel.updateTransactionTypeTitle(newTitle!);
                   },
                   leftAction: IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.white),
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -72,7 +72,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
-                      padding: EdgeInsets.all(20.0),
+                      padding: const EdgeInsets.all(20.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -95,20 +95,23 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                   style: TextStyle(
                                     fontSize: 28,
                                     fontWeight: FontWeight.w500,
-                                    color: viewModel.isExpenseTabSelected ? Colors.red : Colors.green,
+                                    color: viewModel.isExpenseTabSelected
+                                        ? Colors.red
+                                        : Colors.green,
                                   ),
                                   textAlign: TextAlign.right,
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20.0),
-                                child: Text("₫", style: TextStyle(fontSize: 28)),
+                              const Padding(
+                                padding: EdgeInsets.only(top: 20.0),
+                                child:
+                                    Text("₫", style: TextStyle(fontSize: 28)),
                               )
                             ],
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                             // Để loại bỏ padding mặc định
                             leading: Container(
                               width: 50,
@@ -127,7 +130,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                       color: Colors.white,
                                       size: 30,
                                     )
-                                  : Icon(
+                                  : const Icon(
                                       Icons.category,
                                       color: Colors.white,
                                       size: 30,
@@ -138,15 +141,15 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                     viewModel.selectedCategory!.name,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(fontSize: 18),
+                                    style: const TextStyle(fontSize: 18),
                                   )
                                 : Text(
                                     tr('category_placeholder'),
-                                    style: TextStyle(fontSize: 18),
+                                    style: const TextStyle(fontSize: 18),
                                   ),
                             trailing: Text(
                               tr('all_text'),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 color: Colors.green,
                                 fontWeight: FontWeight.w500,
@@ -159,8 +162,8 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                   builder: (context) =>
                                       viewModel.transactionTypeTitle ==
                                               'Thu nhập'
-                                          ? IncomeCategoryScreen()
-                                          : ExpenseCategoryScreen(),
+                                          ? const IncomeCategoryScreen()
+                                          : const ExpenseCategoryScreen(),
                                 ),
                               );
                               if (selectedCategory != null) {
@@ -168,7 +171,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                               }
                             },
                           ),
-                          Divider(),
+                          const Divider(),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -177,7 +180,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(tr('frequent_categories'),
-                                      style: TextStyle(fontSize: 18)),
+                                      style: const TextStyle(fontSize: 18)),
                                   GestureDetector(
                                     onTap: () {
                                       viewModel.toggleShowPlusButtonCategory();
@@ -195,12 +198,11 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                 viewModel.isFrequentCategoriesLoaded
                                     ? GridView.builder(
                                         shrinkWrap: true,
-                                        physics: NeverScrollableScrollPhysics(),
+                                        physics: const NeverScrollableScrollPhysics(),
                                         gridDelegate:
-                                            SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 3, // Số cột của grid
-                                          childAspectRatio:
-                                              1, // Tỷ lệ chiều rộng / chiều cao của mỗi item
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 3,
+                                          childAspectRatio: 1,
                                         ),
                                         itemCount:
                                             viewModel.frequentCategories.length,
@@ -219,7 +221,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                                   MainAxisAlignment.center,
                                               children: [
                                                 Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   decoration: BoxDecoration(
                                                     color: isSelected
                                                         ? parseColor(
@@ -250,20 +252,20 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                                       TextOverflow.ellipsis,
                                                   textAlign: TextAlign.center,
                                                   style:
-                                                      TextStyle(fontSize: 14),
+                                                      const TextStyle(fontSize: 14),
                                                 ),
                                               ],
                                             ),
                                           );
                                         },
                                       )
-                                    : Center(
+                                    : const Center(
                                         child: CircularProgressIndicator()),
                             ],
                           ),
-                          Divider(),
+                          const Divider(),
                           ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                             // Để loại bỏ padding mặc định
                             leading: Container(
                               width: 50,
@@ -281,7 +283,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                       color: Colors.white,
                                       size: 30,
                                     )
-                                  : Icon(
+                                  : const Icon(
                                       Icons.account_balance_wallet,
                                       color: Colors.white,
                                       size: 30,
@@ -290,17 +292,17 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                             title: viewModel.selectedWallet != null
                                 ? Text(
                                     viewModel.selectedWallet!.name,
-                                    style: TextStyle(fontSize: 20),
+                                    style: const TextStyle(fontSize: 20),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   )
                                 : Text(
                                     tr('wallet_placeholder'),
-                                    style: TextStyle(fontSize: 20),
+                                    style: const TextStyle(fontSize: 20),
                                   ),
                             trailing: Text(
                               tr('all_text'),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 color: Colors.green,
                                 fontWeight: FontWeight.w500,
@@ -310,7 +312,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                               final selectedWallet = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => WalletListScreen(),
+                                  builder: (context) => const WalletListScreen(),
                                 ),
                               );
                               if (selectedWallet != null) {
@@ -318,8 +320,8 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                               }
                             },
                           ),
-                          Divider(),
-                          SizedBox(height: 16),
+                          const Divider(),
+                          const SizedBox(height: 16),
                           Row(
                             children: [
                               Flexible(
@@ -330,7 +332,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                   onTap: () async {
                                     final DateTime? picked =
                                         await showDatePicker(
-                                          locale: context.locale,
+                                      locale: context.locale,
                                       context: context,
                                       initialDate: viewModel.selectedDate,
                                       firstDate: DateTime(1999),
@@ -356,13 +358,14 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                         await showTimePicker(
                                       context: context,
                                       initialTime: viewModel.selectedHour,
-                                          builder: (BuildContext context, Widget? child) {
-                                            return Localizations.override(
-                                              context: context,
-                                              locale: context.locale,
-                                              child: child,
-                                            );
-                                          },
+                                      builder: (BuildContext context,
+                                          Widget? child) {
+                                        return Localizations.override(
+                                          context: context,
+                                          locale: context.locale,
+                                          child: child,
+                                        );
+                                      },
                                     );
                                     if (picked != null &&
                                         picked != viewModel.selectedHour) {
@@ -376,7 +379,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           TextField(
                             controller: viewModel.noteController,
                             inputFormatters: [
@@ -386,11 +389,12 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                               viewModel.setNote(value);
                             },
                             decoration: InputDecoration(
-                              labelText: tr('select_time'),
+                              labelText: tr('note_label'),
                             ),
                             keyboardType: TextInputType.text,
+                            maxLines: null,
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -400,7 +404,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                   onPressed: () async {
                                     await viewModel.captureImage(context);
                                   },
-                                  child: Center(child: Icon(Icons.camera_alt)),
+                                  child: const Center(child: Icon(Icons.camera_alt)),
                                 ),
                               ),
                               Flexible(
@@ -410,7 +414,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                         .pickImageFromGallery(context);
                                   },
                                   child:
-                                      Center(child: Icon(Icons.photo_library)),
+                                      const Center(child: Icon(Icons.photo_library)),
                                 ),
                               ),
                             ],
@@ -419,9 +423,9 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                               viewModel.newImages.isNotEmpty)
                             GridView.builder(
                               shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
+                              physics: const NeverScrollableScrollPhysics(),
                               gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3,
                                 crossAxisSpacing: 10,
                               ),
@@ -467,11 +471,11 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                                 () {}); // Cập nhật giao diện sau khi xóa ảnh
                                           },
                                           child: Container(
-                                            decoration: BoxDecoration(
+                                            decoration: const BoxDecoration(
                                               color: Colors.white,
                                               shape: BoxShape.circle,
                                             ),
-                                            child: Icon(
+                                            child: const Icon(
                                               Icons.remove_circle,
                                               color: Colors.red,
                                               size: 20,
@@ -520,11 +524,11 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                                 () {}); // Cập nhật giao diện sau khi xóa ảnh
                                           },
                                           child: Container(
-                                            decoration: BoxDecoration(
+                                            decoration: const BoxDecoration(
                                               color: Colors.white,
                                               shape: BoxShape.circle,
                                             ),
-                                            child: Icon(
+                                            child: const Icon(
                                               Icons.remove_circle,
                                               color: Colors.red,
                                               size: 20,
@@ -537,13 +541,14 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                 }
                               },
                             ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           CustomElevatedButton_2(
                             onPressed: viewModel.enableButton
                                 ? () async {
                                     final updatedTransaction =
                                         await viewModel.updateTransaction(
-                                            widget.transaction.transactionId, context);
+                                            widget.transaction.transactionId,
+                                            context);
                                     if (updatedTransaction != null) {
                                       await CustomSnackBar_2.show(
                                           context, tr('save_success'));

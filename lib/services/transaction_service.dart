@@ -10,19 +10,21 @@ class TransactionService {
   Future<String> uploadImage(File imageFile) async {
     try {
       String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      Reference ref = _storage.ref().child('transaction_images').child(fileName);
+      Reference ref =
+          _storage.ref().child('transaction_images').child(fileName);
       UploadTask uploadTask = ref.putFile(imageFile);
       TaskSnapshot taskSnapshot = await uploadTask;
       return await taskSnapshot.ref.getDownloadURL();
     } catch (e) {
       print("Error uploading image: $e");
-      throw e;
+      rethrow;
     }
   }
 
   Future<Transactions?> getTransactionById(String transactionId) async {
     try {
-      DocumentSnapshot doc = await _firestore.collection('transactions').doc(transactionId).get();
+      DocumentSnapshot doc =
+          await _firestore.collection('transactions').doc(transactionId).get();
       if (doc.exists) {
         return Transactions.fromMap(doc.data() as Map<String, dynamic>);
       } else {
@@ -42,21 +44,25 @@ class TransactionService {
           .orderBy('date', descending: true)
           .get();
 
-      return querySnapshot.docs.map((doc) => Transactions.fromMap(doc.data() as Map<String, dynamic>)).toList();
+      return querySnapshot.docs
+          .map(
+              (doc) => Transactions.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       print("Error getting transaction: $e");
-      throw e;
+      rethrow;
     }
   }
 
   Future<void> createTransaction(Transactions transaction) async {
     try {
       var transactionMap = transaction.toMap();
-      DocumentReference docRef = await _firestore.collection('transactions').add(transactionMap);
+      DocumentReference docRef =
+          await _firestore.collection('transactions').add(transactionMap);
       await docRef.update({'transactionId': docRef.id});
     } catch (e) {
       print("Error creating transaction: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -70,19 +76,16 @@ class TransactionService {
           .update(transactionMap);
     } catch (e) {
       print("Error updating transactions: $e");
-      throw e;
+      rethrow;
     }
   }
 
   Future<void> deleteTransaction(String transactionId) async {
     try {
-      await _firestore
-          .collection('transactions')
-          .doc(transactionId)
-          .delete();
+      await _firestore.collection('transactions').doc(transactionId).delete();
     } catch (e) {
       print("Error deleting transaction: $e");
-      throw e;
+      rethrow;
     }
   }
 }

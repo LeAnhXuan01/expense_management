@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/auth_service.dart';
 import '../../widget/custom_snackbar_1.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -11,6 +12,7 @@ class LoginViewModel extends ChangeNotifier {
 
   bool enableButton = false;
   bool isPasswordVisible = false;
+  bool isLoading = false;
 
   String loginError = '';
 
@@ -29,14 +31,6 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetFields() {
-    emailController.clear();
-    passwordController.clear();
-    enableButton = false;
-    isPasswordVisible = false;
-    notifyListeners();
-  }
-
   Future<void> updatePasswordInFirestore(String userId, String newPassword) async {
     try {
       await FirebaseFirestore.instance.collection('users').doc(userId).update({
@@ -51,6 +45,9 @@ class LoginViewModel extends ChangeNotifier {
     final email = emailController.text.trim() + '@gmail.com';
     final password = passwordController.text.trim();
 
+    isLoading = true;
+    notifyListeners();
+
     try {
       User? user = await _authService.signInWithEmailAndPassword(email, password);
       if (user != null) {
@@ -58,68 +55,94 @@ class LoginViewModel extends ChangeNotifier {
         if (user.emailVerified) {
           // Email đã được xác thực, cập nhật mật khẩu mới vào Firestore
           await updatePasswordInFirestore(user.uid, password);
+          isLoading = false;
+          notifyListeners();
           return true;
         } else {
           // Email chưa được xác thực, hiển thị thông báo lỗi
-          loginError = 'Tài khoản này Email chưa được xác thực';
+          loginError = tr('unverified_email');
           _showErrorSnackBar(context, loginError);
+          isLoading = false;
           notifyListeners();
           return false;
         }
       }
+      isLoading = false;
+      notifyListeners();
       return false;
     } on FirebaseAuthException catch (e) {
       print('Error code: ${e.code}'); // In ra mã lỗi
       switch (e.code) {
         case 'invalid-email':
-          loginError = 'Email không hợp lệ.';
+          loginError = tr('email_invalid');
           break;
         case 'invalid-credential':
-          loginError = 'Email hoặc mật khẩu không đúng.';
+          loginError = tr('invalid_credential');
           break;
         case 'network-request-failed':
-          loginError = 'Mạng không ổn định. Vui lòng kiểm tra lại mạng.';
+          loginError = tr('network_error');
           break;
         default:
-          loginError = 'Đăng nhập thất bại. Vui lòng thử lại.';
+          loginError = tr('login_failed');
           break;
       }
       _showErrorSnackBar(context, loginError);
+      isLoading = false;
       notifyListeners();
       return false;
     } catch (e) {
-      loginError = 'Đã xảy ra lỗi. Vui lòng thử lại.';
+      loginError = tr('error_occurred');
       _showErrorSnackBar(context, loginError);
+      isLoading = false;
       notifyListeners();
       return false;
     }
   }
 
   Future<bool> signInWithGoogle(BuildContext context) async {
+    isLoading = true;
+    notifyListeners();
+
     try {
       UserCredential userCredential = await _authService.signInWithGoogle();
       User? user = userCredential.user;
 
       if (user != null) {
         await user.reload();
+        isLoading = false;
+        notifyListeners();
         return true;
       } else {
-        _showErrorSnackBar(context, 'Đăng nhập Google thất bại.');
+        _showErrorSnackBar(context, tr('google_login_failed'));
+        isLoading = false;
         notifyListeners();
         return false;
       }
     } catch (e) {
-      print("loi dang nhap: $e");
-      // loginError = 'Đã xảy ra lỗi. Vui lòng thử lại: $e';
-
+      loginError = tr('error_occurred');
       _showErrorSnackBar(context, loginError);
+      isLoading = false;
       notifyListeners();
       return false;
     }
   }
 
-
   void _showErrorSnackBar(BuildContext context, String error) {
     CustomSnackBar_1.show(context, error);
+  }
+
+  void resetFields() {
+    emailController.clear();
+    passwordController.clear();
+    enableButton = false;
+    isPasswordVisible = false;
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 }

@@ -3,16 +3,16 @@ import 'package:expense_management/view/budget/create_budget_screen.dart';
 import 'package:expense_management/widget/custom_snackbar_2.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../model/budget_model.dart';
 import '../../model/category_model.dart';
 import '../../model/wallet_model.dart';
 import '../../view_model/budget/budget_list_view_model.dart';
 import '../../widget/custom_header_3.dart';
 import 'detail_budget_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class BudgetListScreen extends StatefulWidget {
-  const BudgetListScreen({Key? key}) : super(key: key);
+  const BudgetListScreen({super.key});
 
   @override
   State<BudgetListScreen> createState() => _BudgetListScreenState();
@@ -30,14 +30,14 @@ class _BudgetListScreenState extends State<BudgetListScreen> {
             body: Column(
               children: [
                 CustomHeader_3(
-                  title: 'Danh sách hạn mức',
+                  title: tr('budget_list'),
                   action: GestureDetector(
                     onTap: () {
                       setState(() {
                         viewModel.isSearching = true;
                       });
                     },
-                    child: Icon(
+                    child: const Icon(
                       Icons.search,
                       color: Colors.white,
                     ),
@@ -62,14 +62,14 @@ class _BudgetListScreenState extends State<BudgetListScreen> {
                   child: viewModel.budgets.isEmpty && viewModel.isSearching
                       ? Center(
                           child: Text(
-                            'Không có kết quả tìm kiếm nào.',
+                            tr('no_search_results'),
                             style: TextStyle(fontSize: 18, color: Colors.grey),
                           ),
                         )
                       : viewModel.budgets.isEmpty
-                          ? Center(
+                          ?  Center(
                               child: Text(
-                                'Không có hạn mức chi tiêu nào',
+                                tr('no_budgets'),
                                 style:
                                     TextStyle(fontSize: 18, color: Colors.grey),
                               ),
@@ -91,275 +91,326 @@ class _BudgetListScreenState extends State<BudgetListScreen> {
                                 final daysLeft = viewModel.getDaysLeft(budget);
 
                                 return FutureBuilder<double>(
-                        future: viewModel.calculateSpentAmount(budget, budget.categoryId, budget.walletId),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(
-                                child: CircularProgressIndicator());
-                          }
-                          if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          }
+                                  future: viewModel.calculateSpentAmount(budget,
+                                      budget.categoryId, budget.walletId),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                          child: CircularProgressIndicator());
+                                    }
+                                    if (snapshot.hasError) {
+                                      return Text('Error: ${snapshot.error}');
+                                    }
 
                                     final spentAmount = snapshot.data ?? 0.0;
                                     final progress =
                                         spentAmount / budget.amount;
                                     final amountLeft =
                                         budget.amount - spentAmount;
-                                    final isExpired = displayTime == 'Hết hạn';
+                                    final isExpired = displayTime == tr('expired');
 
                                     return Dismissible(
-                            key: Key(budget.budgetId),
-                            // Replace with your budget ID
-                            direction: DismissDirection.endToStart,
-                            confirmDismiss: (direction) async {
-                              return await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('Xác nhận'),
-                                    content: Text(
-                                        'Bạn có muốn xóa hạn mức này không?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context)
-                                              .pop(false);
-                                        },
-                                        child: Text('Không',
-                                            style: TextStyle(
-                                                color: Colors.red,
-                                                fontSize: 16,
-                                                fontWeight:
-                                                FontWeight.bold)),
+                                      key: Key(budget.budgetId),
+                                      // Replace with your budget ID
+                                      direction: DismissDirection.endToStart,
+                                      confirmDismiss: (direction) async {
+                                        return await showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text(tr('confirm')),
+                                              content:  Text(
+                                                  tr('delete_budget')),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(false);
+                                                  },
+                                                  child:  Text(tr('no'),
+                                                      style: TextStyle(
+                                                          color: Colors.red,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(true);
+                                                  },
+                                                  child: Text(tr('yes'),
+                                                      style: TextStyle(
+                                                          color: Colors.blue,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                      onDismissed: (direction) {
+                                        viewModel.deleteBudget(budget.budgetId);
+                                        CustomSnackBar_2.show(
+                                            context, tr('delete_budget_success'));
+                                      },
+                                      background: Container(
+                                        color: Colors.red,
+                                        alignment: Alignment.centerRight,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 20),
+                                        child: const Icon(Icons.delete,
+                                            color: Colors.white),
                                       ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context)
-                                              .pop(true);
-                                        },
-                                        child: Text('Có',
-                                            style: TextStyle(
-                                                color: Colors.blue,
-                                                fontSize: 16,
-                                                fontWeight:
-                                                FontWeight.bold)),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            onDismissed: (direction) {
-                              viewModel.deleteBudget(budget.budgetId);
-                              CustomSnackBar_2.show(
-                                  context, 'Đã xóa hạn mức');
-                            },
-                            background: Container(
-                              color: Colors.red,
-                              alignment: Alignment.centerRight,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20),
-                              child: Icon(Icons.delete,
-                                  color: Colors.white),
-                            ),
-                            child: Card(
-                              margin: const EdgeInsets.all(8.0),
-                              child: InkWell(
-                                onTap: () async {
-                                  final result = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          DetailBudgetScreen(
-                                              budget: budget),
-                                    ),
-                                  );
-                                  if (result != null) {
-                                    viewModel.loadBudgets();
-                                  }
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      // Display selected categories
-                                      Row(
-                                        children: [
-                                          Stack(
-                                            children: [
-                                              for (int i = budgetCategories
-                                                  .take(3)
-                                                  .length - 1; i >= 0; i--)
-                                                Transform.translate(
-                                                  offset: Offset(i * 10.0, 0),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                        .only(right: 2.0),
-                                                    child: CircleAvatar(
-                                                      radius: 16,
-                                                      backgroundColor: parseColor(
-                                                          budgetCategories[i]
-                                                              .color),
-                                                      child: Icon(
-                                                        parseIcon(
-                                                            budgetCategories[i]
-                                                                .icon),
-                                                        color: Colors.white,
-                                                        size: 16,
+                                      child: Card(
+                                        margin: const EdgeInsets.all(8.0),
+                                        child: InkWell(
+                                          onTap: () async {
+                                            final result = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    DetailBudgetScreen(
+                                                        budget: budget),
+                                              ),
+                                            );
+                                            if (result != null) {
+                                              viewModel.loadBudgets();
+                                            }
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                // Display selected categories
+                                                Row(
+                                                  children: [
+                                                    Stack(
+                                                      children: [
+                                                        for (int i =
+                                                                budgetCategories
+                                                                        .take(3)
+                                                                        .length -
+                                                                    1;
+                                                            i >= 0;
+                                                            i--)
+                                                          Transform.translate(
+                                                            offset: Offset(
+                                                                i * 10.0, 0),
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                      right:
+                                                                          2.0),
+                                                              child:
+                                                                  CircleAvatar(
+                                                                radius: 16,
+                                                                backgroundColor:
+                                                                    parseColor(
+                                                                        budgetCategories[i]
+                                                                            .color),
+                                                                child: Icon(
+                                                                  parseIcon(
+                                                                      budgetCategories[
+                                                                              i]
+                                                                          .icon),
+                                                                  color: Colors
+                                                                      .white,
+                                                                  size: 16,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(width: 25.0),
+                                                    Expanded(
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(top: 5.0),
+                                                        child: Text(
+                                                          viewModel
+                                                              .getCategoriesText(
+                                                                  budget
+                                                                      .categoryId),
+                                                          style: const TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          maxLines: 2,
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
+                                                  ],
                                                 ),
-                                            ],
-                                          ),
-                                          SizedBox(width: 25.0),
-                                          Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 5.0),
-                                              child: Text(
-                                                viewModel.getCategoriesText(
-                                                    budget.categoryId),
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight
-                                                        .bold),
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 8),
-                                      // Display selected wallets
-                                      Row(
-                                        children: [
-                                          Stack(
-                                            children: [
-                                              for (int i = budgetWallets
-                                                  .take(3)
-                                                  .length - 1; i >= 0; i--)
-                                                Transform.translate(
-                                                  offset: Offset(i * 10.0, 0),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                        .only(right: 2.0),
-                                                    child: CircleAvatar(
-                                                      radius: 16,
-                                                      backgroundColor: parseColor(
-                                                          budgetWallets[i]
-                                                              .color),
-                                                      child: Icon(
-                                                        parseIcon(
-                                                            budgetWallets[i]
-                                                                .icon),
-                                                        color: Colors.white,
-                                                        size: 18,
+                                                const SizedBox(height: 8),
+                                                // Display selected wallets
+                                                Row(
+                                                  children: [
+                                                    Stack(
+                                                      children: [
+                                                        for (int i =
+                                                                budgetWallets
+                                                                        .take(3)
+                                                                        .length -
+                                                                    1;
+                                                            i >= 0;
+                                                            i--)
+                                                          Transform.translate(
+                                                            offset: Offset(
+                                                                i * 10.0, 0),
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                      right:
+                                                                          2.0),
+                                                              child:
+                                                                  CircleAvatar(
+                                                                radius: 16,
+                                                                backgroundColor:
+                                                                    parseColor(
+                                                                        budgetWallets[i]
+                                                                            .color),
+                                                                child: Icon(
+                                                                  parseIcon(
+                                                                      budgetWallets[
+                                                                              i]
+                                                                          .icon),
+                                                                  color: Colors
+                                                                      .white,
+                                                                  size: 18,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(width: 25.0),
+                                                    Expanded(
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(top: 5.0),
+                                                        child: Text(
+                                                          viewModel
+                                                              .getWalletsText(
+                                                                  budget
+                                                                      .walletId),
+                                                          style: const TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          maxLines: 2,
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
+                                                  ],
                                                 ),
-                                            ],
-                                          ),
-                                          SizedBox(width: 25.0),
-                                          Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 5.0),
-                                              child: Text(
-                                                viewModel.getWalletsText(
-                                                    budget.walletId),
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight
-                                                        .bold),
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 2,
-                                              ),
+                                                SizedBox(height: 8),
+                                                Text(
+                                                  tr('budget_name_2') + '${budget.name}',
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  tr('budget_amount') + '${formatAmount(budget.amount)} ₫',
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16),
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    isExpired
+                                                        ? Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              border: Border.all(
+                                                                  color: Colors
+                                                                      .red),
+                                                            ),
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(4.0),
+                                                              child: Text(
+                                                                displayTime,
+                                                                style: const TextStyle(
+                                                                    color: Colors
+                                                                        .red),
+                                                              ),
+                                                            ),
+                                                          )
+                                                        : Text(
+                                                            displayTime,
+                                                            style: const TextStyle(
+                                                                color: Colors
+                                                                    .black),
+                                                          ),
+                                                    if (!isExpired &&
+                                                        daysLeft > 0)
+                                                      Text(
+                                                        tr('days_left', namedArgs: {'days': daysLeft.toString()}),
+                                                      )
+
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 8),
+                                                LinearProgressIndicator(
+                                                  value: progress,
+                                                  color: amountLeft < 0
+                                                      ? Colors.red
+                                                      : Colors.blue,
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      amountLeft < 0
+                                                          ? tr('overspent') + '${formatAmount(amountLeft.abs())} ₫'
+                                                          : tr('remaining_budget_2') + '${formatAmount(amountLeft)} ₫',
+                                                      style: TextStyle(
+                                                        color: amountLeft < 0
+                                                            ? Colors.red
+                                                            : Colors.black,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        ],
+                                        ),
                                       ),
-                                      SizedBox(height: 8),
-                                      Text(
-                                        'Tên hạn mức: ${budget.name}',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      ),
-                                      SizedBox(height: 8),
-                                      Text(
-                                        'Hạn mức: ${formatTotalBalance(
-                                            budget.amount)} ₫',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          isExpired
-                                              ? Container(
-                                            decoration: BoxDecoration(
-                                              border: Border.all(color: Colors.red),
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(4.0),
-                                              child: Text(
-                                                displayTime,
-                                                style: TextStyle(color: Colors.red),
-                                              ),
-                                            ),
-                                          )
-                                              : Text(
-                                            displayTime,
-                                            style: TextStyle(color: Colors.black),
-                                          ),
-                                          if (!isExpired && daysLeft > 0)
-                                            Text('Còn $daysLeft ngày.'),
-                                        ],
-                                      ),
-                                      SizedBox(height: 8),
-                                      LinearProgressIndicator(
-                                        value: progress,
-                                        color: amountLeft < 0
-                                            ? Colors.red
-                                            : Colors.blue,
-                                      ),
-                                      SizedBox(height: 8),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .spaceBetween,
-                                        children: [
-                                          Text(
-                                            amountLeft < 0
-                                                ? 'Bội chi: ${formatTotalBalance(
-                                                amountLeft.abs())} ₫'
-                                                : 'Hạn mức còn lại: ${formatTotalBalance(
-                                                amountLeft)} ₫',
-                                            style: TextStyle(
-                                              color: amountLeft < 0
-                                                  ? Colors.red
-                                                  : Colors.black,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                                    );
+                                  },
+                                );
+                              },
                             ),
-                          );
-                        },
-                      );
-                    },
-                  ),
                 ),
               ],
             ),
@@ -375,9 +426,9 @@ class _BudgetListScreenState extends State<BudgetListScreen> {
                   await viewModel.loadBudgets();
                 }
               },
-              child: Icon(Icons.add, color: Colors.white),
               backgroundColor: Colors.green,
-              shape: CircleBorder(),
+              shape: const CircleBorder(),
+              child: const Icon(Icons.add, color: Colors.white),
             ),
           );
         },

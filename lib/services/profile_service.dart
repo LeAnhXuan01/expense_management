@@ -13,14 +13,16 @@ class ProfileService {
     return _firebaseAuth.currentUser;
   }
 
-  Future<DocumentSnapshot<Map<String, dynamic>>> getProfile(String userId) async {
+  Future<DocumentSnapshot<Map<String, dynamic>>> getProfile(
+      String userId) async {
     return _firestore.collection('profiles').doc(userId).get();
   }
 
   Future<String?> uploadImage(String userId, String path) async {
     File file = File(path);
     try {
-      Reference ref = _firebaseStorage.ref().child('user_avatars').child(userId);
+      Reference ref =
+          _firebaseStorage.ref().child('user_avatars').child(userId);
       TaskSnapshot uploadTask = await ref.putFile(file);
       return await uploadTask.ref.getDownloadURL();
     } catch (e) {
@@ -30,6 +32,9 @@ class ProfileService {
   }
 
   Future<void> saveProfile(Profile profile) async {
-    await _firestore.collection('profiles').doc(profile.userId).set(profile.toMap());
+    await _firestore
+        .collection('profiles')
+        .doc(profile.userId)
+        .set(profile.toMap());
   }
 }

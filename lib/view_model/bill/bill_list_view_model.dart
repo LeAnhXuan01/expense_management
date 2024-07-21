@@ -70,4 +70,10 @@ class BillListViewModel extends ChangeNotifier {
     searchController.clear();
     filterBills('');
   }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 }

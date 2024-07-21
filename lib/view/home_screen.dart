@@ -3,12 +3,13 @@ import 'package:expense_management/view_model/user/edit_profile_view_model.dart'
 import 'package:expense_management/view_model/wallet/wallet_view_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../utils/utils.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -21,43 +22,48 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
     });
   }
 
   Future<void> _loadData() async {
-    final walletViewModel = Provider.of<WalletViewModel>(context, listen: false);
-    final profileViewModel = Provider.of<EditProfileViewModel>(context, listen: false);
+    final walletViewModel =
+        Provider.of<WalletViewModel>(context, listen: false);
+    final profileViewModel =
+        Provider.of<EditProfileViewModel>(context, listen: false);
     setState(() {
-      _isLoading = true; // Show loading indicator
+      _isLoading = true;
     });
     await Future.wait([
       walletViewModel.loadWallets(),
       profileViewModel.loadProfile(),
     ]);
     setState(() {
-      _isLoading = false; // Hide loading indicator
+      _isLoading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    print('build called');
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: RefreshIndicator(
         onRefresh: _loadData,
-          child: _isLoading
-              ? Center(child: CircularProgressIndicator())
-              : _buildBody(),
+        child: _isLoading
+            ? const Center(
+            child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+          strokeWidth: 6.0,)
+        )
+            : _buildBody(),
       ),
     );
   }
 
   Widget _buildBody() {
     return SingleChildScrollView(
-      physics: AlwaysScrollableScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(),
       child: Column(
         children: [
           _buildHeader(),
@@ -71,7 +77,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Consumer<EditProfileViewModel>(
       builder: (context, viewModel, child) {
         User? user = FirebaseAuth.instance.currentUser;
-        String displayName = viewModel.displayName ?? (user != null ? user.email!.split('@')[0] : tr('user'));
+        String displayName = viewModel.displayName ??
+            (user != null ? user.email!.split('@')[0] : tr('user'));
 
         return Container(
           width: double.infinity,
@@ -83,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 35, horizontal: 5),
+            padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 5),
             child: Column(
               children: [
                 Row(
@@ -93,14 +100,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       backgroundImage: viewModel.imageFile != null
                           ? FileImage(File(viewModel.imageFile!.path))
                           : (viewModel.networkImageUrl != null
-                          ? NetworkImage(viewModel.networkImageUrl!)
-                          : AssetImage('assets/images/profile.png')) as ImageProvider<Object>,
+                                  ? NetworkImage(viewModel.networkImageUrl!)
+                                  : const AssetImage('assets/images/profile.png'))
+                              as ImageProvider<Object>,
                     ),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     Expanded(
                       child: Text(
                         '${getGreeting()},\n$displayName!',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 25,
                           fontWeight: FontWeight.w600,
@@ -109,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildBalance(),
               ],
             ),
@@ -122,7 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBalance() {
     return Consumer<WalletViewModel>(
       builder: (context, viewModel, child) {
-        String balance = _isBalanceVisible ? '${viewModel.formattedTotalBalance} ₫' : '***** ₫';
+        String balance = _isBalanceVisible
+            ? '${viewModel.formattedTotalBalance} ₫'
+            : '***** ₫';
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -143,7 +153,10 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   tr('total_balance'),
-                  style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.w400),
+                  style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -151,7 +164,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     Flexible(
                       child: Text(
                         balance,
-                        style: TextStyle(color: Colors.green, fontSize: 20, fontWeight: FontWeight.w900),
+                        style: const TextStyle(
+                            color: Colors.green,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900),
                       ),
                     ),
                     IconButton(
@@ -161,7 +177,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         });
                       },
                       icon: Icon(
-                        _isBalanceVisible ? Icons.visibility : Icons.visibility_off,
+                        _isBalanceVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                         color: Colors.grey,
                       ),
                     ),
@@ -177,17 +195,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildUtilities() {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+      margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
       child: GridView.count(
         crossAxisCount: 2,
         shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         crossAxisSpacing: 16.0,
         mainAxisSpacing: 16.0,
         children: [
           _buildUtilityCard(
-            icon: Icons.receipt,
-            color: Colors.grey,
+            icon: FontAwesomeIcons.filePen,
+            color: Colors.grey.shade700,
             title: tr('utility_bill'),
             onTap: () {
               Navigator.pushNamed(context, '/bill-list');
@@ -203,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           _buildUtilityCard(
             icon: Icons.wallet,
-            color: Colors.yellow,
+            color: Colors.amberAccent,
             title: tr('utility_wallet'),
             onTap: () {
               // Navigator.push(context, MaterialPageRoute(builder: (context) => WalletScreen())).then((_) {
@@ -215,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           _buildUtilityCard(
             icon: Icons.account_balance_wallet,
-            color: Colors.blue,
+            color: Colors.red,
             title: tr('utility_budget'),
             onTap: () {
               Navigator.pushNamed(context, '/budget-list');
@@ -226,7 +244,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildUtilityCard({required IconData icon, required Color color, required String title, required VoidCallback onTap}) {
+  Widget _buildUtilityCard(
+      {required IconData icon,
+      required Color color,
+      required String title,
+      required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -240,11 +262,11 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, size: 60, color: color),
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ],
           ),

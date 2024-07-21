@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
 import '../../model/wallet_model.dart';
 import '../../utils/utils.dart';
+import 'package:easy_localization/easy_localization.dart';
 
-class MultiWalletSelectionDialog extends StatefulWidget {
+  class MultiWalletSelectionDialog extends StatefulWidget {
   final List<Wallet> wallets;
   final List<Wallet> selectedWallets;
   final Function(List<Wallet>) onSelect;
 
-  MultiWalletSelectionDialog({
+  const MultiWalletSelectionDialog({super.key, 
     required this.wallets,
     required this.selectedWallets,
     required this.onSelect,
   });
 
   @override
-  _MultiWalletSelectionDialogState createState() => _MultiWalletSelectionDialogState();
+  _MultiWalletSelectionDialogState createState() =>
+      _MultiWalletSelectionDialogState();
 }
 
-class _MultiWalletSelectionDialogState extends State<MultiWalletSelectionDialog> {
+class _MultiWalletSelectionDialogState
+    extends State<MultiWalletSelectionDialog> {
   late List<Wallet> selectedWallets;
   late List<Wallet> filteredWallets;
   TextEditingController searchController = TextEditingController();
@@ -35,8 +38,9 @@ class _MultiWalletSelectionDialogState extends State<MultiWalletSelectionDialog>
   void filterWallets() {
     setState(() {
       filteredWallets = widget.wallets
-          .where((wallet) =>
-          wallet.name.toLowerCase().contains(searchController.text.toLowerCase()))
+          .where((wallet) => wallet.name
+              .toLowerCase()
+              .contains(searchController.text.toLowerCase()))
           .toList();
     });
   }
@@ -44,7 +48,7 @@ class _MultiWalletSelectionDialogState extends State<MultiWalletSelectionDialog>
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Container(
+      child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.8,
         height: MediaQuery.of(context).size.height * 0.8,
         child: Column(
@@ -52,8 +56,8 @@ class _MultiWalletSelectionDialogState extends State<MultiWalletSelectionDialog>
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
-                'Chọn ví',
-                style: TextStyle(
+                tr('select_wallet'),
+                style: const TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.w500,
                 ),
@@ -64,8 +68,8 @@ class _MultiWalletSelectionDialogState extends State<MultiWalletSelectionDialog>
               child: TextFormField(
                 controller: searchController,
                 decoration: InputDecoration(
-                  labelText: 'Tìm kiếm ví',
-                  prefixIcon: Icon(Icons.search),
+                  labelText: tr('search_wallet'),
+                  prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
@@ -77,13 +81,14 @@ class _MultiWalletSelectionDialogState extends State<MultiWalletSelectionDialog>
                 itemCount: filteredWallets.length + 1,
                 itemBuilder: (context, index) {
                   if (index == 0) {
-                    bool allSelected = selectedWallets.length == widget.wallets.length;
+                    bool allSelected =
+                        selectedWallets.length == widget.wallets.length;
                     return Card(
-                      margin: EdgeInsets.symmetric(horizontal: 16.0),
+                      margin: const EdgeInsets.symmetric(horizontal: 4.0),
                       child: CheckboxListTile(
                         value: allSelected,
-                        title: Text('Tất cả'),
-                        secondary: Icon(
+                        title: Text(tr('all_wallets')),
+                        secondary: const Icon(
                           Icons.list,
                           color: Colors.grey,
                           size: 35,
@@ -103,10 +108,11 @@ class _MultiWalletSelectionDialogState extends State<MultiWalletSelectionDialog>
                     final wallet = filteredWallets[index - 1];
                     bool isSelected = selectedWallets.contains(wallet);
                     return Card(
-                      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 1.0),
+                      margin:
+                      const EdgeInsets.symmetric(horizontal: 4.0, vertical: 1.0),
                       child: CheckboxListTile(
                         value: isSelected,
-                        title: Text(wallet.name),
+                        title: Text(wallet.name, maxLines: 1, overflow: TextOverflow.ellipsis,),
                         secondary: CircleAvatar(
                           backgroundColor: parseColor(wallet.color),
                           child: Icon(
@@ -139,19 +145,25 @@ class _MultiWalletSelectionDialogState extends State<MultiWalletSelectionDialog>
                       Navigator.pop(context);
                     },
                     child: Text(
-                      'Hủy',
-                      style: TextStyle(fontSize: 18, color: Colors.red),
+                      tr('cancel'),
+                      style: const TextStyle(fontSize: 18, color: Colors.red),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   TextButton(
-                    onPressed: selectedWallets.isNotEmpty ? () {
+                    onPressed: selectedWallets.isNotEmpty
+                        ? () {
                       widget.onSelect(selectedWallets);
                       Navigator.pop(context);
-                    } : null,
+                    }
+                        : null,
                     child: Text(
-                      'Xác nhận',
-                      style: TextStyle(fontSize: 18, color: selectedWallets.isNotEmpty ? Colors.blue : Colors.grey),
+                      tr('confirm'),
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: selectedWallets.isNotEmpty
+                              ? Colors.blue
+                              : Colors.grey),
                     ),
                   ),
                 ],

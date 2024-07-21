@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../model/category_model.dart';
 import '../../utils/utils.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class MultiCategorySelectionDialog extends StatefulWidget {
   final List<Category> categories;
   final List<Category> selectedCategories;
   final Function(List<Category>) onSelect;
 
-  MultiCategorySelectionDialog({
+  const MultiCategorySelectionDialog({super.key, 
     required this.categories,
     required this.selectedCategories,
     required this.onSelect,
@@ -37,8 +38,9 @@ class _MultiCategorySelectionDialogState
   void filterCategories() {
     setState(() {
       filteredCategories = widget.categories
-          .where((category) =>
-          category.name.toLowerCase().contains(searchController.text.toLowerCase()))
+          .where((category) => category.name
+              .toLowerCase()
+              .contains(searchController.text.toLowerCase()))
           .toList();
     });
   }
@@ -46,7 +48,7 @@ class _MultiCategorySelectionDialogState
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Container(
+      child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.8,
         height: MediaQuery.of(context).size.height * 0.8,
         child: Column(
@@ -54,8 +56,8 @@ class _MultiCategorySelectionDialogState
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
-                'Chọn danh mục',
-                style: TextStyle(
+                tr('select_category'),
+                style: const TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.w500,
                 ),
@@ -66,8 +68,8 @@ class _MultiCategorySelectionDialogState
               child: TextFormField(
                 controller: searchController,
                 decoration: InputDecoration(
-                  labelText: 'Tìm kiếm danh mục',
-                  prefixIcon: Icon(Icons.search),
+                  labelText: tr('search_category'),
+                  prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
@@ -82,11 +84,11 @@ class _MultiCategorySelectionDialogState
                     bool allSelected =
                         selectedCategories.length == widget.categories.length;
                     return Card(
-                      margin: EdgeInsets.symmetric(horizontal: 16.0),
+                      margin: const EdgeInsets.symmetric(horizontal: 4.0),
                       child: CheckboxListTile(
                         value: allSelected,
-                        title: Text('Tất cả'),
-                        secondary: Icon(
+                        title: Text(tr('all_categories')),
+                        secondary: const Icon(
                           Icons.list,
                           color: Colors.grey,
                           size: 35,
@@ -94,8 +96,7 @@ class _MultiCategorySelectionDialogState
                         onChanged: (bool? value) {
                           setState(() {
                             if (value == true) {
-                              selectedCategories =
-                                  List.from(widget.categories);
+                              selectedCategories = List.from(widget.categories);
                             } else {
                               selectedCategories.clear();
                             }
@@ -107,10 +108,12 @@ class _MultiCategorySelectionDialogState
                     final category = filteredCategories[index - 1];
                     bool isSelected = selectedCategories.contains(category);
                     return Card(
-                      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 1.0),
+                      margin:
+                      const EdgeInsets.symmetric(horizontal: 4.0, vertical: 1.0),
                       child: CheckboxListTile(
                         value: isSelected,
-                        title: Text(category.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        title: Text(category.name,
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
                         secondary: CircleAvatar(
                           backgroundColor: parseColor(category.color),
                           child: Icon(
@@ -143,11 +146,11 @@ class _MultiCategorySelectionDialogState
                       Navigator.pop(context);
                     },
                     child: Text(
-                      'Hủy',
-                      style: TextStyle(fontSize: 18, color: Colors.red),
+                      tr('cancel'),
+                      style: const TextStyle(fontSize: 18, color: Colors.red),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   TextButton(
                     onPressed: selectedCategories.isNotEmpty
                         ? () {
@@ -156,10 +159,12 @@ class _MultiCategorySelectionDialogState
                     }
                         : null,
                     child: Text(
-                      'Xác nhận',
+                      tr('confirm'),
                       style: TextStyle(
                         fontSize: 18,
-                        color: selectedCategories.isNotEmpty ? Colors.blue : Colors.grey,
+                        color: selectedCategories.isNotEmpty
+                            ? Colors.blue
+                            : Colors.grey,
                       ),
                     ),
                   ),
@@ -171,4 +176,5 @@ class _MultiCategorySelectionDialogState
       ),
     );
   }
+
 }

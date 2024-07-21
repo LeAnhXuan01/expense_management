@@ -108,7 +108,7 @@ class BudgetListViewModel extends ChangeNotifier {
   String getCategoriesText(List<String> selectedCategories) {
     if (selectedCategories.isEmpty ||
         selectedCategories.length == categoryMap.length) {
-      return 'Tất cả danh mục chi tiêu';
+      return tr('all_expense_categories');
     }
     if (selectedCategories.length == 1) {
       return categoryMap[selectedCategories[0]]?.name ?? '';
@@ -116,17 +116,17 @@ class BudgetListViewModel extends ChangeNotifier {
     if (selectedCategories.length == 2) {
       return '${categoryMap[selectedCategories[0]]?.name ?? ''}, ${categoryMap[selectedCategories[1]]?.name ?? ''}';
     }
-    return '${categoryMap[selectedCategories[0]]?.name ?? ''}, ${categoryMap[selectedCategories[1]]?.name ?? ''} + ${selectedCategories.length - 2} danh mục khác';
+    return '${categoryMap[selectedCategories[0]]?.name ?? ''}, ${categoryMap[selectedCategories[1]]?.name ?? ''} + ${selectedCategories.length - 2}' + tr('other_categories');
   }
 
   String getWalletsText(List<String> selectedWallets) {
     if (selectedWallets.length == 0 ||
-        selectedWallets.length == walletMap.length) return 'Tất cả ví';
+        selectedWallets.length == walletMap.length) return tr('all_wallet');
     if (selectedWallets.length == 1)
       return walletMap[selectedWallets[0]]?.name ?? '';
     if (selectedWallets.length == 2)
       return '${walletMap[selectedWallets[0]]?.name ?? ''}, ${walletMap[selectedWallets[1]]?.name ?? ''}';
-    return '${walletMap[selectedWallets[0]]?.name ?? ''}, ${walletMap[selectedWallets[1]]?.name ?? ''} + ${selectedWallets.length - 2} ví tiền';
+    return '${walletMap[selectedWallets[0]]?.name ?? ''}, ${walletMap[selectedWallets[1]]?.name ?? ''} + ${selectedWallets.length - 2} ' + tr('wallet');
   }
 
   Future<double> calculateSpentAmount(
@@ -215,16 +215,13 @@ class BudgetListViewModel extends ChangeNotifier {
     return 0.0;
   }
 
-
-
-
   String getDisplayTime(Budget budget) {
     final currentDate = DateTime.now();
     final startDate = budget.startDate;
     final endDate = budget.endDate;
 
     if (currentDate.isAfter(endDate)) {
-      return 'Hết hạn';
+      return tr('expired');
     }
 
     switch (budget.repeat) {
@@ -242,7 +239,7 @@ class BudgetListViewModel extends ChangeNotifier {
             days: ((currentDate.difference(startDate).inDays) ~/ 7) * 7));
         final weekEndDate = weekStartDate.add(Duration(days: 6));
         if (weekEndDate.isAfter(endDate)) {
-          return 'Hết hạn';
+          return tr('expired');
         }
         // Nếu chưa đến thời gian bắt đầu hạn mức, hiển thị tuần bắt đầu hạn mức
         if (currentDate.isBefore(startDate)) {
@@ -260,7 +257,7 @@ class BudgetListViewModel extends ChangeNotifier {
               monthStartDate.year, monthStartDate.month + 1, startDate.day);
         }
         if (monthStartDate.isAfter(endDate)) {
-          return 'Hết hạn';
+          return tr('expired');
         }
         // Nếu chưa đến thời gian bắt đầu hạn mức, hiển thị tháng bắt đầu hạn mức
         if (currentDate.isBefore(startDate)) {
@@ -284,7 +281,7 @@ class BudgetListViewModel extends ChangeNotifier {
               quarterStartDate.month + 3, quarterStartDate.day);
         }
         if (quarterStartDate.isAfter(endDate)) {
-          return 'Hết hạn';
+          return tr('expired');
         }
         // Nếu chưa đến thời gian bắt đầu hạn mức, hiển thị quý bắt đầu hạn mức
         if (currentDate.isBefore(startDate)) {
@@ -311,7 +308,7 @@ class BudgetListViewModel extends ChangeNotifier {
               DateTime(yearStartDate.year + 1, startDate.month, startDate.day);
         }
         if (yearStartDate.isAfter(endDate)) {
-          return 'Hết hạn';
+          return tr('expired');
         }
         // Nếu chưa đến thời gian bắt đầu hạn mức, hiển thị năm bắt đầu hạn mức
         if (currentDate.isBefore(startDate)) {
@@ -328,7 +325,7 @@ class BudgetListViewModel extends ChangeNotifier {
         return '${DateFormat('dd/MM/yyyy').format(yearStartDate)} - ${DateFormat('dd/MM/yyyy').format(yearEndDate)}';
 
       default:
-        return 'Không xác định';
+        return tr('unknown');
     }
   }
 
@@ -445,5 +442,11 @@ class BudgetListViewModel extends ChangeNotifier {
       default:
         return 0;
     }
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 }

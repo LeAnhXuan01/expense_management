@@ -10,13 +10,13 @@ class BillService {
   Future<Bill?> getBillById(String billId) async {
     try {
       DocumentSnapshot docSnapshot =
-      await _firestore.collection('bills').doc(billId).get();
+          await _firestore.collection('bills').doc(billId).get();
       if (docSnapshot.exists) {
         return Bill.fromMap(docSnapshot.data() as Map<String, dynamic>);
       }
     } catch (e) {
       print("Error getting bill by id: $e");
-      throw e;
+      rethrow;
     }
     return null;
   }
@@ -34,14 +34,14 @@ class BillService {
           .toList();
     } catch (e) {
       print("Error getting bills: $e");
-      throw e;
+      rethrow;
     }
   }
 
   Future<void> createBill(Bill bill) async {
     try {
       DocumentReference docRef =
-      await _firestore.collection('bills').add(bill.toMap());
+          await _firestore.collection('bills').add(bill.toMap());
       await docRef.update({'billId': docRef.id});
 
       // Schedule notification based on repeat
@@ -56,13 +56,16 @@ class BillService {
       print('Bill created and notification scheduled');
     } catch (e) {
       print("Error creating bill: $e");
-      throw e;
+      rethrow;
     }
   }
 
   Future<void> updateBill(Bill bill) async {
     try {
-      await _firestore.collection('bills').doc(bill.billId).update(bill.toMap());
+      await _firestore
+          .collection('bills')
+          .doc(bill.billId)
+          .update(bill.toMap());
 
       // Schedule notification based on repeat
       await _notificationService.scheduleNotification(
@@ -75,7 +78,7 @@ class BillService {
       );
     } catch (e) {
       print("Error updating bill: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -84,12 +87,11 @@ class BillService {
       await _firestore.collection('bills').doc(billId).delete();
 
       // Cancel the notification
-      await _notificationService.flutterLocalNotificationsPlugin.cancel(billId.hashCode);
+      await _notificationService.flutterLocalNotificationsPlugin
+          .cancel(billId.hashCode);
     } catch (e) {
       print("Error deleting bill: $e");
-      throw e;
+      rethrow;
     }
   }
-
-
 }

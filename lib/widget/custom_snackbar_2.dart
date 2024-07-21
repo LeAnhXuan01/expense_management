@@ -12,15 +12,15 @@ class CustomSnackBar_2 {
         content: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               backgroundColor: Colors.white,
               child: Icon(FontAwesomeIcons.check, color: Colors.green),
             ),
-            SizedBox(width: 20),
+            const SizedBox(width: 20),
             Expanded(
               child: Text(
                 message,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
               ),
             ),
           ],
@@ -29,6 +29,6 @@ class CustomSnackBar_2 {
         duration: duration,
       ),
     );
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
   }
 }

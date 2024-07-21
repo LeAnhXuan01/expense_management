@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../../utils/utils.dart';
 import '../../../view_model/category/category_list_view_model.dart';
 import '../../../widget/custom_header_3.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ExpenseCategoryScreen extends StatefulWidget {
-  const ExpenseCategoryScreen({Key? key}) : super(key: key);
+  const ExpenseCategoryScreen({super.key});
 
   @override
   State<ExpenseCategoryScreen> createState() => _ExpenseCategoryScreenState();
@@ -23,14 +23,14 @@ class _ExpenseCategoryScreenState extends State<ExpenseCategoryScreen> {
             body: Column(
               children: [
                 CustomHeader_3(
-                  title: 'Danh mục chi tiêu',
+                  title: tr('expense_category_title'),
                   action: GestureDetector(
                     onTap: () {
                       setState(() {
                         viewModel.isSearching = true;
                       });
                     },
-                    child: Icon(
+                    child: const Icon(
                       Icons.search,
                       color: Colors.white,
                     ),
@@ -54,17 +54,17 @@ class _ExpenseCategoryScreenState extends State<ExpenseCategoryScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: viewModel.expenseCategories.isEmpty &&
                             viewModel.isSearching
-                        ? Center(
+                        ?  Center(
                             child: Text(
-                              'Không có kết quả tìm kiếm nào.',
+                              tr('no_search_results'),
                               style:
                                   TextStyle(fontSize: 18, color: Colors.grey),
                             ),
                           )
                         : viewModel.expenseCategories.isEmpty
-                            ? Center(
+                            ?  Center(
                                 child: Text(
-                                  'Không có danh mục chi tiêu nào',
+                                  tr('no_expense_categories'),
                                   style: TextStyle(
                                       fontSize: 18, color: Colors.grey),
                                 ),
@@ -105,7 +105,7 @@ class _ExpenseCategoryScreenState extends State<ExpenseCategoryScreen> {
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(fontSize: 14),
+                                          style: const TextStyle(fontSize: 14),
                                         ),
                                       ],
                                     ),

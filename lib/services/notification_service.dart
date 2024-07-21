@@ -1,46 +1,50 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
-
 import '../model/enum.dart';
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
 
+  static const String channelId = 'notification_channel';
+  static const String channelName = 'Notifications';
+  static const String channelDescription = 'Notifications for bills';
+
   NotificationService() {
     _init();
   }
 
-  void _init() async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('notification_icon');
-
-    const InitializationSettings initializationSettings =
-    InitializationSettings(android: initializationSettingsAndroid);
-
+  Future<void> _init() async {
     tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('Asia/Ho_Chi_Minh')); // Thiết lập múi giờ cho Việt Nam
 
-    // Initialize plugin and print the result
-    bool? initialized = await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-    if (initialized == null || initialized == false) {
-      print('Failed to initialize notifications plugin');
-    } else {
-      print('Notification plugin initialized successfully');
+    const androidInitializationSettings = AndroidInitializationSettings('notification_icon');
+    const initializationSettings = InitializationSettings(android: androidInitializationSettings);
+
+    try {
+      bool? initialized = await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+      if (initialized == null || initialized == false) {
+        print('Failed to initialize notifications plugin');
+      } else {
+        print('Notification plugin initialized successfully');
+      }
+      await _requestPermissions();
+    } catch (e) {
+      print('Error during notification initialization: $e');
     }
+  }
 
-    // Check and request notification permission
+  Future<void> _requestPermissions() async {
     if (await Permission.notification.isDenied) {
       await Permission.notification.request();
     } else {
       print('Notification permission granted');
     }
 
-    // Check and request SCHEDULE_EXACT_ALARM permission
     if (await Permission.scheduleExactAlarm.isDenied) {
       await Permission.scheduleExactAlarm.request();
     } else {
@@ -50,41 +54,50 @@ class NotificationService {
 
   Future<void> scheduleNotification(
       int id, String title, String body, DateTime date, TimeOfDay time, Repeat repeat) async {
-    tz.TZDateTime scheduledDate = _nextInstanceOfTime(date, time, repeat);
-    print('Scheduling notification at: $scheduledDate');
+    try {
+      tz.TZDateTime scheduledDate = _nextInstanceOfTime(date, time, repeat);
+      print('Scheduling notification at: $scheduledDate for repeat: $repeat');
 
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledDate,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'notification_channel',
-          'Notifications',
-          channelDescription: 'Notifications for bills',
-          importance: Importance.max,
-          priority: Priority.high,
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduledDate,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            channelId,
+            channelName,
+            channelDescription: channelDescription,
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
         ),
-      ),
-      androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: _getDateTimeComponents(repeat), // Match both date and time
-    );
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: _getDateTimeComponents(repeat),
+      );
 
-    // Nếu là lặp lại hàng quý, lên lịch lại sau mỗi 3 tháng
-    if (repeat == Repeat.Quarterly) {
-      _scheduleQuarterlyNotification(id, title, body, scheduledDate, time);
+      if (repeat == Repeat.Quarterly) {
+        _scheduleQuarterlyNotification(id, title, body, scheduledDate, time);
+      }
+
+      print('Notification scheduled successfully');
+    } catch (e) {
+      print('Error scheduling notification: $e');
     }
-
-    print('Notification scheduled successfully');
   }
 
   tz.TZDateTime _nextInstanceOfTime(DateTime date, TimeOfDay time, Repeat repeat) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, date.year, date.month, date.day, time.hour, time.minute);
+    tz.TZDateTime scheduledDate =
+    tz.TZDateTime(tz.local, date.year, date.month, date.day, time.hour, time.minute);
 
-    if (scheduledDate.isBefore(now)) {
+    print('Current time: $now');
+    print('Initial scheduled time: $scheduledDate');
+
+    // Nếu scheduledDate là trước now hoặc cùng ngày nhưng đã qua giờ hiện tại
+    if (scheduledDate.isBefore(now) || (scheduledDate.day == now.day && scheduledDate.isBefore(now))) {
+      print('Scheduled time is before now or the same day but past current time. Adjusting time...');
       switch (repeat) {
         case Repeat.Daily:
           scheduledDate = scheduledDate.add(const Duration(days: 1));
@@ -102,6 +115,7 @@ class NotificationService {
           scheduledDate = tz.TZDateTime(tz.local, scheduledDate.year + 1, date.month, date.day, time.hour, time.minute);
           break;
       }
+      print('Adjusted scheduled time: $scheduledDate');
     }
 
     return scheduledDate;
@@ -118,48 +132,40 @@ class NotificationService {
     int maxDayOfMonth = DateTime(year, month + 1, 0).day;
     int adjustedDay = day <= maxDayOfMonth ? day : maxDayOfMonth;
 
-    return tz.TZDateTime(tz.local, year, month, adjustedDay, time.hour, time.minute);
+    return tz.TZDateTime(
+        tz.local, year, month, adjustedDay, time.hour, time.minute);
   }
 
   DateTimeComponents _getDateTimeComponents(Repeat repeat) {
-    switch (repeat) {
-      case Repeat.Daily:
-        return DateTimeComponents.time;
-      case Repeat.Weekly:
-        return DateTimeComponents.dayOfWeekAndTime;
-      case Repeat.Monthly:
-        return DateTimeComponents.dayOfMonthAndTime;
-      case Repeat.Quarterly:
-      // Không có trực tiếp cho hàng quý, cần tính toán riêng
-        return DateTimeComponents.dateAndTime;
-      case Repeat.Yearly:
-        return DateTimeComponents.dateAndTime;
-      default:
-        return DateTimeComponents.dateAndTime;
-    }
+    const componentMap = {
+      Repeat.Daily: DateTimeComponents.time,
+      Repeat.Weekly: DateTimeComponents.dayOfWeekAndTime,
+      Repeat.Monthly: DateTimeComponents.dayOfMonthAndTime,
+      Repeat.Quarterly: DateTimeComponents.dateAndTime,
+      Repeat.Yearly: DateTimeComponents.dateAndTime,
+    };
+    return componentMap[repeat] ?? DateTimeComponents.dateAndTime;
   }
 
-  void _scheduleQuarterlyNotification(int id, String title, String body, tz.TZDateTime scheduledDate, TimeOfDay time) {
+  void _scheduleQuarterlyNotification(
+      int id, String title, String body, tz.TZDateTime scheduledDate, TimeOfDay time) {
     Timer(
       scheduledDate.difference(tz.TZDateTime.now(tz.local)),
           () async {
-        DateTime nextQuarterlyDate = DateTime(
-          scheduledDate.year,
-          scheduledDate.month + 3,
-          scheduledDate.day,
-          time.hour,
-          time.minute,
-        );
+        try {
+          tz.TZDateTime nextQuarterlyDate = _nextQuarterlyDate(scheduledDate, scheduledDate.day, time);
 
-        await scheduleNotification(id, title, body, nextQuarterlyDate, time, Repeat.Quarterly);
+          print('Scheduling next quarterly notification at: $nextQuarterlyDate');
+          await scheduleNotification(id, title, body, nextQuarterlyDate, time, Repeat.Quarterly);
+        } catch (e) {
+          print('Error scheduling quarterly notification: $e');
+        }
       },
     );
   }
 
   // Convert string to int for notification ID
-  int _convertStringToInt(String str) {
-    return str.hashCode;
-  }
+  int _convertStringToInt(String str) => str.hashCode;
 
   // Cancel specific notification
   Future<void> cancelNotification(String id) async {

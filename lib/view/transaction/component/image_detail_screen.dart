@@ -8,7 +8,7 @@ class ImageDetailScreen extends StatefulWidget {
   final List<File>? imageFiles;
   final int initialIndex;
 
-  ImageDetailScreen({
+  const ImageDetailScreen({super.key, 
     this.imageUrls,
     this.imageFiles,
     this.initialIndex = 0,
@@ -42,7 +42,6 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
     _pageController = PageController(initialPage: widget.initialIndex);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,7 +61,7 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
           );
         },
         pageController: _pageController,
-        scrollPhysics: BouncingScrollPhysics(),
+        scrollPhysics: const BouncingScrollPhysics(),
         onPageChanged: (index) {
           setState(() {
             _currentIndex = index;

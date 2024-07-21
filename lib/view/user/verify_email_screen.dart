@@ -86,85 +86,108 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     return Scaffold(
       body: Consumer<RegisterViewModel>(
         builder: (context, viewModel, child) {
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                CustomHeader_2(title: tr('verify_email')),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 30,
-                      ),
-                      Center(
-                          child: Image.asset(
-                            'assets/images/email.png',
-                            height: 250,
-                            width: 250,
-                          )),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: tr('check_email'),
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            TextSpan(
-                              text: '${viewModel.emailController.text}@gmail.com',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+          return Stack(
+            children: [
+                Column(
+                  children: [
+                    CustomHeader_2(title: tr('verify_email')),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                height: 30,
                               ),
-                            ),
-                            TextSpan(
-                              text: tr('and_click_verification_link'),
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
+                              Center(
+                                  child: Image.asset(
+                                    'assets/images/email.png',
+                                    height: 250,
+                                    width: 250,
+                                  )),
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: tr('check_email'),
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    TextSpan(
+                                      text: '${viewModel.emailController.text}@gmail.com',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: tr('and_click_verification_link'),
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 20),
+                              CustomElavatedButton_1(
+                                onPressed: () async {
+                                  User? user = FirebaseAuth.instance.currentUser;
+                                  if (user != null) {
+                                    await user.reload();
+                                    if (user.emailVerified) {
+                                      await viewModel.monitorEmailVerification(
+                                          user, viewModel.passwordController.text);
+                                      await CustomSnackBar_2.show(context, tr('registration_successful'));
+                                      Navigator.pushReplacementNamed(context, '/login');
+                                    } else {
+                                      CustomSnackBar_1.show(context, tr('email_not_verified'));
+                                    }
+                                  }
+                                },
+                                text: tr('i_have_verified'),
+                              ),
+                              SizedBox(height: 20),
+                              CustomElavatedButton_1(
+                                onPressed: (_isSendingVerification || _hasRecentlySentVerification)
+                                    ? null
+                                    : () => _sendEmailVerification(viewModel),
+                                text: tr('resend_verification_email'),
+                              ),
+                              if (_hasRecentlySentVerification)
+                                Text(
+                                  tr('try_again_later_2') + '$_countdown',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                            ],
+                          ),
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: 20),
-                      CustomElavatedButton_1(
-                        onPressed: () async {
-                          User? user = FirebaseAuth.instance.currentUser;
-                          if (user != null) {
-                            await user.reload();
-                            if (user.emailVerified) {
-                              await viewModel.monitorEmailVerification(
-                                  user, viewModel.passwordController.text);
-                              await CustomSnackBar_2.show(context, tr('registration_successful'));
-                              Navigator.pushReplacementNamed(context, '/login');
-                            } else {
-                              CustomSnackBar_1.show(context, tr('email_not_verified'));
-                            }
-                          }
-                        },
-                        text: tr('i_have_verified'),
+                    ),
+                  ],
+                ),
+              if (viewModel.isVerifyingEmail)
+                Container(
+                  color: Colors.black.withOpacity(0.5), // nền mờ
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
-                      SizedBox(height: 20),
-                      CustomElavatedButton_1(
-                        onPressed: (_isSendingVerification || _hasRecentlySentVerification)
-                            ? null
-                            : () => _sendEmailVerification(viewModel),
-                        text: tr('resend_verification_email'),
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                        strokeWidth: 6.0, // độ dày
                       ),
-                      if (_hasRecentlySentVerification)
-                        Text(
-                          tr('wait_seconds_before_resending', namedArgs: {'seconds': '$_countdown'}),
-                          style: TextStyle(color: Colors.red),
-                        ),
-                    ],
+                    ),
                   ),
                 ),
               ],
-            ),
           );
         },
       ),

@@ -4,45 +4,52 @@ import 'package:google_sign_in/google_sign_in.dart';
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-//register
-  Future<User?> createUserWithEmailAndPassword(String email, String password) async {
+// Đăng ký
+  Future<User?> createUserWithEmailAndPassword(
+      String email, String password) async {
     try {
-      UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      throw e;
+      rethrow;
     } catch (e) {
       throw Exception('Đã xảy ra lỗi. Vui lòng thử lại.');
     }
   }
-//login
-  Future<User?> signInWithEmailAndPassword(String email, String password) async {
+
+// Đăng nhập bằng email
+  Future<User?> signInWithEmailAndPassword(
+      String email, String password) async {
     try {
-      UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      throw e;
+      rethrow;
     } catch (e) {
       throw Exception('Đã xảy ra lỗi. Vui lòng thử lại.');
     }
   }
-//forgotPassword
+
+// Đặt lại mật khẩu
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await _firebaseAuth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
-      throw e;
+      rethrow;
     } catch (e) {
       throw Exception('Đã xảy ra lỗi. Vui lòng thử lại.');
     }
   }
-// changePassword
+
+// Đổi mật khẩu
   Future<void> reauthenticateUser(User user, String currentPassword) async {
     AuthCredential credential = EmailAuthProvider.credential(
       email: user.email!,
@@ -56,10 +63,11 @@ class AuthService {
   }
 
   // Đăng nhập bằng Google
-  Future<UserCredential> signInWithGoogle() async{
+  Future<UserCredential> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
 
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
@@ -77,5 +85,4 @@ class AuthService {
       throw Exception('Đã xảy ra lỗi. Vui lòng thử lại.');
     }
   }
-
 }

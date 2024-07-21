@@ -14,7 +14,6 @@ import '../../utils/wallet_utils.dart';
 class EditTransferViewModel extends ChangeNotifier {
   final TransferService _transferService = TransferService();
   final WalletService _walletService = WalletService();
-  final TransferHelper _transferHelper = TransferHelper();
 
   final TextEditingController amountController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
@@ -120,7 +119,7 @@ class EditTransferViewModel extends ChangeNotifier {
   Future<Transfer?> updateTransfer(
       BuildContext context, String transferId) async {
     if (selectedFromWallet == selectedToWallet) {
-      CustomSnackBar_1.show(context, 'Không thể chuyển khoản cùng ví');
+      CustomSnackBar_1.show(context, tr('transfer_error_insufficient_balance'));
       return null;
     }
 
@@ -155,7 +154,7 @@ class EditTransferViewModel extends ChangeNotifier {
             updateTransfer.fromWallet,
             updateTransfer.amount);
         if (!isBalanceSufficient) {
-          CustomSnackBar_1.show(context, 'Số dư ví nguồn không đủ');
+          CustomSnackBar_1.show(context, tr('transfer_error_not_enough_balance'));
           return null;
         }
 
@@ -173,5 +172,14 @@ class EditTransferViewModel extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    noteController.dispose();
+    dateController.dispose();
+    hourController.dispose();
+    super.dispose();
   }
 }

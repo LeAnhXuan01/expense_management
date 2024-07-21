@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-
 import '../../services/auth_service.dart';
 import '../../widget/custom_snackbar_1.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class RegisterViewModel extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -17,6 +17,8 @@ class RegisterViewModel extends ChangeNotifier {
   bool hasPasswordError = false;
   bool hasConfirmPasswordError = false;
   bool enableButton = false;
+  bool isLoading = false;
+  bool isVerifyingEmail = false;
 
   String emailError = '';
   String passwordError = '';
@@ -48,7 +50,7 @@ class RegisterViewModel extends ChangeNotifier {
 
   void validateEmail(String email) {
     if (email.contains('@gmail.com')) {
-      emailError = 'Email không hợp lệ';
+      emailError = tr('email_error_invalid');
       hasEmailError = true;
     }else {
       emailError = '';
@@ -59,10 +61,10 @@ class RegisterViewModel extends ChangeNotifier {
 
   void validatePassword(String password) {
     if (password.length < 6 && passwordController.text.isNotEmpty) {
-      passwordError = 'Mật khẩu phải dài ít nhất 6 ký tự.';
+      passwordError = tr('password_too_short');
       hasPasswordError = true;
     } else if (password.length > 30 && passwordController.text.isNotEmpty) {
-      passwordError = 'Mật khẩu dài không quá 30 ký tự.';
+      passwordError = tr('password_too_long');
       hasPasswordError = true;
     } else {
       passwordError = '';
@@ -73,7 +75,7 @@ class RegisterViewModel extends ChangeNotifier {
 
   void validateConfirmPassword(String confirmPassword, String password) {
     if (confirmPassword != password) {
-      confirmPasswordError = 'Mật khẩu và xác nhận mật khẩu không khớp.';
+      confirmPasswordError = tr('confirm_password_error_match');
       hasConfirmPasswordError = true;
     } else {
       confirmPasswordError = '';
@@ -92,27 +94,20 @@ class RegisterViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // void resetFields() {
-  //   emailController.clear();
-  //   passwordController.clear();
-  //   confirmPasswordController.clear();
-  //   isPasswordVisible = false;
-  //   isConfirmPasswordVisible = false;
-  //   enableButton = false;
-  //   notifyListeners();
-  // }
-
   Future<bool> register(BuildContext context) async {
     final email = emailController.text.trim() + '@gmail.com';
     final newPassword = passwordController.text.trim();
 
-    final isEmailValid = !hasEmailError; // Kiểm tra xem không có lỗi về email
-    final isPasswordValid = !hasPasswordError; // Kiểm tra xem không có lỗi về mật khẩu
+    final isEmailValid = !hasEmailError;
+    final isPasswordValid = !hasPasswordError;
     final isConfirmPasswordValid = !hasConfirmPasswordError;
     if (!isEmailValid || !isPasswordValid || !isConfirmPasswordValid) {
       notifyListeners();
       return false;
     }
+
+    isLoading = true;
+    notifyListeners();
 
     try {
       // Tạo tài khoản mới với Firebase Authentication
@@ -120,20 +115,24 @@ class RegisterViewModel extends ChangeNotifier {
       if (user != null) {
         // Gửi email xác thực
         await user.sendEmailVerification();
+        isLoading = false;
+        notifyListeners();
         return true;
       }
       return false;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
-        emailError = 'Email này đã được sử dụng.';
+        emailError = tr('email_in_use');
       } else if (e.code == 'invalid-email') {
-        emailError = 'Email không hợp lệ.';
+        emailError = tr('email_error_invalid');
       }
       // _showErrorSnackBar(context, emailError);
+      isLoading = false;
       notifyListeners();
       return false;
     } catch (e) {
-      _showErrorSnackBar(context, 'Đã xảy ra lỗi. Vui lòng thử lại.');
+      _showErrorSnackBar(context, tr('error_occurred_later'));
+      isLoading = false;
       notifyListeners();
       return false;
     }
@@ -148,19 +147,46 @@ class RegisterViewModel extends ChangeNotifier {
   }
 
   Future<bool> monitorEmailVerification(User user, String password) async {
+    isVerifyingEmail = true;
+    notifyListeners();
+
     await user.reload();
+
     if (user.emailVerified) {
-      // Lấy user ID từ Firebase Authentication
       String userId = user.uid;
-      // Lưu thông tin người dùng vào Firestore
       await saveUserToFirestore(userId, user.email!, password);
+
+      isVerifyingEmail = false;
+      notifyListeners();
+
       return true;
     } else {
+      isVerifyingEmail = false;
+      notifyListeners();
+
       return false;
     }
   }
 
   void _showErrorSnackBar(BuildContext context, String error) {
     CustomSnackBar_1.show(context, error);
+  }
+
+  void resetFields() {
+    emailController.clear();
+    passwordController.clear();
+    confirmPasswordController.clear();
+    enableButton = false;
+    isPasswordVisible = false;
+    isConfirmPasswordVisible = false;
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
   }
 }

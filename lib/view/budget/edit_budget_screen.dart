@@ -9,15 +9,15 @@ import '../../model/category_model.dart';
 import '../../model/wallet_model.dart';
 import '../../utils/utils.dart';
 import '../../view_model/budget/edit_budget_view_model.dart';
-import '../../widget/custom_snackbar_1.dart';
 import '../../widget/custom_snackbar_2.dart';
 import '../../widget/multi_category_selection_dialog.dart';
 import '../../widget/multi_wallet_selection_dialog.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class EditBudgetScreen extends StatelessWidget {
   final Budget budget;
 
-  EditBudgetScreen({required this.budget});
+  const EditBudgetScreen({super.key, required this.budget});
 
   @override
   Widget build(BuildContext context) {
@@ -29,24 +29,7 @@ class EditBudgetScreen extends StatelessWidget {
             body: Column(
               children: [
                 CustomHeader_1(
-                  title: 'Sửa hạn mức',
-                  action: IconButton(
-                    icon: Icon(Icons.check, color: Colors.white),
-                    onPressed: viewModel.enableButton
-                        ? () async {
-                            final updatedBudget =
-                                await viewModel.updateBudget(context);
-                            if (updatedBudget != null) {
-                              await CustomSnackBar_2.show(
-                                  context, 'Cập nhật thành công');
-                              Navigator.pop(context, updatedBudget);
-                            } else {
-                              CustomSnackBar_1.show(context,
-                                  'Có lỗi xảy ra khi cập nhật hạn mức.');
-                            }
-                          }
-                        : null,
-                  ),
+                  title: tr('edit_budget'),
                 ),
                 Expanded(
                   child: SingleChildScrollView(
@@ -65,8 +48,8 @@ class EditBudgetScreen extends StatelessWidget {
                                     ],
                                     controller: viewModel.amountController,
                                     decoration:
-                                        InputDecoration(labelText: 'Số tiền'),
-                                    style: TextStyle(
+                                    InputDecoration(labelText: tr('amount_label')),
+                                    style: const TextStyle(
                                       fontSize: 28,
                                       color: Colors.green,
                                       fontWeight: FontWeight.w500,
@@ -77,8 +60,8 @@ class EditBudgetScreen extends StatelessWidget {
                                         viewModel.updateButtonState(),
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 20.0),
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 20.0),
                                   child: Text(
                                     '₫',
                                     style: TextStyle(
@@ -88,24 +71,24 @@ class EditBudgetScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             TextFormField(
                               controller: model.nameController,
                               inputFormatters: [
                                 LengthLimitingTextInputFormatter(40),
                               ],
-                              decoration: InputDecoration(
-                                labelText: 'Tên hạn mức',
+                              decoration:  InputDecoration(
+                                labelText: tr('budget_name'),
                               ),
                               onChanged: (_) => viewModel.updateButtonState(),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             ListTile(
                               contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 0),
+                                  const EdgeInsets.symmetric(horizontal: 0),
                               leading: SizedBox(
                                 width: 60,
-                                child: Container(
+                                child: SizedBox(
                                   width: 40,
                                   height: 40,
                                   child: Stack(
@@ -166,9 +149,9 @@ class EditBudgetScreen extends StatelessWidget {
                                 viewModel.getCategoriesText(
                                     viewModel.selectedCategories,
                                     viewModel.categories),
-                                style: TextStyle(fontSize: 16),
+                                style: const TextStyle(fontSize: 16),
                               ),
-                              trailing: Text(
+                              trailing: const Text(
                                 '>',
                                 style: TextStyle(
                                   fontSize: 18,
@@ -192,13 +175,13 @@ class EditBudgetScreen extends StatelessWidget {
                                 );
                               },
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             ListTile(
                               contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 0),
+                                  const EdgeInsets.symmetric(horizontal: 0),
                               leading: SizedBox(
                                 width: 60,
-                                child: Container(
+                                child: SizedBox(
                                   width: 40,
                                   height: 40,
                                   child: Stack(
@@ -256,9 +239,9 @@ class EditBudgetScreen extends StatelessWidget {
                                 viewModel.getWalletsText(
                                     viewModel.selectedWallets,
                                     viewModel.wallets),
-                                style: TextStyle(fontSize: 16),
+                                style: const TextStyle(fontSize: 16),
                               ),
-                              trailing: Text(
+                              trailing: const Text(
                                 '>',
                                 style: TextStyle(
                                   fontSize: 18,
@@ -282,15 +265,15 @@ class EditBudgetScreen extends StatelessWidget {
                                 );
                               },
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             DropdownButtonFormField<Repeat>(
                               value: model.selectedRepeat,
                               items: model.repeatOptions
                                   .map((option) =>
                                       DropdownMenuItem<Repeat>(
                                         value: option,
-                                        child: Text(model.getRepeatBudgetString(
-                                            option)), // Convert RepeatBudget to string here
+                                        child: Text(getRepeatString(
+                                            option)),
                                       ))
                                   .toList(),
                               onChanged: (value) {
@@ -299,16 +282,16 @@ class EditBudgetScreen extends StatelessWidget {
                                 }
                               },
                               decoration: InputDecoration(
-                                labelText: 'Lặp lại',
+                                labelText: tr('repeat_label'),
                               ),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             TextFormField(
                               controller: model.startDateController,
                               readOnly: true,
                               onTap: () async {
                                 final DateTime? picked = await showDatePicker(
-                                  locale: const Locale('vi', 'VN'),
+                                  locale: context.locale,
                                   context: context,
                                   initialDate: viewModel.startDate,
                                   firstDate: DateTime(1999),
@@ -320,19 +303,19 @@ class EditBudgetScreen extends StatelessWidget {
                                 }
                               },
                               decoration: InputDecoration(
-                                labelText: 'Ngày bắt đầu',
+                                labelText: tr('start_day'),
                               ),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             TextFormField(
                               controller: model.endDateController
                                 ..text = model.endDateController.text.isEmpty
-                                    ? 'Chưa xác định'
+                                    ? tr('unknown')
                                     : model.endDateController.text,
                               readOnly: true,
                               onTap: () async {
                                 final DateTime? picked = await showDatePicker(
-                                  locale: const Locale('vi', 'VN'),
+                                  locale: context.locale,
                                   context: context,
                                   initialDate:
                                       viewModel.endDate ?? DateTime.now(),
@@ -345,22 +328,22 @@ class EditBudgetScreen extends StatelessWidget {
                                 }
                               },
                               decoration: InputDecoration(
-                                labelText: 'Ngày kết thúc',
+                                labelText: tr('end_day'),
                                 hintText: model.endDateController.text.isEmpty
-                                    ? 'Chưa xác định'
+                                    ? tr('unknown')
                                     : '',
                               ),
                             ),
-                            SizedBox(height: 30),
+                            const SizedBox(height: 30),
                             CustomElevatedButton_2(
-                              text: 'Lưu',
+                              text: tr('save_button'),
                               onPressed: viewModel.enableButton
                                   ? () async {
                                       final updatedBudget =
                                           await viewModel.updateBudget(context);
                                       if (updatedBudget != null) {
                                         await CustomSnackBar_2.show(
-                                            context, 'Cập nhật thành công');
+                                            context, tr('update_successful'));
                                         Navigator.pop(context, updatedBudget);
                                       }
                                     }

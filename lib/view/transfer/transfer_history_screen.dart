@@ -5,11 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../model/transfer_model.dart';
+import '../../model/wallet_model.dart';
 import '../../utils/utils.dart';
 import '../../view_model/transfer/transfer_history_view_model.dart';
+import '../../widget/multi_wallet_selection_dialog.dart';
 import 'edit_transfer_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class TransferHistoryScreen extends StatefulWidget {
+  const TransferHistoryScreen({super.key});
+
   @override
   _TransferHistoryScreenState createState() => _TransferHistoryScreenState();
 }
@@ -24,10 +29,10 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
         body: Column(
           children: [
             CustomHeader_1(
-              title: 'Lịch sử',
+              title: tr('history_label'),
               action: Builder(
                 builder: (context) => IconButton(
-                  icon: Icon(Icons.filter_list, color: Colors.white),
+                  icon: const Icon(Icons.filter_list, color: Colors.white),
                   onPressed: () {
                     Scaffold.of(context).openDrawer();
                   },
@@ -38,13 +43,13 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
               child: Consumer<TransferHistoryViewModel>(
                 builder: (context, viewModel, child) {
                   if (viewModel.transfers.isEmpty) {
-                    return Center(
+                    return const Center(
                       child: CircularProgressIndicator(),
                     );
                   }
                   if (viewModel.groupedTransfers.isEmpty) {
                     return Center(
-                      child: Text('Không có kết quả phù hợp với bộ lọc.'),
+                      child: Text(tr('no_results')),
                     );
                   }
                   return ListView.builder(
@@ -58,18 +63,20 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Text(
                               date,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ),
                           ...transfers.map((transfer) {
-                            final fromWallet = viewModel.getFromWalletByTransfer(transfer);
-                            final toWallet = viewModel.getToWalletByTransfer(transfer);
+                            final fromWallet =
+                                viewModel.getFromWalletByTransfer(transfer);
+                            final toWallet =
+                                viewModel.getToWalletByTransfer(transfer);
 
-                            String fromWalletName = 'Không có ví nguồn';
+                            String fromWalletName = tr('no_source_wallet');
                             IconData fromWalletIcon = Icons.wallet;
                             Color fromWalletColor = Colors.grey;
                             if (fromWallet != null) {
@@ -78,7 +85,7 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                               fromWalletColor = parseColor(fromWallet.color);
                             }
 
-                            String toWalletName = 'Không có ví đích';
+                            String toWalletName = tr('no_destination_wallet');
                             IconData toWalletIcon = Icons.wallet;
                             Color toWalletColor = Colors.grey;
                             if (toWallet != null) {
@@ -87,8 +94,8 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                               toWalletColor = parseColor(toWallet.color);
                             }
 
-                            final formattedAmount = formatAmount_2(
-                                transfer.amount);
+                            final formattedAmount =
+                                formatAmount_2(transfer.amount);
                             final formattedTime =
                                 viewModel.formatHour(transfer.hour);
 
@@ -96,29 +103,27 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                               key: Key(transfer.transferId),
                               direction: DismissDirection.endToStart,
                               onDismissed: (direction) async {
-                                await viewModel.deleteTransfer(context,
-                                    transfer.transferId);
+                                await viewModel.deleteTransfer(
+                                    context, transfer.transferId);
                                 CustomSnackBar_2.show(
                                   context,
-                                  'Đã xóa giao dịch',
+                                  tr('deleted_transaction'),
                                 );
                               },
                               background: Container(
                                 color: Colors.red,
                                 alignment: Alignment.centerRight,
-                                padding: EdgeInsets.symmetric(horizontal: 20),
-                                child: Icon(Icons.delete, color: Colors.white),
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: const Icon(Icons.delete, color: Colors.white),
                               ),
                               child: Card(
+                                color: Colors.grey.shade200,
                                 child: ListTile(
-                                  leading: Column(
-                                    children: [
-                                      Icon(
+                                  leading:
+                                      const Icon(
                                         FontAwesomeIcons.downLong,
                                         color: Colors.green,
                                       ),
-                                    ],
-                                  ),
                                   title: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -134,17 +139,17 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                                               size: 20,
                                             ),
                                           ),
-                                          SizedBox(width: 5),
+                                          const SizedBox(width: 5),
                                           Flexible(
                                             child: Text(
-                                              '$fromWalletName',
+                                              fromWalletName,
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: 10),
+                                      const SizedBox(height: 10),
                                       Row(
                                         children: [
                                           CircleAvatar(
@@ -156,10 +161,10 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                                               size: 20,
                                             ),
                                           ),
-                                          SizedBox(width: 5),
+                                          const SizedBox(width: 5),
                                           Flexible(
                                             child: Text(
-                                              '$toWalletName',
+                                              toWalletName,
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                             ),
@@ -173,7 +178,7 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                                     child: Text(formattedTime),
                                   ),
                                   trailing: Text('$formattedAmount ₫',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500)),
                                   onTap: () async {
@@ -194,7 +199,7 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                                 ),
                               ),
                             );
-                          }).toList(),
+                          }),
                         ],
                       );
                     },
@@ -214,19 +219,19 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
         return Drawer(
           width: MediaQuery.of(context).size.width * 0.8,
           child: Padding(
-            padding: EdgeInsets.all(18),
+            padding: const EdgeInsets.all(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 30),
-                Text(
-                  'Bộ lọc tìm kiếm:',
+                const SizedBox(height: 30),
+                 Text(
+                  tr('search_filters'),
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
-                Divider(),
+                const Divider(),
                 ListTile(
-                  title: Text('Khoảng thời gian'),
-                  trailing: Icon(Icons.calendar_today),
+                  title:  Text(tr('date_range')),
+                  trailing: const Icon(Icons.calendar_today),
                   onTap: () async {
                     DateTimeRange? picked = await showDateRangePicker(
                       context: context,
@@ -241,50 +246,25 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                   },
                 ),
                 ListTile(
-                  title: Text('Ví'),
-                  trailing: Icon(Icons.account_balance_wallet),
+                  title: Text(tr('wallet')),
+                  trailing: const Icon(Icons.account_balance_wallet),
                   onTap: () async {
-                    await showDialog<String>(
+                    await showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return SimpleDialog(
-                          title: Center(child: Text('Chọn ví')),
-                          children: viewModel.walletMap.entries.map((entry) {
-                            final wallet = entry.value;
-                            final isSelected =
-                                entry.key == viewModel.selectedWalletId;
-                            return SimpleDialogOption(
-                              onPressed: () {
-                                Navigator.pop(
-                                    context, entry.key); // Select wallet
-                              },
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundColor: parseColor(wallet.color),
-                                  child: Icon(
-                                    parseIcon(wallet.icon),
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                title: Text(wallet.name),
-                                trailing: isSelected
-                                    ? Icon(Icons.check, color: Colors.green)
-                                    : null,
-                              ),
-                            );
-                          }).toList(),
+                        return MultiWalletSelectionDialog(
+                          wallets: viewModel.walletMap.values.toList(),
+                          selectedWallets: viewModel.selectedWallets,
+                          onSelect: (List<Wallet> selectedWallets) {
+                            viewModel.filterByWallets(selectedWallets);
+                          },
                         );
                       },
-                    ).then((selectedWalletId) {
-                      if (selectedWalletId != null) {
-                        viewModel.filterByWallet(selectedWalletId);
-                      }
-                    });
-                    Navigator.of(context).pop();
+                    );
                   },
                 ),
                 CustomElevatedButton_2(
-                  text: 'Xóa bộ lọc',
+                  text: tr('clear_filters'),
                   onPressed: () {
                     viewModel.clearFilters();
                     Navigator.of(context).pop();

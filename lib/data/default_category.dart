@@ -252,22 +252,3 @@ List<Category> fixedCategories = [
   ),
 ];
 
-// List<Category> getIncomeCategoryFrequent() {
-//   int length = defaultCategories.length;
-//   // Lấy 6 danh mục đầu tiên từ defaultCategories
-//   List<Category> incomeCategoriesFrequent = defaultCategories.sublist(length - 6, length);
-//   return incomeCategoriesFrequent;
-// }
-//
-// List<Category> getExpenseCategoryFrequent() {
-//   // Lấy 6 danh mục đầu tiên từ defaultCategories
-//   List<Category> expenseCategoriesFrequent = defaultCategories.take(6).toList();
-//   return expenseCategoriesFrequent;
-// }
-
-// List<Category> getCategoriesInRange(int start, int end) {
-//   // Lấy danh sách các danh mục từ vị trí start đến end (không bao gồm end)
-//   List<Category> categoriesInRange = defaultCategories.sublist(start, end);
-//   return categoriesInRange;
-// }
-// final List<Category> categoriesInRange = getCategoriesInRange(3, 9); // Lấy danh sách từ vị trí 3 đến vị trí 8 (6 phần tử)

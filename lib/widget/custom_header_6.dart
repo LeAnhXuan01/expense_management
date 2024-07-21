@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CustomHeader_6 extends StatelessWidget {
   final String title;
@@ -11,7 +12,7 @@ class CustomHeader_6 extends StatelessWidget {
   final VoidCallback onSearchClose;
 
   const CustomHeader_6({
-    Key? key,
+    super.key,
     required this.title,
     required this.onTitleChanged,
     this.leftAction,
@@ -19,14 +20,14 @@ class CustomHeader_6 extends StatelessWidget {
     this.isSearching = false,
     this.onSearchChanged,
     required this.onSearchClose,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 90,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
           bottomRight: Radius.circular(30),
           bottomLeft: Radius.circular(30),
@@ -38,52 +39,50 @@ class CustomHeader_6 extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            if (leftAction != null)
-              leftAction!,
+            if (leftAction != null) leftAction!,
             Expanded(
               child: Center(
                 child: isSearching
                     ? TextField(
-                  onChanged: onSearchChanged,
-                  decoration: InputDecoration(
-                    hintText: 'Tìm kiếm',
-                    hintStyle: TextStyle(color: Colors.white54),
-                    border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                  ),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                )
-                    : GestureDetector(
-                  onTap: () => _showTransactionTypeDialog(context),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 23,
-                          fontWeight: FontWeight.w600,
+                        onChanged: onSearchChanged,
+                        decoration:  InputDecoration(
+                          hintText: tr('search'),
+                          hintStyle: TextStyle(color: Colors.white54),
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                        ),
+                        style: const TextStyle(
                           color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )
+                    : GestureDetector(
+                        onTap: () => _showTransactionTypeDialog(context),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                fontSize: 23,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            const Icon(Icons.arrow_drop_down, color: Colors.white),
+                          ],
                         ),
                       ),
-                      SizedBox(width: 5),
-                      Icon(Icons.arrow_drop_down, color: Colors.white),
-                    ],
-                  ),
-                ),
               ),
             ),
             if (isSearching)
               GestureDetector(
                 onTap: onSearchClose,
-                child: Icon(Icons.close, color: Colors.white),
+                child: const Icon(Icons.close, color: Colors.white),
               ),
-            if (rightAction != null)
-              rightAction!,
+            if (rightAction != null) rightAction!,
           ],
         ),
       ),
@@ -95,7 +94,7 @@ class CustomHeader_6 extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Chọn loại giao dịch'),
+          title: Text(tr('select_transaction_type')),
           content: SingleChildScrollView(
             child: Column(
               children: [
@@ -103,18 +102,18 @@ class CustomHeader_6 extends StatelessWidget {
                   leading: Container(
                     width: 35,
                     height: 35,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.green,
                     ),
-                    child: Icon(FontAwesomeIcons.plus, color: Colors.white),
+                    child: const Icon(FontAwesomeIcons.plus, color: Colors.white),
                   ),
-                  title: Text('Thu nhập'),
-                  trailing: title == 'Thu nhập'
-                      ? Icon(Icons.check, color: Colors.green)
+                  title: Text(tr('income')),
+                  trailing: title == 'income'
+                      ? const Icon(Icons.check, color: Colors.green)
                       : null,
                   onTap: () {
-                    onTitleChanged('Thu nhập');
+                    onTitleChanged(tr('income'));
                     Navigator.of(context).pop();
                   },
                 ),
@@ -122,18 +121,18 @@ class CustomHeader_6 extends StatelessWidget {
                   leading: Container(
                     width: 35,
                     height: 35,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.red,
                     ),
-                    child: Icon(FontAwesomeIcons.minus, color: Colors.white),
+                    child: const Icon(FontAwesomeIcons.minus, color: Colors.white),
                   ),
-                  title: Text('Chi tiêu'),
-                  trailing: title == 'Chi tiêu'
-                      ? Icon(Icons.check, color: Colors.green)
+                  title: Text(tr('expense')),
+                  trailing: title == tr('expense')
+                      ? const Icon(Icons.check, color: Colors.green)
                       : null,
                   onTap: () {
-                    onTitleChanged('Chi tiêu');
+                    onTitleChanged(tr('expense'));
                     Navigator.of(context).pop();
                   },
                 ),

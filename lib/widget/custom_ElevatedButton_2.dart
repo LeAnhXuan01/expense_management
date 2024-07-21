@@ -4,12 +4,11 @@ class CustomElevatedButton_2 extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
 
-
   const CustomElevatedButton_2({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +16,13 @@ class CustomElevatedButton_2 extends StatelessWidget {
       child: SizedBox(
         width: 200,
         child: ElevatedButton(
-          child: Text(
-            text,
-            style: TextStyle(color: Colors.white, fontSize: 17),
-          ),
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
+          ),
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.white, fontSize: 17),
           ),
         ),
       ),

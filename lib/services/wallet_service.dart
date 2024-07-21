@@ -7,23 +7,28 @@ class WalletService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> addDefaultWallets(String userId) async {
-    final userWallets = await _firestore.collection('wallets')
+    final userWallets = await _firestore
+        .collection('wallets')
         .where('userId', isEqualTo: userId)
         .get();
 
     if (userWallets.docs.isEmpty) {
       for (var wallet in defaultWallets) {
         var newWallet = Wallet(
-            walletId: _firestore.collection('wallets').doc().id,
-            userId: userId,
-            initialBalance: wallet.initialBalance,
-            name: wallet.name,
-            icon: wallet.icon,
-            color: wallet.color,
-            createdAt: DateTime.now(),
+          walletId: _firestore.collection('wallets').doc().id,
+          userId: userId,
+          initialBalance: wallet.initialBalance,
+          currentBalance: wallet.currentBalance,
+          name: wallet.name,
+          icon: wallet.icon,
+          color: wallet.color,
+          createdAt: DateTime.now(),
         );
 
-        await _firestore.collection('wallets').doc(newWallet.walletId).set(newWallet.toMap());
+        await _firestore
+            .collection('wallets')
+            .doc(newWallet.walletId)
+            .set(newWallet.toMap());
       }
     }
   }
@@ -35,7 +40,7 @@ class WalletService {
           .collection('wallets')
           .where('userId', isEqualTo: userId)
           .where('isDefault', isEqualTo: true)
-          .limit(1)  // Limit the query to check for at least one result
+          .limit(1) // Limit the query to check for at least one result
           .get();
 
       // If no fixed categories exist, add them
@@ -45,6 +50,7 @@ class WalletService {
             walletId: _firestore.collection('wallets').doc().id,
             userId: userId,
             initialBalance: wallet.initialBalance,
+            currentBalance: wallet.currentBalance,
             name: wallet.name,
             icon: wallet.icon,
             color: wallet.color,
@@ -60,13 +66,14 @@ class WalletService {
       }
     } catch (e) {
       print("Error adding fixed wallets: $e");
-      throw e;
+      rethrow;
     }
   }
 
   Future<bool> isFixedWallet(String walletId) async {
     try {
-      final walletDoc = await _firestore.collection('wallets').doc(walletId).get();
+      final walletDoc =
+          await _firestore.collection('wallets').doc(walletId).get();
       if (walletDoc.exists) {
         final walletData = walletDoc.data();
         return walletData?['isDefault'] ?? false;
@@ -79,13 +86,14 @@ class WalletService {
 
   Future<Wallet?> getWalletById(String walletId) async {
     try {
-      DocumentSnapshot docSnapshot = await _firestore.collection('wallets').doc(walletId).get();
+      DocumentSnapshot docSnapshot =
+          await _firestore.collection('wallets').doc(walletId).get();
       if (docSnapshot.exists) {
         return Wallet.fromMap(docSnapshot.data() as Map<String, dynamic>);
       }
     } catch (e) {
       print("Error getting wallet by id: $e");
-      throw e;
+      rethrow;
     }
     return null;
   }
@@ -98,20 +106,23 @@ class WalletService {
           .orderBy('createdAt', descending: false)
           .get();
 
-      return querySnapshot.docs.map((doc) => Wallet.fromMap(doc.data() as Map<String, dynamic>)).toList();
+      return querySnapshot.docs
+          .map((doc) => Wallet.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       print("Error getting wallets: $e");
-      throw e;
+      rethrow;
     }
   }
 
   Future<void> createWallet(Wallet wallet) async {
     try {
-      DocumentReference docRef = await _firestore.collection('wallets').add(wallet.toMap());
+      DocumentReference docRef =
+          await _firestore.collection('wallets').add(wallet.toMap());
       await docRef.update({'walletId': docRef.id});
     } catch (e) {
       print("Error creating wallet: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -123,7 +134,7 @@ class WalletService {
           .update(wallet.toMap());
     } catch (e) {
       print("Error updating wallet: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -132,13 +143,10 @@ class WalletService {
       // Xóa tất cả các giao dịch liên quan trước khi xóa ví
       await deleteAllTransactionsRelatedToWallet(walletId);
 
-      await _firestore
-          .collection('wallets')
-          .doc(walletId)
-          .delete();
+      await _firestore.collection('wallets').doc(walletId).delete();
     } catch (e) {
       print("Error deleting wallet: $e");
-      throw e;
+      rethrow;
     }
   }
 

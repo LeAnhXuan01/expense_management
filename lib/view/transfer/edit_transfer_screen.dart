@@ -8,11 +8,12 @@ import 'package:expense_management/widget/custom_snackbar_2.dart';
 import '../../utils/utils.dart';
 import '../../view_model/transfer/edit_transfer_view_model.dart';
 import '../../widget/custom_ElevatedButton_2.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class EditTransferScreen extends StatefulWidget {
   final Transfer transfer;
 
-  EditTransferScreen({required this.transfer});
+  const EditTransferScreen({super.key, required this.transfer});
 
   @override
   _EditTransferScreenState createState() => _EditTransferScreenState();
@@ -22,7 +23,8 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
   @override
   void initState() {
     super.initState();
-    final viewModel = Provider.of<EditTransferViewModel>(context, listen: false);
+    final viewModel =
+        Provider.of<EditTransferViewModel>(context, listen: false);
     viewModel.initialize(widget.transfer);
   }
 
@@ -31,11 +33,11 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
     return Scaffold(
       body: Column(
         children: [
-          CustomHeader_1(title: 'Sửa chuyển khoản'),
+           CustomHeader_1(title: tr('edit_transfer_title')),
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: Consumer<EditTransferViewModel>(
                   builder: (context, viewModel, child) {
                     return Column(
@@ -55,35 +57,35 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                             );
                           },
                           child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: 'Chọn ví nguồn',
+                            decoration:  InputDecoration(
+                              labelText: tr('select_source_wallet_label'),
                             ),
                             child: viewModel.selectedFromWallet != null
                                 ? Row(
                               children: [
-                                Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: parseColor(
-                                        viewModel.selectedFromWallet!.color),
-                                  ),
+                                CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: parseColor(viewModel.selectedFromWallet!.color),
                                   child: Icon(
-                                    parseIcon(viewModel
-                                        .selectedFromWallet!.icon),
+                                    parseIcon(viewModel.selectedFromWallet!.icon),
                                     color: Colors.white,
                                     size: 25,
                                   ),
                                 ),
-                                SizedBox(width: 10),
-                                Text(viewModel.selectedFromWallet!.name),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    viewModel.selectedFromWallet!.name,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ],
                             )
-                                : Text('Chọn ví'),
+                                :  Text(tr('wallet_placeholder')),
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         GestureDetector(
                           onTap: () {
                             showDialog(
@@ -92,8 +94,8 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                                 return WalletSelectionDialog(
                                   wallets: viewModel.wallets
                                       .where((wallet) =>
-                                  wallet !=
-                                      viewModel.selectedFromWallet)
+                                          wallet !=
+                                          viewModel.selectedFromWallet)
                                       .toList(),
                                   onSelect: (wallet) {
                                     viewModel.setSelectedToWallet(wallet);
@@ -103,67 +105,66 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                             );
                           },
                           child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: 'Chọn ví đích',
+                            decoration:  InputDecoration(
+                              labelText: tr('select_destination_wallet_label'),
                             ),
                             child: viewModel.selectedToWallet != null
                                 ? Row(
                               children: [
-                                Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: parseColor(
-                                        viewModel.selectedToWallet!.color),
-                                  ),
+                                CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: parseColor(viewModel.selectedToWallet!.color),
                                   child: Icon(
-                                    parseIcon(
-                                        viewModel.selectedToWallet!.icon),
+                                    parseIcon(viewModel.selectedToWallet!.icon),
                                     color: Colors.white,
                                     size: 25,
                                   ),
                                 ),
-                                SizedBox(width: 10),
-                                Text(viewModel.selectedToWallet!.name),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    viewModel.selectedToWallet!.name,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ],
                             )
-                                : Text('Chọn ví'),
+                                :  Text(tr('wallet_placeholder')),
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Row(
                           children: [
-                            Flexible(
-                              flex: 2,
+                            Expanded(
                               child: TextFormField(
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(15),
                                 ],
                                 controller: viewModel.amountController,
-                                decoration: InputDecoration(
-                                    labelText: 'Số tiền chuyển khoản'),
-                                style: TextStyle(
+                                decoration:  InputDecoration(
+                                    labelText: tr('transfer_amount_label')),
+                                style: const TextStyle(
                                     fontSize: 25,
                                     color: Colors.green,
                                     fontWeight: FontWeight.w500),
-                                textAlign: TextAlign.center,
+                                textAlign: TextAlign.right,
                                 keyboardType: TextInputType.number,
+                                onChanged: (_) => viewModel.updateButtonState,
                               ),
                             ),
-                            Flexible(
-                              flex: 1,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 20.0),
+                            Padding(
+                                padding: EdgeInsets.only(top: 20.0),
                                 child: Text(
-                                  'VND',
-                                  style: TextStyle(fontSize: 25),
+                                  '₫',
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Row(
                           children: [
                             Flexible(
@@ -173,7 +174,7 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                                 controller: viewModel.dateController,
                                 onTap: () async {
                                   final DateTime? picked = await showDatePicker(
-                                    locale: const Locale('vi', 'VN'),
+                                    locale: context.locale,
                                     context: context,
                                     initialDate: viewModel.selectedDate,
                                     firstDate: DateTime(1999),
@@ -185,7 +186,7 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                                   }
                                 },
                                 decoration: InputDecoration(
-                                  labelText: 'Ngày',
+                                  labelText: tr('select_date'),
                                 ),
                               ),
                             ),
@@ -196,13 +197,14 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                                 controller: viewModel.hourController,
                                 onTap: () async {
                                   final TimeOfDay? picked =
-                                  await showTimePicker(
+                                      await showTimePicker(
                                     context: context,
                                     initialTime: viewModel.selectedHour,
-                                    builder: (BuildContext context, Widget? child) {
+                                    builder:
+                                        (BuildContext context, Widget? child) {
                                       return Localizations.override(
                                         context: context,
-                                        locale: const Locale('vi', 'VN'),
+                                        locale: context.locale,
                                         child: child,
                                       );
                                     },
@@ -212,35 +214,36 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                                     viewModel.setSelectedHour(picked);
                                   }
                                 },
-                                decoration: InputDecoration(
-                                  labelText: 'Giờ',
+                                decoration:  InputDecoration(
+                                  labelText: tr('select_time'),
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         TextFormField(
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(400),
                           ],
                           controller: viewModel.noteController,
-                          decoration: InputDecoration(labelText: 'Ghi chú'),
+                          decoration:  InputDecoration(labelText: tr('note_label')),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         CustomElevatedButton_2(
                           onPressed: viewModel.enableButton
                               ? () async {
-                            final updatedTransfer =
-                            await viewModel.updateTransfer(context, widget.transfer.transferId);
-                            if (updatedTransfer != null) {
-                              await CustomSnackBar_2.show(
-                                  context, 'Cập nhật thành công');
-                              Navigator.pop(context, updatedTransfer);
-                            }
-                          }
+                                  final updatedTransfer =
+                                      await viewModel.updateTransfer(
+                                          context, widget.transfer.transferId);
+                                  if (updatedTransfer != null) {
+                                    await CustomSnackBar_2.show(
+                                        context, tr('update_successful'));
+                                    Navigator.pop(context, updatedTransfer);
+                                  }
+                                }
                               : null,
-                          text: 'Lưu chyển khoản',
+                          text: tr('save_button'),
                         ),
                       ],
                     );
@@ -252,7 +255,5 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
         ],
       ),
     );
-
   }
 }
-

@@ -32,6 +32,9 @@ class EditCategoryViewModel extends ChangeNotifier {
     nameCategory.text = category.name;
     selectedIcon =  parseIcon(category.icon);
     selectedColor = parseColor(category.color);
+    // In giá trị để kiểm tra
+    print('Initialized selectedIcon: $selectedIcon');
+    print('Initialized selectedColor: $selectedColor');
     currentIconsList = category.type == Type.income ? incomeIcons : expenseIcons;
     showPlusButtonIcon = true;
     showPlusButtonColor = true;
@@ -44,13 +47,17 @@ class EditCategoryViewModel extends ChangeNotifier {
   }
 
   void setSelectedIcon(IconData icon) {
+    print("Selected icon: $icon");
     selectedIcon = icon;
     updateButtonState();
+    notifyListeners();
   }
 
   void setSelectedColor(Color color) {
+    print("Selected color. $color");
     selectedColor = color;
     updateButtonState();
+    notifyListeners();
   }
 
   void toggleShowPlusButtonIcon() {
@@ -85,5 +92,11 @@ class EditCategoryViewModel extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  @override
+  void dispose() {
+    nameCategory.dispose();
+    super.dispose();
   }
 }

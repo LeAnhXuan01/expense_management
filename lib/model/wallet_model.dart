@@ -4,7 +4,8 @@ import 'enum.dart';
 class Wallet {
   final String walletId;
   final String userId;
-  late  double initialBalance;
+  final double initialBalance;
+  final double currentBalance;
   final String name;
   final String icon;
   final String color;
@@ -16,6 +17,7 @@ class Wallet {
     required this.walletId,
     required this.userId,
     required this.initialBalance,
+    required this.currentBalance,
     required this.name,
     required this.icon,
     required this.color,
@@ -29,6 +31,7 @@ class Wallet {
       'walletId': walletId,
       'userId': userId,
       'initialBalance': initialBalance,
+      'currentBalance': currentBalance,
       'name': name,
       'icon': icon,
       'color': color,
@@ -43,6 +46,7 @@ class Wallet {
       walletId: map['walletId'],
       userId: map['userId'],
       initialBalance: map['initialBalance'],
+      currentBalance: map['currentBalance'],
       name: map['name'],
       icon: map['icon'],
       color: map['color'],

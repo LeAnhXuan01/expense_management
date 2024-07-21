@@ -7,6 +7,7 @@ import '../../services/transfer_service.dart';
 import '../../services/wallet_service.dart';
 import '../../utils/utils.dart';
 import '../../utils/wallet_utils.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CreateTransferViewModel extends ChangeNotifier {
   final TransferService _transferService = TransferService();
@@ -87,7 +88,7 @@ class CreateTransferViewModel extends ChangeNotifier {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       if (selectedFromWallet == selectedToWallet) {
-        CustomSnackBar_1.show(context, 'Không thể chuyển khoản cùng ví');
+        CustomSnackBar_1.show(context, tr('transfer_error_insufficient_balance'));
         return null;
       }
 
@@ -111,7 +112,7 @@ class CreateTransferViewModel extends ChangeNotifier {
             newTransfer.fromWallet, newTransfer.amount);
 
         if (!isBalanceSufficient) {
-          CustomSnackBar_1.show(context, 'Số dư ví nguồn không đủ');
+          CustomSnackBar_1.show(context, tr('transfer_error_not_enough_balance'));
           return null;
         }
 
@@ -136,5 +137,14 @@ class CreateTransferViewModel extends ChangeNotifier {
     selectedHour = TimeOfDay.now();
     enableButton = false;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    noteController.dispose();
+    dateController.dispose();
+    hourController.dispose();
+    super.dispose();
   }
 }

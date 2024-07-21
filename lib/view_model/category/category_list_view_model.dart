@@ -71,5 +71,11 @@ class CategoryListViewModel extends ChangeNotifier {
       print("Error deleting category: $e");
     }
   }
+
+  @override
+  void dispose(){
+    searchController.dispose();
+    super.dispose();
+  }
 }
 

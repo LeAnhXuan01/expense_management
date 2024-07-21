@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:expense_management/model/transaction_model.dart';
 import 'package:expense_management/model/enum.dart';
-import 'package:intl/intl.dart';
 import '../../model/category_model.dart';
 import '../../model/wallet_model.dart';
 import '../../services/category_service.dart';
 import '../../services/transaction_service.dart';
 import '../../utils/utils.dart';
 import '../../utils/wallet_utils.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CreateTransactionViewModel extends ChangeNotifier {
   final TransactionService _transactionService = TransactionService();
@@ -23,7 +23,7 @@ class CreateTransactionViewModel extends ChangeNotifier {
   final TextEditingController dateController = TextEditingController();
   final TextEditingController hourController = TextEditingController();
 
-  String transactionTypeTitle = 'Chi tiêu';
+  String transactionTypeTitle = tr('expense');
   bool isExpenseTabSelected = true;
   double amount = 0.0;
   Category? selectedCategory;
@@ -49,9 +49,9 @@ class CreateTransactionViewModel extends ChangeNotifier {
   }
 
   void updateButtonState() {
-    enableButton = amountController.text.isNotEmpty
-        && selectedCategory != null
-        && selectedWallet != null;
+    enableButton = amountController.text.isNotEmpty &&
+        selectedCategory != null &&
+        selectedWallet != null;
     notifyListeners();
   }
 
@@ -102,12 +102,12 @@ class CreateTransactionViewModel extends ChangeNotifier {
 
   Future<void> captureImage(BuildContext context) async {
     if (images.length >= 3) {
-      CustomSnackBar_1.show(context, 'Chỉ được chọn tối đa 3 ảnh');
+      CustomSnackBar_1.show(context, tr('Only_three_photo'));
       return;
     }
 
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.camera);
 
     if (image != null) {
       images.add(File(image.path));
@@ -117,12 +117,12 @@ class CreateTransactionViewModel extends ChangeNotifier {
 
   Future<void> pickImageFromGallery(BuildContext context) async {
     if (images.length >= 3) {
-      CustomSnackBar_1.show(context, 'Chỉ được chọn tối đa 3 ảnh');
+      CustomSnackBar_1.show(context, tr('Only_three_photo'));
       return;
     }
 
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
       images.add(File(image.path));
@@ -137,7 +137,7 @@ class CreateTransactionViewModel extends ChangeNotifier {
 
   void updateTransactionTypeTitle(String newTitle) {
     transactionTypeTitle = newTitle;
-    isExpenseTabSelected = newTitle == 'Chi tiêu';
+    isExpenseTabSelected = newTitle == tr('expense');
     selectedCategory = null;
     isFrequentCategoriesLoaded = false;
     loadFrequentCategories();
@@ -150,9 +150,11 @@ class CreateTransactionViewModel extends ChangeNotifier {
       try {
         List<Category> categories;
         if (isExpenseTabSelected) {
-          categories = await _categoryService.getExpenseCategoryFrequent(user.uid);
+          categories =
+              await _categoryService.getExpenseCategoryFrequent(user.uid);
         } else {
-          categories = await _categoryService.getIncomeCategoryFrequent(user.uid);
+          categories =
+              await _categoryService.getIncomeCategoryFrequent(user.uid);
         }
         frequentCategories = categories;
         isFrequentCategoriesLoaded = true;
@@ -163,13 +165,12 @@ class CreateTransactionViewModel extends ChangeNotifier {
     }
   }
 
-
-
   Future<bool> checkBalance(double amount, Type type) async {
     if (selectedWallet == null) {
       return false;
     }
-    return await _transactionHelper.checkBalance(selectedWallet!.walletId, amount, type);
+    return await _transactionHelper.checkBalance(
+        selectedWallet!.walletId, amount, type);
   }
 
   Future<Transactions?> createTransaction(BuildContext context) async {
@@ -181,7 +182,7 @@ class CreateTransactionViewModel extends ChangeNotifier {
       final transactionType = isExpenseTabSelected ? Type.expense : Type.income;
       final sufficientBalance = await checkBalance(amount, transactionType);
       if (!sufficientBalance) {
-        CustomSnackBar_1.show(context, 'Số dư ví không đủ');
+        CustomSnackBar_1.show(context, tr('wallet_balance_is_not_enough'));
         return null;
       }
 
@@ -205,7 +206,8 @@ class CreateTransactionViewModel extends ChangeNotifier {
       );
       try {
         await _transactionService.createTransaction(newTransaction);
-        await _transactionHelper.updateWalletBalance(newTransaction, isCreation: true, isDeletion: false);
+        await _transactionHelper.updateWalletBalance(newTransaction,
+            isCreation: true, isDeletion: false);
         return newTransaction;
       } catch (e) {
         print('Error creating transaction: $e');
@@ -214,7 +216,6 @@ class CreateTransactionViewModel extends ChangeNotifier {
     }
     return null;
   }
-
 
   void resetFields() {
     amountController.clear();
@@ -227,5 +228,14 @@ class CreateTransactionViewModel extends ChangeNotifier {
     enableButton = false;
     images = [];
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    noteController.dispose();
+    dateController.dispose();
+    hourController.dispose();
+    super.dispose();
   }
 }

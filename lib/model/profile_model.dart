@@ -8,7 +8,6 @@ class Profile {
   Gender gender;
   String address;
   String profileImageUrl;
-  String job;
   Profile({
     required this.profileId,
     required this.userId,
@@ -17,7 +16,6 @@ class Profile {
     required this.gender,
     required this.address,
     required this.profileImageUrl,
-    required this.job,
   });
 
   Map<String, dynamic> toMap() {
@@ -28,7 +26,6 @@ class Profile {
       'birthDate': birthDate.toIso8601String(),
       'gender': gender.index,
       'address': address,
-      'job': job,
       'profileImageUrl': profileImageUrl,
     };
   }
@@ -41,7 +38,6 @@ class Profile {
       birthDate: DateTime.parse(map['birthDate']),
       gender: Gender.values[map['gender']],
       address: map['address'],
-      job: map['job'],
       profileImageUrl: map['profileImageUrl'],
     );
   }

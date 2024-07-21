@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../model/enum.dart';
 import '../../model/transaction_model.dart';
+import '../../model/wallet_model.dart';
 import '../../utils/utils.dart';
 import '../../view_model/transaction/transaction_history_view_model.dart';
 import '../../view_model/wallet/wallet_view_model.dart';
 import '../../widget/custom_ElevatedButton_2.dart';
 import '../../widget/custom_header_5.dart';
 import '../../widget/custom_snackbar_2.dart';
+import '../../widget/multi_wallet_selection_dialog.dart';
 import 'edit_transaction_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -15,10 +17,12 @@ class TransactionHistoryScreen extends StatefulWidget {
   const TransactionHistoryScreen({super.key});
 
   @override
-  _TransactionHistoryScreenState createState() => _TransactionHistoryScreenState();
+  _TransactionHistoryScreenState createState() =>
+      _TransactionHistoryScreenState();
 }
 
-class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> with SingleTickerProviderStateMixin {
+class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -41,14 +45,14 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
                   title: tr('transaction_history'),
                   filterAction: Builder(
                     builder: (context) => IconButton(
-                      icon: Icon(Icons.filter_list, color: Colors.white),
+                      icon: const Icon(Icons.filter_list, color: Colors.white),
                       onPressed: () {
                         Scaffold.of(context).openEndDrawer();
                       },
                     ),
                   ),
                   searchAction: IconButton(
-                    icon: Icon(Icons.search, color: Colors.white),
+                    icon: const Icon(Icons.search, color: Colors.white),
                     onPressed: () {
                       setState(() {
                         viewModel.isSearching = true;
@@ -76,12 +80,12 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
                   },
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top:8.0),
+                  padding: const EdgeInsets.only(top: 8.0),
                   child: _buildTotals(viewModel),
                 ),
                 Expanded(
                   child: TabBarView(
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     controller: _tabController,
                     children: [
                       _buildTransactionList(viewModel),
@@ -101,23 +105,90 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
   Widget _buildTotals(TransactionHistoryViewModel viewModel) {
     if (_tabController.index == 0) {
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(tr('total_income', namedArgs: {'amount': viewModel.formatAmount(viewModel.totalIncome)}), style: TextStyle(color: Colors.green, fontSize: 16, fontWeight: FontWeight.w500)),
-          SizedBox(height: 5),
-          Text(tr('total_expense', namedArgs: {'amount': viewModel.formatAmount(viewModel.totalExpense)}), style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/images/income.png'),
+              SizedBox(width: 10),
+              Padding(
+                padding: const EdgeInsets.only(top:8.0),
+                child: Text(
+                    tr('total_income', namedArgs: {
+                      'amount': viewModel.formatAmount(viewModel.totalIncome)
+                    }),
+                    style: const TextStyle(
+                        color: Colors.green,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/images/expense.png'),
+              SizedBox(width: 10),
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  tr('total_expense', namedArgs: {
+                    'amount': viewModel.formatAmount(viewModel.totalExpense)
+                  }),
+                  style: const TextStyle(
+                      color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
+          ),
         ],
       );
     } else if (_tabController.index == 1) {
-      return Text(tr('total_income', namedArgs: {'amount': viewModel.formatAmount(viewModel.totalIncome)}), style: TextStyle(color: Colors.green, fontSize: 16, fontWeight: FontWeight.w500),);
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset('assets/images/income.png'),
+          SizedBox(width: 10),
+          Padding(
+            padding: const EdgeInsets.only(top:8.0),
+            child: Text(
+                tr('total_income', namedArgs: {
+                  'amount': viewModel.formatAmount(viewModel.totalIncome)
+                }),
+                style: const TextStyle(
+                    color: Colors.green,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500)),
+          ),
+        ],
+      );
     } else if (_tabController.index == 2) {
-      return Text(tr('total_expense', namedArgs: {'amount': viewModel.formatAmount(viewModel.totalExpense)}), style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),);
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset('assets/images/expense.png'),
+          SizedBox(width: 10),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              tr('total_expense', namedArgs: {
+                'amount': viewModel.formatAmount(viewModel.totalExpense)
+              }),
+              style: const TextStyle(
+                  color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      );
     }
     return Container();
   }
 
   Widget _buildTransactionList(TransactionHistoryViewModel viewModel) {
     if (viewModel.transactions.isEmpty) {
-      return Center(
+      return const Center(
         child: CircularProgressIndicator(),
       );
     }
@@ -130,7 +201,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
       itemCount: viewModel.groupedTransactions.length,
       itemBuilder: (context, index) {
         if (index >= viewModel.groupedTransactions.length) {
-          return SizedBox(); // Trả về widget trống nếu chỉ số vượt quá giới hạn
+          return const SizedBox(); // Trả về widget trống nếu chỉ số vượt quá giới hạn
         }
         String date = viewModel.groupedTransactions.keys.elementAt(index);
         List<Transactions> transactions = viewModel.groupedTransactions[date]!;
@@ -141,7 +212,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 date,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             ...transactions.map((transaction) {
@@ -154,7 +225,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
                 walletName = wallet.name;
               }
 
-              String categoryName =  tr('no_category');
+              String categoryName = tr('no_category');
               IconData categoryIcon = Icons.category;
               Color categoryColor = Colors.grey;
 
@@ -165,14 +236,16 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
               }
 
               final formattedTime = formatHour(transaction.hour);
-              final note = transaction.note;
+              // final note = transaction.note;
 
               return Dismissible(
                 key: Key(transaction.transactionId),
                 direction: DismissDirection.endToStart,
                 onDismissed: (direction) async {
-                  final walletViewModel = Provider.of<WalletViewModel>(context, listen: false);
-                  await viewModel.deleteTransaction(transaction.transactionId, walletViewModel);
+                  final walletViewModel =
+                      Provider.of<WalletViewModel>(context, listen: false);
+                  await viewModel.deleteTransaction(
+                      transaction.transactionId, walletViewModel);
                   CustomSnackBar_2.show(
                     context,
                     tr('deleted_transaction'),
@@ -181,8 +254,8 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
                 background: Container(
                   color: Colors.red,
                   alignment: Alignment.centerRight,
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Icon(Icons.delete, color: Colors.white),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: const Icon(Icons.delete, color: Colors.white),
                 ),
                 child: Card(
                   child: ListTile(
@@ -199,28 +272,28 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${categoryName}',
-                          style: TextStyle(fontWeight: FontWeight.w500),
+                          categoryName,
+                          style: const TextStyle(fontWeight: FontWeight.w500),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Text(
-                          '(${walletName})',
+                          '($walletName)',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (note.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Text(
-                              note,
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
+                        // if (note.isNotEmpty)
+                        //   Padding(
+                        //     padding: const EdgeInsets.only(top: 4.0),
+                        //     child: Text(
+                        //       note,
+                        //       style: const TextStyle(
+                        //         color: Colors.grey,
+                        //         fontSize: 15,
+                        //       ),
+                        //     ),
+                        //   ),
                       ],
                     ),
                     subtitle: Row(
@@ -229,7 +302,8 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
                         if (transaction.images.isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(left: 8.0),
-                            child: Icon(Icons.image, size: 16, color: Colors.grey[700]),
+                            child: Icon(Icons.image,
+                                size: 16, color: Colors.grey[700]),
                           ),
                       ],
                     ),
@@ -238,14 +312,17 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: transaction.type == Type.income ? Colors.green : Colors.red,
+                        color: transaction.type == Type.income
+                            ? Colors.green
+                            : Colors.red,
                       ),
                     ),
                     onTap: () async {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EditTransactionScreen(transaction: transaction),
+                          builder: (context) =>
+                              EditTransactionScreen(transaction: transaction),
                         ),
                       );
                       if (result != null) {
@@ -257,30 +334,31 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ],
         );
       },
     );
   }
 
-  Widget _buildFilterDrawer(BuildContext context, TransactionHistoryViewModel viewModel) {
+  Widget _buildFilterDrawer(
+      BuildContext context, TransactionHistoryViewModel viewModel) {
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.8,
       child: Padding(
-        padding: EdgeInsets.all(18),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 30),
+            const SizedBox(height: 25),
             Text(
               tr('search_filters'),
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-            Divider(),
+            const Divider(),
             ListTile(
               title: Text(tr('date_range')),
-              trailing: Icon(Icons.calendar_today),
+              trailing: const Icon(Icons.calendar_today),
               onTap: () async {
                 DateTimeRange? picked = await showDateRangePicker(
                   context: context,
@@ -296,41 +374,20 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
             ),
             ListTile(
               title: Text(tr('wallet')),
-              trailing: Icon(Icons.account_balance_wallet),
+              trailing: const Icon(Icons.account_balance_wallet),
               onTap: () async {
-                await showDialog<String>(
+                await showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return SimpleDialog(
-                      title: Center(child: Text(tr('choose_wallet'))),
-                      children: viewModel.walletMap.entries.map((entry) {
-                        final wallet = entry.value;
-                        final isSelected = entry.key == viewModel.selectedWalletId;
-                        return SimpleDialogOption(
-                          onPressed: () {
-                            Navigator.pop(context, entry.key); // Select wallet
-                          },
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: parseColor(wallet.color),
-                              child: Icon(
-                                parseIcon(wallet.icon),
-                                color: Colors.white,
-                              ),
-                            ),
-                            title: Text(wallet.name),
-                            trailing: isSelected ? Icon(Icons.check, color: Colors.green) : null,
-                          ),
-                        );
-                      }).toList(),
+                    return MultiWalletSelectionDialog(
+                      wallets: viewModel.walletMap.values.toList(),
+                      selectedWallets: viewModel.selectedWallets,
+                      onSelect: (List<Wallet> selectedWallets) {
+                        viewModel.filterByWallets(selectedWallets);
+                      },
                     );
                   },
-                ).then((selectedWalletId) {
-                  if (selectedWalletId != null) {
-                    viewModel.filterByWallet(selectedWalletId);
-                  }
-                });
-                Navigator.of(context).pop();
+                );
               },
             ),
             CustomElevatedButton_2(

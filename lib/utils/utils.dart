@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../model/enum.dart';
 import 'package:easy_localization/easy_localization.dart';
+import '../model/enum.dart';
 
 Color parseColor(String colorString) {
   final colorValue = int.parse(colorString.split('(0x')[1].split(')')[0], radix: 16);
@@ -17,14 +17,16 @@ IconData parseIcon(String iconString) {
     return IconData(iconValue, fontFamily: 'FontAwesomeSolid', fontPackage: 'font_awesome_flutter',);
   } catch (e) {
     print('Error parsing icon data: $e');
-    return Icons.error; // Trả về một biểu tượng lỗi nếu có lỗi xảy ra
+    return Icons.error;
   }
 }
 
 String formatAmount(double amount) {
   final formatter = NumberFormat('#,###', 'vi_VN');
 
-  if (amount >= 1000000000) {
+  if (amount < 0) {
+    return '- ${formatter.format(amount.abs())}';
+  } else if (amount >= 1000000000) {
     return '${formatter.format((amount / 1))}';
   } else if (amount >= 1000000) {
     return '${formatter.format((amount / 1))}';
@@ -52,45 +54,14 @@ String formatAmount_2(double amount) {
 void formatAmount_3(TextEditingController amountController) {
   final text = amountController.text;
   if (text.isEmpty) return;
-
-  // Remove non-digit characters
   final cleanedText = text.replaceAll(RegExp(r'[^0-9]'), '');
-
-  // Parse to int and format
   final number = int.parse(cleanedText);
   final formatted = NumberFormat('#,###', 'vi_VN').format(number);
 
-  // Update the text controller
   amountController.value = TextEditingValue(
     text: formatted,
     selection: TextSelection.collapsed(offset: formatted.length),
   );
-}
-
-String formatTotalBalance(double totalBalance) {
-  final formatter = NumberFormat('#,###', 'vi_VN');
-  if (totalBalance >= 1000000000) {
-    return '${formatter.format((totalBalance / 1))}';
-  } else if (totalBalance >= 1000000) {
-    return '${formatter.format((totalBalance / 1))}';
-  } else if (totalBalance >= 1000) {
-    return '${formatter.format(totalBalance.round())}';
-  } else {
-    return totalBalance.toStringAsFixed(0);
-  }
-}
-
-String formatAmountChart(double totalBalance) {
-  final formatter = NumberFormat('#,###', 'vi_VN');
-  if (totalBalance >= 1000000000) {
-    return '${formatter.format((totalBalance / 1000000000))} T';
-  } else if (totalBalance >= 1000000) {
-    return '${formatter.format((totalBalance / 1000000))} Tr';
-  } else if (totalBalance >= 1000) {
-    return '${formatter.format(totalBalance.round())}';
-  } else {
-    return totalBalance.toStringAsFixed(0);
-  }
 }
 
 String chartTotalAmountFormat(double totalAmount) {
@@ -110,7 +81,6 @@ String chartTotalAmountFormat(double totalAmount) {
 DateTime parseDateKey(String dateKey, String selectedTimeframe) {
   switch (selectedTimeframe) {
     case 'day':
-    // Format: 'dd-MM-yyyy'
       final parts = dateKey.split('/');
       if (parts.length == 3) {
         return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
@@ -118,7 +88,6 @@ DateTime parseDateKey(String dateKey, String selectedTimeframe) {
         throw FormatException('Invalid date format in dateKey: $dateKey');
       }
     case 'custom':
-    // Format: 'Từ dd-MM-yyyy đến dd-MM-yyyy'
       final customPattern = RegExp(r'(\d{1,2}/\d{1,2}/\d{4}) - (\d{1,2}/\d{1,2}/\d{4})');
       final customMatch = customPattern.firstMatch(dateKey);
       if (customMatch != null) {
@@ -128,7 +97,6 @@ DateTime parseDateKey(String dateKey, String selectedTimeframe) {
         throw FormatException('Invalid custom format in dateKey: $dateKey');
       }
     case 'week':
-    // Format: 'Từ dd-MM-yyyy đến dd-MM-yyyy'
       final weekPattern = RegExp(r'(\d{1,2}/\d{1,2}/\d{4}) - (\d{1,2}/\d{1,2}/\d{4})');
       final match = weekPattern.firstMatch(dateKey);
       if (match != null) {
@@ -138,7 +106,6 @@ DateTime parseDateKey(String dateKey, String selectedTimeframe) {
         throw FormatException('Invalid week format in dateKey: $dateKey');
       }
     case 'month':
-    // Format: 'Tháng MM/yyyy'
       final parts = dateKey.split('/');
       if (parts.length == 2) {
         final month = int.parse(parts[0]);
@@ -149,7 +116,6 @@ DateTime parseDateKey(String dateKey, String selectedTimeframe) {
       }
 
     case 'year':
-    // Format: 'năm yyyy'
       final yearPattern = RegExp(r'(\d{4})');
       final match = yearPattern.firstMatch(dateKey);
       if (match != null) {
@@ -193,6 +159,23 @@ String getGreeting() {
     return tr('afternoon');
   } else {
     return tr('evening');
+  }
+}
+
+String getRepeatString(Repeat repeatBudget) {
+  switch (repeatBudget) {
+    case Repeat.Daily:
+      return tr('repeat_daily');
+    case Repeat.Weekly:
+      return tr('repeat_weekly');
+    case Repeat.Monthly:
+      return tr('repeat_monthly');
+    case Repeat.Quarterly:
+      return tr('repeat_quarterly');
+    case Repeat.Yearly:
+      return tr('repeat_yearly');
+    default:
+      return '';
   }
 }
 

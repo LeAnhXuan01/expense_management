@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:expense_management/widget/custom_snackbar_1.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,16 +15,16 @@ class EditProfileViewModel extends ChangeNotifier {
   final AuthService _authService = AuthService();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
-  final TextEditingController jobController = TextEditingController();
   final TextEditingController birthDateController = TextEditingController();
 
+  bool isLoading = false;
   DateTime selectedDate = DateTime(1990, 1, 1);
   Gender gender = Gender.other;
   String? selectedJob;
   final ImagePicker picker = ImagePicker();
   File? imageFile;
   String? networkImageUrl;
-  String _displayName = 'Người dùng';
+  String _displayName = tr('display_name');
   String get displayName => _displayName;
 
   EditProfileViewModel() {
@@ -35,16 +36,17 @@ class EditProfileViewModel extends ChangeNotifier {
       User? user = await _profileService.getCurrentUser();
       if (user != null) {
         String userId = user.uid;
-        DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await _profileService.getProfile(userId);
+        DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+            await _profileService.getProfile(userId);
 
         if (documentSnapshot.exists) {
           Profile profile = Profile.fromMap(documentSnapshot.data()!);
           nameController.text = profile.displayName;
-          birthDateController.text = "${profile.birthDate.day}/${profile.birthDate.month}/${profile.birthDate.year}";
+          birthDateController.text =
+              "${profile.birthDate.day}/${profile.birthDate.month}/${profile.birthDate.year}";
           selectedDate = profile.birthDate;
           gender = profile.gender;
           addressController.text = profile.address;
-          jobController.text = profile.job;
           if (profile.profileImageUrl.isNotEmpty) {
             networkImageUrl = profile.profileImageUrl;
           } else {
@@ -64,19 +66,25 @@ class EditProfileViewModel extends ChangeNotifier {
   }
 
   Future<void> pickImage(ImageSource source) async {
+    isLoading = true;
+    notifyListeners();
+
     final pickedFile = await picker.pickImage(source: source);
     if (pickedFile != null) {
       User? currentUser = await _profileService.getCurrentUser();
       if (currentUser != null) {
-        String? imageUrl = await _profileService.uploadImage(currentUser.uid, pickedFile.path);
+        String? imageUrl =
+            await _profileService.uploadImage(currentUser.uid, pickedFile.path);
         if (imageUrl != null) {
           networkImageUrl = imageUrl;
           updateProfileImage(pickedFile.path);
-          await saveProfile(); // Lưu thông tin hồ sơ ngay sau khi tải lên ảnh đại diện mới
           notifyListeners();
         }
       }
     }
+
+    isLoading = false;
+    notifyListeners();
   }
 
   void selectDate(BuildContext context) async {
@@ -88,7 +96,8 @@ class EditProfileViewModel extends ChangeNotifier {
     );
     if (picked != null && picked != selectedDate) {
       selectedDate = picked;
-      birthDateController.text = "${picked.toLocal().day}/${picked.toLocal().month}/${picked.toLocal().year}";
+      birthDateController.text =
+          "${picked.toLocal().day}/${picked.toLocal().month}/${picked.toLocal().year}";
       notifyListeners();
     }
   }
@@ -100,16 +109,9 @@ class EditProfileViewModel extends ChangeNotifier {
     }
   }
 
-  void setSelectedJob(String? newValue) {
-    selectedJob = newValue;
-    jobController.text = selectedJob!;
-    notifyListeners();
-  }
-
-  // Hàm cập nhật ảnh đại diện
   void updateProfileImage(String imagePath) {
     imageFile = File(imagePath);
-    notifyListeners(); // Thông báo cho UI rằng đã có sự thay đổi
+    notifyListeners();
   }
 
   Future<Profile?> saveProfile() async {
@@ -124,7 +126,6 @@ class EditProfileViewModel extends ChangeNotifier {
         birthDate: selectedDate,
         gender: gender,
         address: addressController.text,
-        job: jobController.text,
         profileImageUrl: profileImageUrl,
       );
 
@@ -142,21 +143,29 @@ class EditProfileViewModel extends ChangeNotifier {
       resetFields();
       Navigator.pushReplacementNamed(context, '/login');
     } catch (e) {
-      CustomSnackBar_1.show(context, "Đã xảy ra lỗi khi đăng xuất. Vui lòng thử lại.");
+      CustomSnackBar_1.show(
+          context, tr('log_out_error'));
     }
   }
 
   void resetFields() {
     nameController.clear();
     addressController.clear();
-    jobController.clear();
     birthDateController.clear();
     selectedDate = DateTime(1990, 1, 1);
     gender = Gender.other;
     selectedJob = null;
     imageFile = null;
     networkImageUrl = null;
-    _displayName = 'Người dùng';
+    _displayName = tr('display_name');
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    addressController.dispose();
+    birthDateController.dispose();
+    super.dispose();
   }
 }

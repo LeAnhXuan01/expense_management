@@ -35,23 +35,6 @@ class EditBillViewModel extends ChangeNotifier {
 
   List<Repeat> get repeatOptions => Repeat.values;
 
-  String getRepeatString(Repeat repeatBudget) {
-    switch (repeatBudget) {
-      case Repeat.Daily:
-        return 'Hàng ngày';
-      case Repeat.Weekly:
-        return 'Hàng tuần';
-      case Repeat.Monthly:
-        return 'Hàng tháng';
-      case Repeat.Quarterly:
-        return 'Hàng quý';
-      case Repeat.Yearly:
-        return 'Hàng năm';
-      default:
-        return '';
-    }
-  }
-
   void updateButtonState() {
     enableButton = nameController.text.isNotEmpty;
     notifyListeners();
@@ -117,5 +100,14 @@ class EditBillViewModel extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    noteController.dispose();
+    dateController.dispose();
+    hourController.dispose();
+    super.dispose();
   }
 }

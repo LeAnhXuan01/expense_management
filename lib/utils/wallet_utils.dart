@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/transaction_model.dart';
 import '../model/enum.dart';
 import '../model/transfer_model.dart';
-import '../model/wallet_model.dart';
-import '../services/wallet_service.dart';
 
 // check and update of transaction
 class TransactionHelper {
@@ -18,7 +16,7 @@ class TransactionHelper {
       }
 
       Map<String, dynamic> walletData = walletSnapshot.data() as Map<String, dynamic>;
-      double walletBalance = walletData['initialBalance'];
+      double walletBalance = walletData['currentBalance'];
 
       double amountInWalletCurrency = transactionAmount;
 
@@ -54,7 +52,7 @@ class TransactionHelper {
       }
 
       Map<String, dynamic> walletData = walletSnapshot.data() as Map<String, dynamic>;
-      double currentBalance = walletData['initialBalance'];
+      double currentBalance = walletData['currentBalance'];
 
       double amountInWalletCurrency = transaction.amount;
       double oldAmountInWalletCurrency = oldTransaction != null ? oldTransaction.amount : 0;
@@ -88,9 +86,9 @@ class TransactionHelper {
         }
       }
 
-      await _firestore.collection('wallets').doc(transaction.walletId).update({'initialBalance': currentBalance});
+      await _firestore.collection('wallets').doc(transaction.walletId).update({'currentBalance': currentBalance});
     } catch (e) {
-      print("Error updating wallet initialBalance: $e");
+      print("Error updating wallet currentBalance: $e");
       throw e;
     }
   }
@@ -125,7 +123,7 @@ class TransferHelper {
       }
 
       Map<String, dynamic> walletData = walletSnapshot.data() as Map<String, dynamic>;
-      double walletBalance = walletData['initialBalance'];
+      double walletBalance = walletData['currentBalance'];
 
       double amountInWalletCurrency = amount;
 
@@ -145,7 +143,7 @@ class TransferHelper {
       }
 
       Map<String, dynamic> walletData = walletSnapshot.data() as Map<String, dynamic>;
-      double currentBalance = walletData['initialBalance'];
+      double currentBalance = walletData['currentBalance'];
 
       double amountInWalletCurrency = amount;
 
@@ -155,9 +153,9 @@ class TransferHelper {
         currentBalance -= amountInWalletCurrency;
       }
 
-      await _firestore.collection('wallets').doc(walletId).update({'initialBalance': currentBalance});
+      await _firestore.collection('wallets').doc(walletId).update({'currentBalance': currentBalance});
     } catch (e) {
-      print("Error updating wallet initialBalance: $e");
+      print("Error updating wallet currentBalance: $e");
       throw e;
     }
   }

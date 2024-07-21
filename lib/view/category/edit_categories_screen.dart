@@ -8,42 +8,41 @@ import '../../widget/custom_ElevatedButton_2.dart';
 import '../../widget/custom_header_1.dart';
 import '../../model/category_model.dart';
 import '../../widget/custom_snackbar_1.dart';
+import 'package:easy_localization/easy_localization.dart';
 
-class EditCategoriesScreen extends StatefulWidget {
+class EditCategoriesScreen extends StatelessWidget {
   final Category category;
   const EditCategoriesScreen({super.key, required this.category});
 
   @override
-  State<EditCategoriesScreen> createState() => _EditCategoriesScreenState();
-}
-
-class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Provider.of<EditCategoryViewModel>(context, listen: false).initializeFields(widget.category);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Consumer<EditCategoryViewModel>(
+    return ChangeNotifierProvider(
+      create: (context) => EditCategoryViewModel()
+        ..initializeFields(category),
+      child: Scaffold(
+        body: Consumer<EditCategoryViewModel>(
           builder: (context, viewModel, child) {
             return Column(
               children: [
                 CustomHeader_1(
-                  title: 'Chỉnh sửa danh mục',
+                  title: tr('edit_category'),
                   action: IconButton(
-                    icon: Icon(Icons.check, color: Colors.white),
-                    onPressed: viewModel.enableButton ? () async {
-                      final updatedCategory = await viewModel.updateCategory(widget.category.categoryId, widget.category.createdAt);
+                    icon: const Icon(Icons.save, color: Colors.white),
+                    onPressed: viewModel.enableButton
+                        ? () async {
+                      final updatedCategory = await viewModel.updateCategory(
+                          category.categoryId,
+                          category.createdAt);
                       if (updatedCategory != null) {
-                        await CustomSnackBar_2.show(context, 'Cập nhật thành công');
+                        await CustomSnackBar_2.show(
+                            context, tr('update_successful'));
                         Navigator.pop(context, updatedCategory);
                       } else {
-                        CustomSnackBar_1.show(context, 'Có lỗi xảy ra khi cập nhật danh mục');
+                        CustomSnackBar_1.show(
+                            context, tr('create_error_message'));
                       }
-                    } : null,
+                    }
+                        : null,
                   ),
                 ),
                 Expanded(
@@ -55,11 +54,11 @@ class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
                           Stack(
                             children: [
                               Padding(
-                                padding: EdgeInsets.only(left: 70),
+                                padding: const EdgeInsets.only(left: 70),
                                 child: TextField(
                                   controller: viewModel.nameCategory,
                                   decoration: InputDecoration(
-                                    labelText: 'Tên danh mục',
+                                    labelText: tr('category_name_label'),
                                   ),
                                 ),
                               ),
@@ -75,7 +74,8 @@ class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
                                         Colors.blueGrey.shade200,
                                   ),
                                   child: Icon(
-                                    viewModel.selectedIcon ?? FontAwesomeIcons.question,
+                                    viewModel.selectedIcon ??
+                                        FontAwesomeIcons.question,
                                     color: Colors.white,
                                     size: 24,
                                   ),
@@ -83,39 +83,42 @@ class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                'Loại danh mục: ',
+                                tr('category_type'),
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.black.withOpacity(0.7),
                                 ),
                               ),
                               Text(
-                                widget.category.type == Type.income ? 'Thu nhập' : 'Chi tiêu',
+                                category.type == Type.income
+                                    ? tr('income')
+                                    : tr('expense'),
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black.withOpacity(0.7),
-                                  fontWeight: FontWeight.bold, // Tùy chọn: để làm nổi bật loại danh mục
+                                  fontSize: 18,
+                                  color: category.type == Type.income
+                                          ? Colors.green
+                                          : Colors.red,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
                           ),
-
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           Row(
                             children: [
                               Text(
-                                'Biểu tượng',
+                                tr('icon_label'),
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.black.withOpacity(0.7),
                                 ),
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               GestureDetector(
                                 onTap: () {
                                   viewModel.toggleShowPlusButtonIcon();
@@ -132,37 +135,37 @@ class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
                           viewModel.showPlusButtonIcon
                               ? GridView.builder(
                             shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 4,
                               mainAxisSpacing: 10,
                               crossAxisSpacing: 10,
                             ),
                             itemCount: viewModel.currentIconsList.length,
                             itemBuilder: (BuildContext context, int index) {
+                              final icon = viewModel.currentIconsList[index];
+                              final isSelected = viewModel.selectedIcon?.codePoint == icon.codePoint;
+
                               return GestureDetector(
                                 onTap: () {
-                                  viewModel.setSelectedIcon(viewModel.currentIconsList[index]);
+                                  viewModel.setSelectedIcon(icon);
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    border: viewModel.selectedIcon == viewModel.currentIconsList[index]
-                                        ? Border.all(color: Colors.black, width: 1.0)
-                                        : null,
+                                    border: isSelected ? Border.all(color: Colors.black, width: 1.0) : null,
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Container(
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: viewModel.selectedIcon == viewModel.currentIconsList[index]
+                                        color: isSelected
                                             ? (viewModel.selectedColor ?? Colors.blueGrey.shade200)
                                             : Colors.blueGrey.shade200,
                                       ),
                                       child: Icon(
-                                        viewModel.currentIconsList[index],
+                                        icon,
                                         size: 38,
                                         color: Colors.white,
                                       ),
@@ -172,18 +175,19 @@ class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
                               );
                             },
                           )
-                              : SizedBox.shrink(),
-                          SizedBox(height: 40),
+
+                              : const SizedBox.shrink(),
+                          const SizedBox(height: 40),
                           Row(
                             children: [
                               Text(
-                                'Màu sắc:',
+                                tr('color_label'),
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.black.withOpacity(0.7),
                                 ),
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               GestureDetector(
                                 onTap: () {
                                   viewModel.toggleShowPlusButtonColor();
@@ -200,9 +204,9 @@ class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
                           viewModel.showPlusButtonColor
                               ? GridView.builder(
                             shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 7,
                               mainAxisSpacing: 15,
                               crossAxisSpacing: 15,
@@ -210,37 +214,45 @@ class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
                             ),
                             itemCount: viewModel.colors.length,
                             itemBuilder: (BuildContext context, int index) {
+                              final color = viewModel.colors[index];
+                              final isSelected = viewModel.selectedColor?.value == color.value;
+
                               return GestureDetector(
                                 onTap: () {
-                                  viewModel.setSelectedColor(viewModel.colors[index]);
+                                  viewModel.setSelectedColor(color);
                                 },
-                                child: Container(
+                                child:  Container(
                                       decoration: BoxDecoration(
-                                        color: viewModel.colors[index],
+                                        color: color,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: viewModel.selectedColor == viewModel.colors[index]
-                                          ? Icon(Icons.check, color: Colors.white, size: 24)
+                                      child: isSelected
+                                          ? const Icon(Icons.check, color: Colors.white, size: 24)
                                           : null,
                                     ),
-
-
                               );
                             },
                           )
-                              : SizedBox.shrink(),
-                          SizedBox(height: 30),
+                              : const SizedBox.shrink(),
+                          const SizedBox(height: 20),
                           CustomElevatedButton_2(
-                            text: 'Cập nhật',
-                            onPressed: viewModel.enableButton ? () async {
-                              final updatedCategory = await viewModel.updateCategory(widget.category.categoryId, widget.category.createdAt);
+                            text: tr('save_button'),
+                            onPressed: viewModel.enableButton
+                                ? () async {
+                              final updatedCategory =
+                              await viewModel.updateCategory(
+                                  category.categoryId,
+                                  category.createdAt);
                               if (updatedCategory != null) {
-                                await CustomSnackBar_2.show(context, 'Cập nhật thành công');
+                                await CustomSnackBar_2.show(
+                                    context, tr('update_successful'));
                                 Navigator.pop(context, updatedCategory);
                               } else {
-                                CustomSnackBar_1.show(context, 'Có lỗi xảy ra khi cập nhật danh mục');
+                                CustomSnackBar_1.show(context,
+                                    tr('update_error_message'));
                               }
-                            } : null,
+                            }
+                                : null,
                           ),
                         ],
                       ),
@@ -249,7 +261,9 @@ class _EditCategoriesScreenState extends State<EditCategoriesScreen> {
                 ),
               ],
             );
-          }),
+          },
+        ),
+      ),
     );
   }
 }

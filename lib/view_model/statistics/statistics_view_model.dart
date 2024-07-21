@@ -6,7 +6,6 @@ import '../../model/category_model.dart';
 import '../../model/enum.dart';
 import '../../model/wallet_model.dart';
 import '../../utils/utils.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 class ChartData {
   final String date;
@@ -94,6 +93,8 @@ class StatisticsViewModel with ChangeNotifier {
   void setWallets(List<Wallet> wallets) {
     selectedWallets = wallets;
     fetchData();
+    selectedIncomeTransactions.clear();
+    selectedExpenseTransactions.clear();
     notifyListeners();
   }
 
@@ -108,6 +109,8 @@ class StatisticsViewModel with ChangeNotifier {
     customEndDate = end;
     isCustomDateRangeSet = true;
     fetchData();
+    selectedIncomeTransactions.clear();
+    selectedExpenseTransactions.clear();
     notifyListeners();
   }
 
@@ -119,8 +122,9 @@ class StatisticsViewModel with ChangeNotifier {
       parsedDate = parseDateKey(date, selectedTimeframe);
       if (selectedTimeframe == 'custom') {
         final parts = date.split(' ');
-        final endDateParts = parts[3].split('-');
-        endDate = DateTime(int.parse(endDateParts[2]), int.parse(endDateParts[1]), int.parse(endDateParts[0]));
+        final endDateParts = parts[2].split('/');
+        endDate = DateTime(int.parse(endDateParts[2]),
+            int.parse(endDateParts[1]), int.parse(endDateParts[0]));
       }
     } catch (e) {
       print('Lỗi parsing date: $e');
@@ -143,24 +147,31 @@ class StatisticsViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  bool isTransactionInDateRange(Transactions t, DateTime startDate, DateTime? endDate) {
+  bool isTransactionInDateRange(
+      Transactions t, DateTime startDate, DateTime? endDate) {
     switch (selectedTimeframe) {
       case 'day':
-        return t.date.year == startDate.year && t.date.month == startDate.month && t.date.day == startDate.day;
+        return t.date.year == startDate.year &&
+            t.date.month == startDate.month &&
+            t.date.day == startDate.day;
       case 'custom':
-        return t.date.isAfter(startDate.subtract(Duration(days: 1))) && t.date.isBefore(endDate!.add(Duration(days: 1)));
+        return t.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
+            t.date.isBefore(endDate!.add(const Duration(days: 1)));
       case 'week':
         DateTime monday = t.date.subtract(Duration(days: t.date.weekday - 1));
-        return monday.year == startDate.year && monday.month == startDate.month && monday.day == startDate.day;
+        return monday.year == startDate.year &&
+            monday.month == startDate.month &&
+            monday.day == startDate.day;
       case 'month':
         return t.date.year == startDate.year && t.date.month == startDate.month;
       case 'year':
         return t.date.year == startDate.year;
       default:
-        return t.date.year == startDate.year && t.date.month == startDate.month && t.date.day == startDate.day;
+        return t.date.year == startDate.year &&
+            t.date.month == startDate.month &&
+            t.date.day == startDate.day;
     }
   }
-
 
   Future<void> fetchWallets() async {
     User? currentUser = _auth.currentUser;
@@ -190,7 +201,9 @@ class StatisticsViewModel with ChangeNotifier {
       selectedCategories = List.from(categories);
 
       // Tạo map categoryId -> Category
-      categoryMap = {for (var category in categories) category.categoryId: category};
+      categoryMap = {
+        for (var category in categories) category.categoryId: category
+      };
 
       notifyListeners();
     }
@@ -210,11 +223,11 @@ class StatisticsViewModel with ChangeNotifier {
       switch (selectedTimeframe) {
         case 'day':
           start = DateTime(now.year, now.month, now.day);
-          end = start.add(Duration(days: 1));
+          end = start.add(const Duration(days: 1));
           break;
         case 'week':
           start = now.subtract(Duration(days: now.weekday - 1));
-          end = start.add(Duration(days: 7));
+          end = start.add(const Duration(days: 7));
           break;
         case 'month':
           start = DateTime(now.year, now.month);
@@ -226,7 +239,7 @@ class StatisticsViewModel with ChangeNotifier {
           break;
         default:
           start = DateTime(now.year, now.month, now.day);
-          end = start.add(Duration(days: 1));
+          end = start.add(const Duration(days: 1));
       }
     }
 
@@ -249,31 +262,36 @@ class StatisticsViewModel with ChangeNotifier {
         .toList();
 
     // Process transactions with wallet filter
-    // Now apply category filter
-    List<Transactions> filteredTransactions = [];
+    // // Now apply category filter
+    // List<Transactions> filteredTransactions = [];
+    //
+    // if (selectedCategories.isNotEmpty) {
+    //   List<String> selectedCategoryIds =
+    //       selectedCategories.map((category) => category.categoryId).toList();
+    //
+    //   for (var transaction in transactions) {
+    //     if (selectedCategoryIds.contains(transaction.categoryId)) {
+    //       filteredTransactions.add(transaction);
+    //     }
+    //   }
+    // } else
+    //   filteredTransactions = transactions;
+    // }
 
-    if (selectedCategories.isNotEmpty) {
-      List<String> selectedCategoryIds =
-          selectedCategories.map((category) => category.categoryId).toList();
-
-      for (var transaction in transactions) {
-        if (selectedCategoryIds.contains(transaction.categoryId)) {
-          filteredTransactions.add(transaction);
-        }
-      }
-    } else {
-      filteredTransactions = transactions;
-    }
-
-    processTransactionData(filteredTransactions);
+    processTransactionData(transactions);
     //list transaction
-    incomeTransactions = filteredTransactions.where((transaction) => transaction.type == Type.income).toList();
-    expenseTransactions = filteredTransactions.where((transaction) => transaction.type == Type.expense).toList();
+    incomeTransactions = transactions
+        .where((transaction) => transaction.type == Type.income)
+        .toList();
+    expenseTransactions = transactions
+        .where((transaction) => transaction.type == Type.expense)
+        .toList();
     notifyListeners();
   }
 
   void processTransactionData(List<Transactions> transactions) {
-    print('processTransactionData called with ${transactions.length} transactions');
+    print(
+        'processTransactionData called with ${transactions.length} transactions');
     Map<String, double> incomeMap = {};
     Map<String, double> expenseMap = {};
 
@@ -281,13 +299,16 @@ class StatisticsViewModel with ChangeNotifier {
       // Custom date range format
       final startDate = customStartDate!;
       final endDate = customEndDate!;
-      String dateKey = '${startDate.day}/${startDate.month}/${startDate.year} - ${endDate.day}/${endDate.month}/${endDate.year}';
+      String dateKey =
+          '${startDate.day}/${startDate.month}/${startDate.year} - ${endDate.day}/${endDate.month}/${endDate.year}';
 
       for (var transaction in transactions) {
         if (transaction.type == Type.income) {
-          incomeMap.update(dateKey, (value) => value + transaction.amount, ifAbsent: () => transaction.amount);
+          incomeMap.update(dateKey, (value) => value + transaction.amount,
+              ifAbsent: () => transaction.amount);
         } else if (transaction.type == Type.expense) {
-          expenseMap.update(dateKey, (value) => value + transaction.amount, ifAbsent: () => transaction.amount);
+          expenseMap.update(dateKey, (value) => value + transaction.amount,
+              ifAbsent: () => transaction.amount);
         }
       }
     } else {
@@ -297,11 +318,14 @@ class StatisticsViewModel with ChangeNotifier {
         String dateKey;
         switch (selectedTimeframe) {
           case 'day':
-            dateKey = '${transaction.date.day}/${transaction.date.month}/${transaction.date.year}';
+            dateKey =
+                '${transaction.date.day}/${transaction.date.month}/${transaction.date.year}';
             break;
           case 'week':
-            DateTime monday = transaction.date.subtract(Duration(days: transaction.date.weekday - 1));
-            dateKey = '${monday.day}/${monday.month}/${monday.year} - ${monday.day + 6}/${monday.month}/${monday.year}';
+            DateTime monday = transaction.date
+                .subtract(Duration(days: transaction.date.weekday - 1));
+            dateKey =
+                '${monday.day}/${monday.month}/${monday.year} - ${monday.day + 6}/${monday.month}/${monday.year}';
             break;
           case 'month':
             dateKey = '${transaction.date.month}/${transaction.date.year}';
@@ -310,26 +334,31 @@ class StatisticsViewModel with ChangeNotifier {
             dateKey = '${transaction.date.year}';
             break;
           default:
-            dateKey = '${transaction.date.day}/${transaction.date.month}/${transaction.date.year}';
+            dateKey =
+                '${transaction.date.day}/${transaction.date.month}/${transaction.date.year}';
         }
 
         if (transaction.type == Type.income) {
-          incomeMap.update(dateKey, (value) => value + amount, ifAbsent: () => amount);
+          incomeMap.update(dateKey, (value) => value + amount,
+              ifAbsent: () => amount);
         } else if (transaction.type == Type.expense) {
-          expenseMap.update(dateKey, (value) => value + amount, ifAbsent: () => amount);
+          expenseMap.update(dateKey, (value) => value + amount,
+              ifAbsent: () => amount);
         }
       }
     }
 
-    incomeData = incomeMap.entries.map((e) => ChartData(e.key, e.value)).toList();
-    expenseData = expenseMap.entries.map((e) => ChartData(e.key, e.value)).toList();
+    incomeData =
+        incomeMap.entries.map((e) => ChartData(e.key, e.value)).toList();
+    expenseData =
+        expenseMap.entries.map((e) => ChartData(e.key, e.value)).toList();
     print('Income Data: ${incomeData.length} entries');
     print('Expense Data: ${expenseData.length} entries');
 
     profitData = [];
     lossData = [];
 
-    incomeData.forEach((income) {
+    for (var income in incomeData) {
       final expense = expenseMap[income.date] ?? 0.0;
       final profitOrLoss = income.amount - expense;
       if (profitOrLoss >= 0) {
@@ -337,7 +366,7 @@ class StatisticsViewModel with ChangeNotifier {
       } else {
         lossData.add(ChartData(income.date, -profitOrLoss));
       }
-    });
+    }
 
     print('Profit Data: ${profitData.length} entries');
     print('Loss Data: ${lossData.length} entries');
@@ -345,4 +374,11 @@ class StatisticsViewModel with ChangeNotifier {
     notifyListeners();
   }
 
+  void clearTransactions(String type) {
+    if (type == 'profit' || type == 'loss') {
+      selectedIncomeTransactions.clear();
+      selectedExpenseTransactions.clear();
+      notifyListeners();
+    }
+  }
 }

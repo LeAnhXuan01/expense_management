@@ -14,6 +14,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print('Handling a background message: ${message.messageId}');
 }
 
+
 void _setupFirebaseMessaging() {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
@@ -42,8 +43,6 @@ void _setupFirebaseMessaging() {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
-  // In ra để kiểm tra
-  print('EasyLocalization initialized');
 
   // Ngăn ứng dụng xoay màn hình
   SystemChrome.setPreferredOrientations([
@@ -60,7 +59,7 @@ Future<void> main() async {
   } on FirebaseException catch (e) {
     print('Firebase connection error: $e');
   }
-  // await Firebase.initializeApp();
+
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.playIntegrity,
   );
@@ -70,12 +69,11 @@ Future<void> main() async {
 
   _setupFirebaseMessaging();
 
-
   runApp(
     EasyLocalization(
-      supportedLocales: [Locale('en'), Locale('vi')],
+      supportedLocales: const [Locale('en'), Locale('vi')],
       path: 'assets/translations',
-      fallbackLocale: Locale('en'),
+      fallbackLocale: const Locale('en'),
       child: const MyApp(),
     ),
   );
@@ -88,14 +86,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppProviders(
         child: MaterialApp(
-      title: 'Quản lý chi tiêu cá nhân',
+      title: tr('app_name'),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
       routes: routes,
-      home: SplashScreen(),
+      home: const SplashScreen(),
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,

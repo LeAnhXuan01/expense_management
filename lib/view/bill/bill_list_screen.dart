@@ -6,8 +6,11 @@ import '../../model/bill_model.dart';
 import '../../view_model/bill/bill_list_view_model.dart';
 import '../../widget/custom_header_3.dart';
 import 'edit_bill_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class BillListScreen extends StatefulWidget {
+  const BillListScreen({super.key});
+
   @override
   State<BillListScreen> createState() => _BillListScreenState();
 }
@@ -23,14 +26,14 @@ class _BillListScreenState extends State<BillListScreen> {
             body: Column(
               children: [
                 CustomHeader_3(
-                  title: 'Danh sách hóa đơn',
+                  title: tr('bill_list_title'),
                   action: GestureDetector(
                     onTap: () {
                       setState(() {
                         viewModel.isSearching = true;
                       });
                     },
-                    child: Icon(
+                    child: const Icon(
                       Icons.search,
                       color: Colors.white,
                     ),
@@ -56,8 +59,8 @@ class _BillListScreenState extends State<BillListScreen> {
             ),
             floatingActionButton: FloatingActionButton(
               backgroundColor: Colors.green,
-              shape: CircleBorder(),
-              child: Icon(Icons.add, color: Colors.white),
+              shape: const CircleBorder(),
+              child: const Icon(Icons.add, color: Colors.white),
               onPressed: () async {
                 final newBill = await Navigator.push(
                   context,
@@ -79,13 +82,13 @@ class _BillListScreenState extends State<BillListScreen> {
   Widget _buildBillList(BillListViewModel viewModel) {
     if (viewModel.bills.isEmpty && viewModel.isSearching) {
       return Center(
-        child: Text('Không có kết quả tìm kiếm nào',
+        child: Text(tr('no_search_results'),
             style: TextStyle(fontSize: 18, color: Colors.grey)),
       );
     } else if (viewModel.bills.isEmpty) {
-      return Center(
+      return  Center(
         child: Text(
-          'Không có hóa đơn nào',
+          tr('no_bills_message'),
           style: TextStyle(fontSize: 18, color: Colors.grey),
         ),
       );
@@ -100,8 +103,7 @@ class _BillListScreenState extends State<BillListScreen> {
           direction: DismissDirection.endToStart,
           onDismissed: (direction) {
             viewModel.deleteBill(bill.billId);
-            CustomSnackBar_2.show(
-                context, '${bill.name} đã bị xóa');
+            CustomSnackBar_2.show(context, '${bill.name}' + tr('deleted'));
           },
           confirmDismiss: (direction) async {
             return await _showDeleteConfirmationDialog(context);
@@ -109,14 +111,14 @@ class _BillListScreenState extends State<BillListScreen> {
           background: Container(
             color: Colors.red,
             alignment: Alignment.centerRight,
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Icon(Icons.delete, color: Colors.white),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: const Icon(Icons.delete, color: Colors.white),
           ),
           child: Card(
-            margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Tùy chỉnh khoảng cách giữa các thẻ
+            margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
             elevation: 4.0,
             child: ListTile(
-              title: Text(bill.name),
+              title: Text(bill.name, maxLines: 1, overflow: TextOverflow.ellipsis,),
               trailing: Switch(
                 value: bill.isActive,
                 onChanged: (value) {
@@ -147,30 +149,28 @@ class _BillListScreenState extends State<BillListScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Xác nhận'),
-          content: Text('Bạn có chắc chắn muốn xóa hóa đơn này không?'),
+          title:  Text(tr('confirm')),
+          content:  Text(tr('delete_confirmation_content')),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: Text('Không',
+              child:  Text(tr('no'),
                   style: TextStyle(
                       color: Colors.red,
                       fontSize: 16,
-                      fontWeight:
-                      FontWeight.bold)),
+                      fontWeight: FontWeight.bold)),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
-              child: Text('Có',
+              child:  Text(tr('yes'),
                   style: TextStyle(
                       color: Colors.blue,
                       fontSize: 16,
-                      fontWeight:
-                      FontWeight.bold)),
+                      fontWeight: FontWeight.bold)),
             ),
           ],
         );

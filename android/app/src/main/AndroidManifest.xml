@@ -3,16 +3,25 @@
     tools:ignore="ExtraText">
     package="com.example.expense_management">
 
-    <!-- Thêm các quyền này vào -->
+    <!-- Cho phép ứng dụng mở các kết nối mạng. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Cho phép ứng dụng truy cập thông tin về mạng. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- Yêu cầu quyền truy cập vào thiết bị camera. -->
     <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- Cho phép ứng dụng ghi dữ liệu vào bộ nhớ ngoài -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- Cho phép ứng dụng đọc dữ liệu từ bộ nhớ ngoài -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <!-- Cho phép ứng dụng sử dụng chế độ rung. -->
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- Cho phép ứng dụng lập lịch trình chính xác cho báo thức. -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- Cho phép ứng dụng sử dụng báo thức chính xác. -->
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <!-- Cho phép ứng dụng tự động khởi động lại sau khi thiết bị khởi động xong. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Cho phép ứng dụng sử dụng dịch vụ cài đặt từ Google Play để lấy thông tin tham khảo. -->
     <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE"/>
 
     <application

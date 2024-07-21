@@ -1,8 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:expense_management/view/budget/edit_budget_screen.dart';
 import 'package:expense_management/widget/custom_header_1.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+
 import '../../model/budget_model.dart';
 import '../../model/enum.dart';
 import '../../model/transaction_model.dart';
@@ -14,14 +16,13 @@ import 'component/previous_period_details_screen.dart';
 class DetailBudgetScreen extends StatefulWidget {
   final Budget budget;
 
-  DetailBudgetScreen({required this.budget});
+  const DetailBudgetScreen({super.key, required this.budget});
 
   @override
   State<DetailBudgetScreen> createState() => _DetailBudgetScreenState();
 }
 
 class _DetailBudgetScreenState extends State<DetailBudgetScreen> {
-
   final GlobalKey _toolTipKey1 = GlobalKey();
   final GlobalKey _toolTipKey2 = GlobalKey();
   final GlobalKey _toolTipKey3 = GlobalKey();
@@ -41,9 +42,9 @@ class _DetailBudgetScreenState extends State<DetailBudgetScreen> {
             body: Column(
               children: [
                 CustomHeader_1(
-                  title: 'Chi tiết hạn mức',
+                  title: tr('detail_budget_title'),
                   action: IconButton(
-                    icon: Icon(Icons.edit, color: Colors.white),
+                    icon: const Icon(Icons.edit, color: Colors.white),
                     onPressed: () async {
                       final result = await Navigator.push(
                         context,
@@ -59,61 +60,86 @@ class _DetailBudgetScreenState extends State<DetailBudgetScreen> {
                   ),
                 ),
                 if (viewModel.transactions.isEmpty)
-                  Center(child: CircularProgressIndicator())
+                  const Center(child: CircularProgressIndicator())
                 else
                   Expanded(
                     child: ListView(
-                      padding: EdgeInsets.all(0.0),
+                      padding: const EdgeInsets.all(12.0),
                       children: [
-                        // Tên hạn mức
-                        ListTile(
-                          title: Text('Tên hạn mức'),
-                          trailing: Text(
-                            widget.budget.name,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                        ),
-                        // Số tiền hạn mức
-                        ListTile(
-                          title: Text('Hạn mức'),
-                          trailing: Text(
-                            '${formatTotalBalance(widget.budget.amount)} ₫',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                        ),
-                        // Tổng chi tiêu
-                        ListTile(
-                          title: Text('Tổng chi tiêu'),
-                          trailing: Text(
-                            '${formatTotalBalance(viewModel.totalExpenditure)} ₫',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                        ),
-                        // Hạn mức còn lại hoặc bội chi
-                        ListTile(
-                          title: Text(
-                              viewModel.totalExpenditure > widget.budget.amount
-                                  ? 'Bội chi'
-                                  : 'Hạn mức còn lại'),
-                          trailing: Text(
-                            '${formatTotalBalance((widget.budget.amount - viewModel.totalExpenditure).abs())} ₫',
-                            style: TextStyle(
-                              color: viewModel.totalExpenditure >
-                                      widget.budget.amount
-                                  ? Colors.red
-                                  : Colors.green,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                                child: Text(tr('budget_name'),
+                                    style: TextStyle(fontSize: 16))),
+                            Flexible(
+                              child: Text(
+                                widget.budget.name,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 3,
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                        // Thanh tiến trình
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                                child: Text(tr('budget_limit'),
+                                    style: TextStyle(fontSize: 16))),
+                            Text(
+                              '${formatAmount(widget.budget.amount)} ₫',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                                child: Text(tr('total_expenditure'),
+                                    style: TextStyle(fontSize: 16))),
+                            Text(
+                              '${formatAmount(viewModel.totalExpenditure)} ₫',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                viewModel.totalExpenditure >
+                                        widget.budget.amount
+                                    ? tr('over_budget')
+                                    : tr('remaining_budget'),
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            Text(
+                              '${formatAmount((widget.budget.amount - viewModel.totalExpenditure).abs())} ₫',
+                              style: TextStyle(
+                                color: viewModel.totalExpenditure >
+                                        widget.budget.amount
+                                    ? Colors.red
+                                    : Colors.green,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: 8.0, horizontal: 20.0),
+                              vertical: 15.0, horizontal: 5.0),
                           child: LinearProgressIndicator(
                             value: viewModel.totalExpenditure /
                                 widget.budget.amount,
@@ -123,169 +149,236 @@ class _DetailBudgetScreenState extends State<DetailBudgetScreen> {
                                 : Colors.blue,
                           ),
                         ),
-                        // Thời gian
-                        ListTile(
-                          title: Text('Thời gian'),
-                          trailing: viewModel.isExpired
-                              ? Text(
-                                  'Hết hạn',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.red,
-                                  ),
-                                )
-                              : viewModel.budget.repeat == Repeat.Daily
-                                  ? Text(
-                                      '${formatDate_2(viewModel.currentPeriodStart)}',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    )
-                                  : Text(
-                                      '${formatDate_2(viewModel.currentPeriodStart)} - ${formatDate_2(viewModel.currentPeriodEnd)}',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                                child: Text(tr('time_period'),
+                                    style: TextStyle(fontSize: 16))),
+                            viewModel.isExpired
+                                ? Text(
+                                    tr('expired'),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.red,
                                     ),
+                                  )
+                                : viewModel.budget.repeat == Repeat.Daily
+                                    ? Text(
+                                        formatDate_2(
+                                            viewModel.currentPeriodStart),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      )
+                                    : Text(
+                                        '${formatDate_2(viewModel.currentPeriodStart)} - ${formatDate_2(viewModel.currentPeriodEnd)}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                          ],
                         ),
-                        // Còn bao ngày
+                        SizedBox(height: 10),
                         if (viewModel.budget.repeat != Repeat.Daily &&
                             viewModel.isExpired != true &&
-                            !_isSameDay(
+                            !isSameDate(
                                 viewModel.currentPeriodEnd, DateTime.now()))
-                          ListTile(
-                            title: Text('Số ngày còn lại'),
-                          trailing: Text(
-                              '${viewModel.remainingDays} ngày',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                    child: Text(tr('remaining_days'),
+                                        style: TextStyle(fontSize: 16))),
+                                Text(
+                                  '${viewModel.remainingDays}' + tr('day_2'),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                              ],
                             ),
-                          ),
-                        Divider(),
-                        // Thực tế chi tiêu
+                        SizedBox(height: 10),
+                        const Divider(),
+                        SizedBox(height: 10),
                         GestureDetector(
                           onTap: () => _showToolTip(_toolTipKey1),
                           child: Tooltip(
                             key: _toolTipKey1,
-                            message: 'Tổng số tiền đã chi tiêu / Khoảng thời gian chi tiêu',
+                            message: tr('actual_spending_tooltip'),
                             decoration: BoxDecoration(
                               color: Colors.blueAccent,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            textStyle: TextStyle(
+                            textStyle: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
-                            preferBelow: false, // Đặt tooltip ở phía trên nếu có thể
-                            child: ListTile(
-                              title: Row(
-                                children: [
-                                  Text('Thực tế chi tiêu'),
-                                  SizedBox(width: 5),
-                                  CircleAvatar(
-                                    radius: 10,
-                                    backgroundColor: Colors.grey,
-                                    child: Icon(FontAwesomeIcons.question,
-                                        color: Colors.white, size: 13),
+                            preferBelow: false,
+                            // Đặt tooltip ở phía trên nếu có thể
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(tr('actual_spending'),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(fontSize: 16)),
+                                      ),
+                                      SizedBox(width: 5),
+                                      CircleAvatar(
+                                        radius: 10,
+                                        backgroundColor: Colors.grey,
+                                        child: Icon(
+                                          FontAwesomeIcons.question,
+                                          color: Colors.white,
+                                          size: 13,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              trailing: Text(
-                                '${formatTotalBalance(viewModel.actualSpending)} ₫/ngày',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
+                                ),
+                                Text(
+                                  '${formatAmount(viewModel.actualSpending)}' +
+                                      tr('₫_day'),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        // Nên chi tiêu
+                        SizedBox(height: 10),
                         GestureDetector(
                           onTap: () => _showToolTip(_toolTipKey2),
                           child: Tooltip(
                             key: _toolTipKey2,
-                            message: 'Số tiền còn lại của hạn mức chi / Số ngày còn lại',
+                            message: tr('recommended_spending_tooltip'),
                             decoration: BoxDecoration(
                               color: Colors.blueAccent,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            textStyle: TextStyle(
+                            textStyle: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
-                            preferBelow: false, // Đặt tooltip ở phía trên nếu có thể
-                            child: ListTile(
-                              title: Row(
-                                children: [
-                                  Text('Nên chi tiêu'),
-                                  SizedBox(width: 5),
-                                  CircleAvatar(
-                                    radius: 10,
-                                    backgroundColor: Colors.grey,
-                                    child: Icon(FontAwesomeIcons.question,
-                                        color: Colors.white, size: 13),
+                            preferBelow: false,
+                            // Đặt tooltip ở phía trên nếu có thể
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(tr('recommended_spending'),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(fontSize: 16)),
+                                      ),
+                                      SizedBox(width: 5),
+                                      CircleAvatar(
+                                        radius: 10,
+                                        backgroundColor: Colors.grey,
+                                        child: Icon(
+                                          FontAwesomeIcons.question,
+                                          color: Colors.white,
+                                          size: 13,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              trailing: Text(
-                                '${formatTotalBalance(viewModel.recommendedSpending)} ₫/ngày',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
+                                ),
+                                Text(
+                                  '${formatAmount(viewModel.recommendedSpending)}' +
+                                      tr('₫_day'),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        // Dự kiến chi tiêu
+                        SizedBox(height: 10),
                         GestureDetector(
                           onTap: () => _showToolTip(_toolTipKey3),
                           child: Tooltip(
                             key: _toolTipKey3,
-                            message: 'Thực tế chi tiêu * Số ngày còn lại + Số tiền đã chi',
+                            message: tr('projected_spending_tooltip'),
                             decoration: BoxDecoration(
                               color: Colors.blueAccent,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            textStyle: TextStyle(
+                            textStyle: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
-                            preferBelow: false, // Đặt tooltip ở phía trên nếu có thể
-                            child: ListTile(
-                              title: Row(
-                                children: [
-                                  Text('Dự kiến chi tiêu'),
-                                  SizedBox(width: 5),
-                                  CircleAvatar(
-                                    radius: 10,
-                                    backgroundColor: Colors.grey,
-                                    child: Icon(FontAwesomeIcons.question,
-                                        color: Colors.white, size: 13),
+                            preferBelow: false,
+                            // Đặt tooltip ở phía trên nếu có thể
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(tr('projected_spending'),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(fontSize: 16)),
+                                      ),
+                                      SizedBox(width: 5),
+                                      CircleAvatar(
+                                        radius: 10,
+                                        backgroundColor: Colors.grey,
+                                        child: Icon(
+                                          FontAwesomeIcons.question,
+                                          color: Colors.white,
+                                          size: 13,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              trailing: Text(
-                                '${formatTotalBalance(viewModel.projectedSpending)} ₫',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: viewModel.projectedSpending >
-                                          viewModel.budget.amount
-                                      ? Colors.red
-                                      : Colors.green,
                                 ),
-                              ),
+                                Text(
+                                  '${formatAmount(viewModel.projectedSpending)} ₫',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: viewModel.projectedSpending >
+                                            viewModel.budget.amount
+                                        ? Colors.red
+                                        : Colors.green,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        Divider(),
+                        SizedBox(height: 10),
+                        const Divider(),
+                        SizedBox(height: 10),
                         if (viewModel.previousPeriods.isNotEmpty)
-                          ListTile(
-                            title: Text('Hạn mức chi tiêu các kỳ trước'),
-                            trailing: viewModel.showPreviousPeriods
-                                ? Icon(Icons.arrow_drop_down)
-                                : Icon(Icons.arrow_drop_up),
+                          GestureDetector(
                             onTap: () => viewModel.toggleShowPreviousPeriods(),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(child: Text(tr('previous_periods'), style: TextStyle(fontSize: 16),)),
+                                Icon(viewModel.showPreviousPeriods
+                                    ? Icons.arrow_drop_down
+                                    : Icons.arrow_drop_up),
+                              ],
+                            ),
                           ),
                         if (viewModel.showPreviousPeriods)
                           Padding(
@@ -301,10 +394,12 @@ class _DetailBudgetScreenState extends State<DetailBudgetScreen> {
                                     child: ListTile(
                                       title: Center(
                                         child: Text(
-                                          isSameDate(period.startDate, period.endDate)
-                                              ? '${formatDate_2(period.startDate)}'
+                                          isSameDate(period.startDate,
+                                                  period.endDate)
+                                              ? formatDate_2(period.startDate)
                                               : '${formatDate_2(period.startDate)} - ${formatDate_2(period.endDate)}',
-                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                       // subtitle: Text(
@@ -329,13 +424,18 @@ class _DetailBudgetScreenState extends State<DetailBudgetScreen> {
                             ),
                           ),
                         if (viewModel.filteredTransactions.isNotEmpty)
-                          ListTile(
-                          title: Text('Chi tiết giao dịch chi tiêu'),
-                          trailing: viewModel.showTransactions
-                              ? Icon(Icons.arrow_drop_down)
-                              : Icon(Icons.arrow_drop_up),
-                          onTap: () => viewModel.toggleShowTransactions(),
-                        ),
+                          GestureDetector(
+                            onTap: () => viewModel.toggleShowTransactions(),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(child: Text(tr('transaction_details'), style: TextStyle(fontSize: 16),)),
+                                Icon(viewModel.showTransactions
+                                    ? Icons.arrow_drop_down
+                                    : Icons.arrow_drop_up),
+                              ],
+                            ),
+                          ),
 
                         // Chi tiết giao dịch chi tiêu
                         if (viewModel.showTransactions)
@@ -349,7 +449,7 @@ class _DetailBudgetScreenState extends State<DetailBudgetScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0),
                                   child: Text(date,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold)),
                                 ),
@@ -358,34 +458,37 @@ class _DetailBudgetScreenState extends State<DetailBudgetScreen> {
                                       .categoryMap[transaction.categoryId];
                                   final wallet =
                                       viewModel.walletMap[transaction.walletId];
-                                   return Card(
-                                      color: Colors.grey[300],
-                                      child: ListTile(
-                                        leading: CircleAvatar(
-                                          backgroundColor: category != null
-                                              ? parseColor(category.color)
-                                              : Colors.grey,
-                                          child: category != null
-                                              ? Icon(parseIcon(category.icon),
-                                              color: Colors.white)
-                                              :  Icon(Icons.category, color: Colors.white),
-                                        ),
-                                        title: Text(category != null ? category.name : 'Không có danh mục'),
-                                        subtitle: Text(
-                                            '(${wallet?.name})\n${formatHour(transaction.hour)}'),
-                                        trailing: Text(
-                                          '${formatAmount_2(transaction.amount)} ₫',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.red),
-                                        ),
+                                  return Card(
+                                    color: Colors.grey[300],
+                                    child: ListTile(
+                                      leading: CircleAvatar(
+                                        backgroundColor: category != null
+                                            ? parseColor(category.color)
+                                            : Colors.grey,
+                                        child: category != null
+                                            ? Icon(parseIcon(category.icon),
+                                                color: Colors.white)
+                                            : const Icon(Icons.category,
+                                                color: Colors.white),
                                       ),
-                                    );
-                                }).toList(),
+                                      title: Text(category != null
+                                          ? category.name
+                                          : tr('no_category')),
+                                      subtitle: Text(
+                                          '(${wallet?.name})\n${formatHour(transaction.hour)}'),
+                                      trailing: Text(
+                                        '${formatAmount_2(transaction.amount)} ₫',
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.red),
+                                      ),
+                                    ),
+                                  );
+                                }),
                               ],
                             );
-                          }).toList(),
+                          }),
                       ],
                     ),
                   ),
@@ -409,11 +512,4 @@ class _DetailBudgetScreenState extends State<DetailBudgetScreen> {
       ),
     );
   }
-
-  bool _isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-        date1.month == date2.month &&
-        date1.day == date2.day;
-  }
-
 }

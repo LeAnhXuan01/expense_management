@@ -1,3 +1,4 @@
+import 'package:expense_management/utils/language_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../view/home_screen.dart';
@@ -8,6 +9,8 @@ import '../view/user/profile_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class BottomNavigation extends StatefulWidget {
+  const BottomNavigation({super.key});
+
   @override
   _BottomNavigationState createState() => _BottomNavigationState();
 }
@@ -16,11 +19,11 @@ class _BottomNavigationState extends State<BottomNavigation> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    HomeScreen(),
-    TransactionHistoryScreen(),
-    CreateTransactionScreen(),
-    StatisticsScreen(),
-    ProfileScreen(),
+    const HomeScreen(),
+    const TransactionHistoryScreen(),
+    const CreateTransactionScreen(),
+    const StatisticsScreen(),
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -33,36 +36,41 @@ class _BottomNavigationState extends State<BottomNavigation> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.w500),
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.house),
-            label: tr('home_label'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.list),
-            label: tr('history_label'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.plus),
-            label: tr('create_label'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.chartSimple),
-            label: tr('statistics_label'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.user),
-            label: tr('profile_label'),
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
-      ),
+      bottomNavigationBar: ValueListenableBuilder<Locale>(
+        valueListenable: languageNotifier,
+        builder: (context, locale, child){
+          return BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: const Icon(FontAwesomeIcons.house),
+                label: tr('home_label'),
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(FontAwesomeIcons.list),
+                label: tr('history_label'),
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(FontAwesomeIcons.plus),
+                label: tr('create_label'),
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(FontAwesomeIcons.chartSimple),
+                label: tr('statistics_label'),
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(FontAwesomeIcons.user),
+                label: tr('profile_label'),
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: Colors.green,
+            unselectedItemColor: Colors.grey,
+            onTap: _onItemTapped,
+          );
+        },
+      )
     );
   }
 }

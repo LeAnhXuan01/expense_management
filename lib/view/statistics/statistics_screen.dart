@@ -14,6 +14,8 @@ import '../../widget/multi_wallet_selection_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class StatisticsScreen extends StatelessWidget {
+  const StatisticsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -25,31 +27,33 @@ class StatisticsScreen extends StatelessWidget {
             initialIndex: 3,
             child: Builder(
               builder: (context) {
-                viewModel.setTabController(DefaultTabController.of(context)!);
+                viewModel.setTabController(DefaultTabController.of(context));
                 return Scaffold(
                   body: Column(
                     children: [
                       CustomHeader_2(
                         title: tr('statistics'),
-                        leftAction: IconButton(
-                          icon: Icon(Icons.category, color: Colors.white),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return MultiCategorySelectionDialog(
-                                  categories: viewModel.categories,
-                                  selectedCategories: viewModel.selectedCategories,
-                                  onSelect: (List<Category> categories) {
-                                    viewModel.setCategories(categories);
-                                  },
-                                );
-                              },
-                            );
-                          },
-                        ),
+                        // leftAction: IconButton(
+                        //   icon: const Icon(Icons.category, color: Colors.white),
+                        //   onPressed: () {
+                        //     showDialog(
+                        //       context: context,
+                        //       builder: (context) {
+                        //         return MultiCategorySelectionDialog(
+                        //           categories: viewModel.categories,
+                        //           selectedCategories:
+                        //               viewModel.selectedCategories,
+                        //           onSelect: (List<Category> categories) {
+                        //             viewModel.setCategories(categories);
+                        //           },
+                        //         );
+                        //       },
+                        //     );
+                        //   },
+                        // ),
                         rightAction: IconButton(
-                          icon: Icon(FontAwesomeIcons.sackDollar, color: Colors.white),
+                          icon: const Icon(FontAwesomeIcons.sackDollar,
+                              color: Colors.white),
                           onPressed: () {
                             showDialog(
                               context: context,
@@ -78,7 +82,7 @@ class StatisticsScreen extends StatelessWidget {
                                 color: Colors.grey.withOpacity(0.5),
                                 spreadRadius: 5,
                                 blurRadius: 7,
-                                offset: Offset(0, 3),
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
@@ -109,14 +113,15 @@ class StatisticsScreen extends StatelessWidget {
                                       viewModel.setTimeframe('year');
                                       break;
                                     case 4:
-                                      showCustomDateRangePicker(context, viewModel);
+                                      showCustomDateRangePicker(
+                                          context, viewModel);
                                       break;
                                   }
                                 },
                               ),
                               Expanded(
                                 child: TabBarView(
-                                  physics: NeverScrollableScrollPhysics(),
+                                  physics: const NeverScrollableScrollPhysics(),
                                   children: [
                                     StatisticsChart(viewModel: viewModel),
                                     StatisticsChart(viewModel: viewModel),
@@ -133,22 +138,25 @@ class StatisticsScreen extends StatelessWidget {
                       Expanded(
                         child: viewModel.selectedIncomeTransactions.isNotEmpty
                             ? TransactionList(
-                          title: '${tr('time')}${viewModel.currentIncomeDateKey}',
-                          transactions: viewModel.selectedIncomeTransactions,
-                          categoryMap: viewModel.categoryMap,
-                          totalAmount: viewModel.currentIncomeTotal,
-                          type: Type.income,
-                        )
+                                title:
+                                    '${tr('time')}${viewModel.currentIncomeDateKey}',
+                                transactions:
+                                    viewModel.selectedIncomeTransactions,
+                                categoryMap: viewModel.categoryMap,
+                                totalAmount: viewModel.currentIncomeTotal,
+                                type: Type.income,
+                              )
                             : viewModel.selectedExpenseTransactions.isNotEmpty
-                            ? TransactionList(
-                          title: '${tr('time')}${viewModel.currentExpenseDateKey}',
-                          transactions: viewModel.selectedExpenseTransactions,
-                          categoryMap: viewModel.categoryMap,
-                          totalAmount: viewModel.currentExpenseTotal,
-                          type: Type.expense,
-                        )
-                            : Center(
-                            child: Text(tr('tap_to_see_details'))),
+                                ? TransactionList(
+                                    title:
+                                        '${tr('time')}${viewModel.currentExpenseDateKey}',
+                                    transactions:
+                                        viewModel.selectedExpenseTransactions,
+                                    categoryMap: viewModel.categoryMap,
+                                    totalAmount: viewModel.currentExpenseTotal,
+                                    type: Type.expense,
+                                  )
+                                : Center(child: Text(tr('tap_to_see_details'))),
                       ),
                     ],
                   ),
@@ -167,7 +175,7 @@ class StatisticsScreen extends StatelessWidget {
       context: context,
       initialDateRange: DateTimeRange(
         start: viewModel.customStartDate ??
-            DateTime.now().subtract(Duration(days: 7)),
+            DateTime.now().subtract(const Duration(days: 7)),
         end: viewModel.customEndDate ?? DateTime.now(),
       ),
       firstDate: DateTime(2000),
@@ -184,7 +192,7 @@ class StatisticsScreen extends StatelessWidget {
 class StatisticsChart extends StatelessWidget {
   final StatisticsViewModel viewModel;
 
-  StatisticsChart({required this.viewModel});
+  const StatisticsChart({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context) {
@@ -194,51 +202,36 @@ class StatisticsChart extends StatelessWidget {
         children: [
           Expanded(
             child: SfCartesianChart(
-              primaryXAxis: CategoryAxis(),
+              primaryXAxis: const CategoryAxis(),
               primaryYAxis: NumericAxis(
                 axisLabelFormatter: (AxisLabelRenderDetails details) {
                   final double value = details.value.toDouble();
-                  final formattedValue = formatAmountChart(value);
-                  return ChartAxisLabel('${formattedValue} đ', TextStyle(color: Colors.black));
+                  final formattedValue = formatAmount_2(value);
+                  return ChartAxisLabel(
+                      '$formattedValue đ', const TextStyle(color: Colors.black));
                 },
               ),
-              title: ChartTitle(text: ''),
-              legend: Legend(isVisible: true),
+              title: const ChartTitle(text: ''),
+              legend: const Legend(isVisible: true),
               tooltipBehavior: TooltipBehavior(
-                  enable: true,
-                builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+                enable: true,
+                activationMode: ActivationMode.singleTap,
+                builder: (dynamic data, dynamic point, dynamic series,
+                    int pointIndex, int seriesIndex) {
                   final double value = point.y;
                   return Container(
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Colors.blue,
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Text(
-                      '${formatTotalBalance(value)} ₫',
-                      style: TextStyle(color: Colors.white),
+                      '${formatAmount(value)} ₫',
+                      style: const TextStyle(color: Colors.white),
                     ),
                   );
                 },
               ),
-              // selectionType: SelectionType.point,
-              // selectionGesture: ActivationMode.singleTap,
-              onSelectionChanged: (SelectionArgs args) {
-                print('onSelectionChanged called.');
-                final int seriesIndex = args.seriesIndex;
-                final int pointIndex = args.pointIndex;
-
-                if (seriesIndex == 0) {
-                  final data = viewModel.incomeData[pointIndex];
-                  viewModel.setSelectedTransactions(
-                      Type.income, data.date);
-                } else if (seriesIndex == 1) {
-                  final data = viewModel.expenseData[pointIndex];
-                  viewModel.setSelectedTransactions(
-                      Type.expense, data.date);
-                }
-              },
-
               series: <CartesianSeries>[
                 ColumnSeries<ChartData, String>(
                   dataSource: viewModel.incomeData,
@@ -247,7 +240,11 @@ class StatisticsChart extends StatelessWidget {
                   name: tr('income'),
                   color: Colors.green,
                   enableTooltip: true,
-                  selectionBehavior: SelectionBehavior(enable: true),
+                  onPointTap: (ChartPointDetails details) {
+                    final int pointIndex = details.pointIndex!;
+                    final data = viewModel.incomeData[pointIndex];
+                    viewModel.setSelectedTransactions(Type.income, data.date);
+                  },
                 ),
                 ColumnSeries<ChartData, String>(
                   dataSource: viewModel.expenseData,
@@ -256,16 +253,22 @@ class StatisticsChart extends StatelessWidget {
                   name: tr('expense'),
                   color: Colors.red,
                   enableTooltip: true,
-                  selectionBehavior: SelectionBehavior(enable: true),
+                  onPointTap: (ChartPointDetails details) {
+                    final int pointIndex = details.pointIndex!;
+                    final data = viewModel.expenseData[pointIndex];
+                    viewModel.setSelectedTransactions(Type.expense, data.date);
+                  },
                 ),
                 ColumnSeries<ChartData, String>(
                   dataSource: viewModel.profitData,
                   xValueMapper: (ChartData data, _) => data.date,
                   yValueMapper: (ChartData data, _) => data.amount,
-                  name: tr('Profit'),
+                  name: tr('profit'),
                   color: Colors.blue,
                   enableTooltip: true,
-                  selectionBehavior: SelectionBehavior(enable: true),
+                  onPointTap: (ChartPointDetails details) {
+                    viewModel.clearTransactions('profit');
+                  },
                 ),
                 ColumnSeries<ChartData, String>(
                   dataSource: viewModel.lossData,
@@ -274,7 +277,9 @@ class StatisticsChart extends StatelessWidget {
                   name: tr('loss'),
                   color: Colors.orange,
                   enableTooltip: true,
-                  selectionBehavior: SelectionBehavior(enable: true),
+                  onPointTap: (ChartPointDetails details) {
+                    viewModel.clearTransactions('loss');
+                  },
                 ),
               ],
             ),
@@ -292,7 +297,7 @@ class TransactionList extends StatefulWidget {
   final double totalAmount;
   final Type type;
 
-  TransactionList({
+  const TransactionList({super.key,
     required this.title,
     required this.transactions,
     required this.categoryMap,
@@ -308,19 +313,23 @@ class _TransactionListState extends State<TransactionList> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             widget.title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           Text(
             widget.type == Type.income
-                ? tr('total_income', namedArgs: {'amount': formatTotalBalance(widget.totalAmount)})
-                : tr('total_expense', namedArgs: {'amount': formatTotalBalance(widget.totalAmount)}),
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ? tr('total_income', namedArgs: {
+                    'amount': formatAmount(widget.totalAmount)
+                  })
+                : tr('total_expense', namedArgs: {
+                    'amount': formatAmount(widget.totalAmount)
+                  }),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           Expanded(
             child: ListView.builder(
@@ -329,12 +338,18 @@ class _TransactionListState extends State<TransactionList> {
                 final transaction = widget.transactions[index];
                 final category = widget.categoryMap[transaction.categoryId];
                 final double transactionAmount = transaction.amount;
-                final double transactionPercentage = (transactionAmount / widget.totalAmount) * 100;
+                final double transactionPercentage =
+                    (transactionAmount / widget.totalAmount) * 100;
 
                 if (category == null) {
                   return ListTile(
-                    title: Text(tr('no_category')),
-                    // subtitle: Text(formatDate(transaction.date)),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.grey,
+                      child: Icon(Icons.category, color: Colors.white),
+                    ),
+                    title: Text(tr('no_category'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
                     subtitle: LinearProgressIndicator(
                       value: transactionPercentage,
                       backgroundColor: Colors.grey[300],
@@ -347,13 +362,14 @@ class _TransactionListState extends State<TransactionList> {
                         Text(
                           '${formatAmount(transaction.amount)} đ',
                           style: TextStyle(
-                            fontSize: 16,
+                              fontSize: 16,
                               color: transaction.type == Type.income
                                   ? Colors.green
                                   : Colors.red),
                         ),
-                        Text('${transactionPercentage.toStringAsFixed(2)}%',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        Text(
+                          '${transactionPercentage.toStringAsFixed(2)}%',
+                          style: const TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -370,14 +386,13 @@ class _TransactionListState extends State<TransactionList> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  // subtitle: Text(formatDate(transaction.date)),
                   subtitle: LinearProgressIndicator(
-                      value: transactionPercentage / 10,
-                      backgroundColor: Colors.grey[300],
-                      color: transaction.type == Type.income
-                          ? Colors.green
-                          : Colors.red,
-                    ),
+                    value: transactionPercentage / 10,
+                    backgroundColor: Colors.grey[300],
+                    color: transaction.type == Type.income
+                        ? Colors.green
+                        : Colors.red,
+                  ),
 
                   trailing: Column(
                     children: [
@@ -389,12 +404,12 @@ class _TransactionListState extends State<TransactionList> {
                                 ? Colors.green
                                 : Colors.red),
                       ),
-                      Text('${transactionPercentage.toStringAsFixed(2)}%',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      Text(
+                        '${transactionPercentage.toStringAsFixed(2)}%',
+                        style: const TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                     ],
                   ),
-
                 );
               },
             ),

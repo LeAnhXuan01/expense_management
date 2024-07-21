@@ -27,7 +27,6 @@ final List<IconData> incomeIcons = [
 final List<IconData> expenseIcons = [
   FontAwesomeIcons.shoppingCart,
   FontAwesomeIcons.creditCard,
-  FontAwesomeIcons.receipt,
   FontAwesomeIcons.cartArrowDown,
   FontAwesomeIcons.cartPlus,
   FontAwesomeIcons.donate,

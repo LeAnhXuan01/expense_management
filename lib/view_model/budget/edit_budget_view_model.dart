@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../../model/enum.dart';
 import '../../services/budget_service.dart';
 import '../../widget/custom_snackbar_1.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class EditBudgetViewModel extends ChangeNotifier {
   final BudgetService _budgetService = BudgetService();
@@ -26,15 +27,15 @@ class EditBudgetViewModel extends ChangeNotifier {
   bool enableButton = false;
   Budget budget;
 
+  Map<String, Category> categoryMap = {};
+  Map<String, Wallet> walletMap = {};
+
   EditBudgetViewModel(this.budget)
-      : amountController =
-            TextEditingController(text: formatTotalBalance(budget.amount)),
+      : amountController =TextEditingController(text: formatAmount(budget.amount)),
         nameController = TextEditingController(text: budget.name),
-        startDateController =
-            TextEditingController(text: formatDate(budget.startDate)),
-        endDateController =
-            TextEditingController(text: formatDate(budget.endDate)) {
-    amountController.addListener(() {
+        startDateController =TextEditingController(text: formatDate(budget.startDate)),
+        endDateController =TextEditingController(text: formatDate(budget.endDate)) {
+      amountController.addListener(() {
       formatAmount_3(amountController);
     });
     initializeData();
@@ -43,9 +44,6 @@ class EditBudgetViewModel extends ChangeNotifier {
     endDate = budget.endDate;
     updateButtonState();
   }
-
-  Map<String, Category> categoryMap = {};
-  Map<String, Wallet> walletMap = {};
 
   Category? getCategoryById(String categoryId) {
     return categoryMap[categoryId];
@@ -57,41 +55,27 @@ class EditBudgetViewModel extends ChangeNotifier {
 
   List<Repeat> get repeatOptions => Repeat.values;
 
-  String getRepeatBudgetString(Repeat repeatBudget) {
-    switch (repeatBudget) {
-      case Repeat.Daily:
-        return 'Hàng ngày';
-      case Repeat.Weekly:
-        return 'Hàng tuần';
-      case Repeat.Monthly:
-        return 'Hàng tháng';
-      case Repeat.Quarterly:
-        return 'Hàng quý';
-      case Repeat.Yearly:
-        return 'Hàng năm';
-      default:
-        return '';
-    }
-  }
-
   String getCategoriesText(
       List<Category> selectedCategories, List<Category> allCategories) {
-    if (selectedCategories.length == 0 ||
-        selectedCategories.length == allCategories.length)
-      return 'Tất cả danh mục chi tiêu';
+    if (selectedCategories.isEmpty ||
+        selectedCategories.length == allCategories.length) {
+      return tr('all_expense_categories');
+    }
     if (selectedCategories.length == 1) return selectedCategories[0].name;
-    if (selectedCategories.length == 2)
+    if (selectedCategories.length == 2) {
       return '${selectedCategories[0].name}, ${selectedCategories[1].name}';
-    return '${selectedCategories[0].name}, ${selectedCategories[1].name} + ${selectedCategories.length - 2} danh mục';
+    }
+    return '${selectedCategories[0].name}, ${selectedCategories[1].name} + ${selectedCategories.length - 2} ' + tr('categories');
   }
 
   String getWalletsText(List<Wallet> selectedWallets, List<Wallet> allWallets) {
-    if (selectedWallets.length == 0 ||
-        selectedWallets.length == allWallets.length) return 'Tất cả ví tiền';
+    if (selectedWallets.isEmpty ||
+        selectedWallets.length == allWallets.length) return tr('all_wallet');
     if (selectedWallets.length == 1) return selectedWallets[0].name;
-    if (selectedWallets.length == 2)
+    if (selectedWallets.length == 2) {
       return '${selectedWallets[0].name}, ${selectedWallets[1].name}';
-    return '${selectedWallets[0].name}, ${selectedWallets[1].name} + ${selectedWallets.length - 2} ví tiền';
+    }
+    return '${selectedWallets[0].name}, ${selectedWallets[1].name} + ${selectedWallets.length - 2} ' + tr('wallet');
   }
 
   Future<void> initializeData() async {
@@ -210,35 +194,34 @@ class EditBudgetViewModel extends ChangeNotifier {
       bool isValid = true;
       String message = '';
 
-      if(selectedRepeat == Repeat.Daily){
+      if (selectedRepeat == Repeat.Daily) {
         if (endDate!.isBefore(startDate)) {
           isValid = false;
-          message = 'Ngày kết thúc phải lớn hơn ngày ${formatDate(startDate)}';
+          message = tr('end_date_must_be_greater') + '${formatDate(startDate)}';
         }
-      }
-      else if (selectedRepeat == Repeat.Weekly) {
-        if (endDate!.isBefore(startDate.add(Duration(days: 6)))) {
+      } else if (selectedRepeat == Repeat.Weekly) {
+        if (endDate!.isBefore(startDate.add(const Duration(days: 6)))) {
           isValid = false;
           message =
-              'Ngày kết thúc phải lớn hơn ngày ${formatDate(startDate.add(Duration(days: 6)))}';
+              tr('end_date_must_be_greater') + '${formatDate(startDate.add(const Duration(days: 6)))}';
         }
       } else if (selectedRepeat == Repeat.Monthly) {
-        if (endDate!.isBefore(startDate.add(Duration(days: 29)))) {
+        if (endDate!.isBefore(startDate.add(const Duration(days: 29)))) {
           isValid = false;
           message =
-              'Ngày kết thúc phải lớn hơn ngày ${formatDate(startDate.add(Duration(days: 29)))}';
+              tr('end_date_must_be_greater') + '${formatDate(startDate.add(const Duration(days: 29)))}';
         }
       } else if (selectedRepeat == Repeat.Quarterly) {
-        if (endDate!.isBefore(startDate.add(Duration(days: 89)))) {
+        if (endDate!.isBefore(startDate.add(const Duration(days: 89)))) {
           isValid = false;
           message =
-              'Ngày kết thúc phải lớn hơn ngày ${formatDate(startDate.add(Duration(days: 89)))}';
+              tr('end_date_must_be_greater') + '${formatDate(startDate.add(const Duration(days: 89)))}';
         }
       } else if (selectedRepeat == Repeat.Yearly) {
-        if (endDate!.isBefore(startDate.add(Duration(days: 364)))) {
+        if (endDate!.isBefore(startDate.add(const Duration(days: 364)))) {
           isValid = false;
           message =
-              'Ngày kết thúc phải lớn hơn ngày ${formatDate(startDate.add(Duration(days: 364)))}';
+              tr('end_date_must_be_greater') + '${formatDate(startDate.add(const Duration(days: 364)))}';
         }
       }
 

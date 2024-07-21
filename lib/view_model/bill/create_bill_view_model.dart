@@ -14,31 +14,20 @@ class CreateBillViewModel extends ChangeNotifier {
 
   String name = '';
   Repeat selectedRepeat = Repeat.Daily;
-  DateTime selectedDate = DateTime.now();
-  TimeOfDay selectedHour = TimeOfDay.now();
+  late DateTime selectedDate;
+  late TimeOfDay selectedHour;
   String note = '';
   bool enableButton = false;
 
   List<Repeat> get repeatOptions => Repeat.values;
 
-  String getRepeatString(Repeat repeatBudget) {
-    switch (repeatBudget) {
-      case Repeat.Daily:
-        return 'Hàng ngày';
-      case Repeat.Weekly:
-        return 'Hàng tuần';
-      case Repeat.Monthly:
-        return 'Hàng tháng';
-      case Repeat.Quarterly:
-        return 'Hàng quý';
-      case Repeat.Yearly:
-        return 'Hàng năm';
-      default:
-        return '';
-    }
-  }
+  CreateBillViewModel() {
+    DateTime now = DateTime.now();
+    DateTime oneHourLater = now.add(Duration(hours: 1));
 
-  CreateBillViewModel(){
+    selectedDate = oneHourLater;
+    selectedHour = TimeOfDay(hour: oneHourLater.hour, minute: oneHourLater.minute);
+
     updateDateController();
     updateHourController();
   }
@@ -86,17 +75,17 @@ class CreateBillViewModel extends ChangeNotifier {
 
   Future<Bill?> createBill() async {
     final user = FirebaseAuth.instance.currentUser;
-    if(user != null){
+    if (user != null) {
       Bill newBill = Bill(
-          billId: '',
-          userId: user.uid,
-          name: name,
-          repeat: selectedRepeat,
-          date: selectedDate,
-          hour: selectedHour,
-          note: note,
-          isActive: true,
-          createdAt: DateTime.now(),
+        billId: '',
+        userId: user.uid,
+        name: name,
+        repeat: selectedRepeat,
+        date: selectedDate,
+        hour: selectedHour,
+        note: note,
+        isActive: true,
+        createdAt: DateTime.now(),
       );
 
       try {
@@ -108,5 +97,14 @@ class CreateBillViewModel extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    noteController.dispose();
+    dateController.dispose();
+    hourController.dispose();
+    super.dispose();
   }
 }

@@ -1,10 +1,8 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-
 import '../../services/splash_service.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key});
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();

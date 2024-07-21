@@ -20,9 +20,8 @@ class DetailBudgetViewModel with ChangeNotifier {
   final Budget budget;
   bool _isExpired = false;
   bool get isExpired => _isExpired;
-  bool _disposed = false;
-
-  // Thêm một danh sách để lưu trữ các chu kỳ trước đó
+  bool showTransactions = false;
+  // danh sách để lưu trữ các chu kỳ trước đó
   List<PreviousPeriod> previousPeriods = [];
   bool showPreviousPeriods = false;
 
@@ -31,16 +30,15 @@ class DetailBudgetViewModel with ChangeNotifier {
   Map<String, Category> categoryMap = {};
   List<Transactions> filteredTransactions = [];
   Map<String, List<Transactions>> groupedTransactions = {};
-  bool showTransactions = false;
 
   void toggleShowTransactions() {
     showTransactions = !showTransactions;
-    notifyListenersSafely();
+    notifyListeners();
   }
 
   void toggleShowPreviousPeriods() {
     showPreviousPeriods = !showPreviousPeriods;
-    notifyListenersSafely();
+    notifyListeners();
   }
 
   int remainingDays = 0;
@@ -64,20 +62,9 @@ class DetailBudgetViewModel with ChangeNotifier {
 
   DetailBudgetViewModel(this.budget) {
     _currentPeriodStart = budget.startDate;
-    _currentPeriodEnd = _calculateEndOfCurrentPeriod(_currentPeriodStart, budget.repeat);
+    _currentPeriodEnd =
+        _calculateEndOfCurrentPeriod(_currentPeriodStart, budget.repeat);
     loadData();
-  }
-
-  @override
-  void dispose() {
-    _disposed = true;
-    super.dispose();
-  }
-
-  void notifyListenersSafely() {
-    if (!_disposed) {
-      notifyListeners();
-    }
   }
 
   Future<void> loadData() async {
@@ -97,7 +84,7 @@ class DetailBudgetViewModel with ChangeNotifier {
     } catch (e) {
       print("Error loading data: $e");
     }
-    notifyListenersSafely();
+    notifyListeners();
   }
 
   Future<void> loadTransactions() async {
@@ -127,11 +114,13 @@ class DetailBudgetViewModel with ChangeNotifier {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
-        List<Category> categories = await _categoryService.getAllCategories(user.uid);
+        List<Category> categories =
+            await _categoryService.getAllCategories(user.uid);
         List<String> selectedCategoryIds = budget.categoryId;
         categoryMap = {
           for (var category in categories)
-            if (selectedCategoryIds.contains(category.categoryId)) category.categoryId: category
+            if (selectedCategoryIds.contains(category.categoryId))
+              category.categoryId: category
         };
       } catch (e) {
         print("Error loading categories: $e");
@@ -178,8 +167,6 @@ class DetailBudgetViewModel with ChangeNotifier {
 
   void calculateExpenditures() {
     try {
-
-
       _totalExpenditure = filteredTransactions.fold(0, (sum, transaction) {
         double amount = transaction.amount;
         return sum + amount;
@@ -199,28 +186,36 @@ class DetailBudgetViewModel with ChangeNotifier {
 
       double remainingBudget = max(budget.amount - _totalExpenditure, 0);
 
-      _recommendedSpending = (remainingDays > 0 && remainingBudget > 0) ? remainingBudget / remainingDays : 0;
+      _recommendedSpending = (remainingDays > 0 && remainingBudget > 0)
+          ? remainingBudget / remainingDays
+          : 0;
 
       _projectedSpending = _actualSpending * remainingDays + _totalExpenditure;
-
     } catch (e) {
       print("Error calculating expenditures: $e");
     }
-    notifyListenersSafely();
+    notifyListeners();
   }
 
   DateTime _calculateEndOfCurrentPeriod(DateTime startDate, Repeat repeat) {
     switch (repeat) {
       case Repeat.Daily:
-        return DateTime(startDate.year, startDate.month, startDate.day).add(Duration(days: 1)).subtract(Duration(seconds: 1));
+        return DateTime(startDate.year, startDate.month, startDate.day)
+            .add(const Duration(days: 1))
+            .subtract(const Duration(seconds: 1));
       case Repeat.Weekly:
-        return DateTime(startDate.year, startDate.month, startDate.day).add(Duration(days: 7)).subtract(Duration(seconds: 1));
+        return DateTime(startDate.year, startDate.month, startDate.day)
+            .add(const Duration(days: 7))
+            .subtract(const Duration(seconds: 1));
       case Repeat.Monthly:
-        return DateTime(startDate.year, startDate.month + 1, startDate.day).subtract(Duration(seconds: 1));
+        return DateTime(startDate.year, startDate.month + 1, startDate.day)
+            .subtract(const Duration(seconds: 1));
       case Repeat.Quarterly:
-        return DateTime(startDate.year, startDate.month + 3, startDate.day).subtract(Duration(seconds: 1));
+        return DateTime(startDate.year, startDate.month + 3, startDate.day)
+            .subtract(const Duration(seconds: 1));
       case Repeat.Yearly:
-        return DateTime(startDate.year + 1, startDate.month, startDate.day).subtract(Duration(seconds: 1));
+        return DateTime(startDate.year + 1, startDate.month, startDate.day)
+            .subtract(const Duration(seconds: 1));
       default:
         return startDate;
     }
@@ -231,7 +226,8 @@ class DetailBudgetViewModel with ChangeNotifier {
       final now = DateTime.now();
       if (now.isAfter(_currentPeriodEnd)) {
         // Tính toán số tiền chi trong chu kỳ hiện tại
-        double totalExpenditure = filteredTransactions.fold(0, (sum, transaction) {
+        double totalExpenditure =
+            filteredTransactions.fold(0, (sum, transaction) {
           double amount = transaction.amount;
           return sum + amount;
         });
@@ -249,14 +245,18 @@ class DetailBudgetViewModel with ChangeNotifier {
         );
 
         // Cập nhật chu kỳ tiếp theo
-        _currentPeriodStart = _currentPeriodEnd.add(Duration(seconds: 1));
-        DateTime nextPeriodEnd = _calculateEndOfCurrentPeriod(_currentPeriodStart, budget.repeat);
+        _currentPeriodStart = _currentPeriodEnd.add(const Duration(seconds: 1));
+        DateTime nextPeriodEnd =
+            _calculateEndOfCurrentPeriod(_currentPeriodStart, budget.repeat);
 
         // Kiểm tra nếu chu kỳ tiếp theo sẽ vượt quá ngày kết thúc hạn mức
         if (nextPeriodEnd.isAfter(budget.endDate)) {
           // Kiểm tra nếu thời gian còn lại đủ để tạo thành một chu kỳ mới
-          Duration remainingDuration = budget.endDate.difference(_currentPeriodStart);
-          Duration fullPeriodDuration = _calculateEndOfCurrentPeriod(_currentPeriodStart, budget.repeat).difference(_currentPeriodStart);
+          Duration remainingDuration =
+              budget.endDate.difference(_currentPeriodStart);
+          Duration fullPeriodDuration =
+              _calculateEndOfCurrentPeriod(_currentPeriodStart, budget.repeat)
+                  .difference(_currentPeriodStart);
 
           if (remainingDuration >= fullPeriodDuration) {
             // Nếu chu kỳ tiếp theo vượt quá nhưng vẫn còn trong ngày kết thúc hạn mức, điều chỉnh ngày kết thúc
@@ -290,7 +290,6 @@ class DetailBudgetViewModel with ChangeNotifier {
     _actualSpending = 0.0;
     _recommendedSpending = 0.0;
     _projectedSpending = 0.0;
-    notifyListenersSafely();
+    notifyListeners();
   }
 }
-

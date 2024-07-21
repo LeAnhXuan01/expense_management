@@ -25,7 +25,7 @@ class EditTransactionViewModel extends ChangeNotifier {
   final TextEditingController dateController = TextEditingController();
   final TextEditingController hourController = TextEditingController();
 
-  String transactionTypeTitle = 'Thu nhập';
+  String transactionTypeTitle = tr('income');
   bool isExpenseTabSelected = true;
   double amount = 0.0;
   Category? selectedCategory;
@@ -49,13 +49,16 @@ class EditTransactionViewModel extends ChangeNotifier {
   }
 
   Future<void> initialize(Transactions transaction) async {
-    transactionTypeTitle = transaction.type == Type.expense ? 'Chi tiêu' : 'Thu nhập';
+    transactionTypeTitle =
+        transaction.type == Type.expense ? tr('expense') : tr('income');
     isExpenseTabSelected = transaction.type == Type.expense;
     amountController.text = transaction.amount.toStringAsFixed(0);
-    selectedCategory = await _categoryService.getCategoryById(transaction.categoryId);
+    selectedCategory =
+        await _categoryService.getCategoryById(transaction.categoryId);
     selectedWallet = await _walletService.getWalletById(transaction.walletId);
     selectedDate = transaction.date;
-    selectedHour = TimeOfDay(hour: transaction.hour.hour, minute: transaction.hour.minute);
+    selectedHour =
+        TimeOfDay(hour: transaction.hour.hour, minute: transaction.hour.minute);
     noteController.text = transaction.note;
     existingImageUrls = transaction.images;
     updateDateController();
@@ -65,9 +68,9 @@ class EditTransactionViewModel extends ChangeNotifier {
   }
 
   void updateButtonState() {
-    enableButton = amountController.text.isNotEmpty
-        && selectedCategory != null
-        && selectedWallet != null;
+    enableButton = amountController.text.isNotEmpty &&
+        selectedCategory != null &&
+        selectedWallet != null;
     notifyListeners();
   }
 
@@ -136,13 +139,13 @@ class EditTransactionViewModel extends ChangeNotifier {
   Future<void> captureImage(BuildContext context) async {
     int currentImageCount = existingImageUrls.length + newImages.length;
 
-    if (currentImageCount >= 4) {
-      CustomSnackBar_1.show(context, 'Chỉ được chọn tối đa 4 ảnh');
+    if (currentImageCount >= 3) {
+      CustomSnackBar_1.show(context, tr('Only_three_photo'));
       return;
     }
 
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.camera);
 
     if (image != null) {
       newImages.add(File(image.path));
@@ -153,13 +156,13 @@ class EditTransactionViewModel extends ChangeNotifier {
   Future<void> pickImageFromGallery(BuildContext context) async {
     int currentImageCount = existingImageUrls.length + newImages.length;
 
-    if (currentImageCount >= 4) {
-      CustomSnackBar_1.show(context, 'Chỉ được chọn tối đa 4 ảnh');
+    if (currentImageCount >= 3) {
+      CustomSnackBar_1.show(context, tr('Only_three_photo'));
       return;
     }
 
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
       newImages.add(File(image.path));
@@ -179,7 +182,7 @@ class EditTransactionViewModel extends ChangeNotifier {
 
   void updateTransactionTypeTitle(String newTitle) {
     transactionTypeTitle = newTitle;
-    isExpenseTabSelected = newTitle == 'Chi tiêu';
+    isExpenseTabSelected = newTitle == tr('expense');
     selectedCategory = null;
     isFrequentCategoriesLoaded = false;
     loadFrequentCategories();
@@ -192,9 +195,11 @@ class EditTransactionViewModel extends ChangeNotifier {
       try {
         List<Category> categories;
         if (isExpenseTabSelected) {
-          categories = await _categoryService.getExpenseCategoryFrequent(user.uid);
+          categories =
+              await _categoryService.getExpenseCategoryFrequent(user.uid);
         } else {
-          categories = await _categoryService.getIncomeCategoryFrequent(user.uid);
+          categories =
+              await _categoryService.getIncomeCategoryFrequent(user.uid);
         }
         frequentCategories = categories;
         isFrequentCategoriesLoaded = true;
@@ -205,14 +210,18 @@ class EditTransactionViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> checkBalance(double amount, Type type, {Transactions? oldTransaction}) async {
+  Future<bool> checkBalance(double amount, Type type,
+      {Transactions? oldTransaction}) async {
     if (selectedWallet == null) {
       return false;
     }
-    return await _transactionHelper.checkBalance(selectedWallet!.walletId, amount, type, oldTransaction: oldTransaction);
+    return await _transactionHelper.checkBalance(
+        selectedWallet!.walletId, amount, type,
+        oldTransaction: oldTransaction);
   }
 
-  Future<Transactions?> updateTransaction(String transactionId, BuildContext context) async {
+  Future<Transactions?> updateTransaction(
+      String transactionId, BuildContext context) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final cleanedAmount = amountController.text.replaceAll('.', '');
@@ -221,16 +230,18 @@ class EditTransactionViewModel extends ChangeNotifier {
       final transactionType = isExpenseTabSelected ? Type.expense : Type.income;
 
       // Lấy giao dịch cũ
-      final oldTransaction = await _transactionService.getTransactionById(transactionId);
+      final oldTransaction =
+          await _transactionService.getTransactionById(transactionId);
       if (oldTransaction == null) {
-        CustomSnackBar_1.show(context, 'Giao dịch cũ không tồn tại');
+        CustomSnackBar_1.show(context, tr('Old_transaction_not_exist'));
         return null;
       }
 
       // Kiểm tra số dư trước khi cập nhật giao dịch
-      final sufficientBalance = await checkBalance(amount, transactionType, oldTransaction: oldTransaction);
+      final sufficientBalance = await checkBalance(amount, transactionType,
+          oldTransaction: oldTransaction);
       if (!sufficientBalance) {
-        CustomSnackBar_1.show(context, 'Số dư ví không đủ');
+        CustomSnackBar_1.show(context, tr('wallet_balance_is_not_enough'));
         return null;
       }
 
@@ -255,10 +266,10 @@ class EditTransactionViewModel extends ChangeNotifier {
       );
 
       try {
-
         await _transactionService.updateTransaction(updatedTransaction);
         // Cập nhật số dư ví sau khi cập nhật giao dịch
-        await _transactionHelper.updateWalletsForTransactionUpdate(updatedTransaction, oldTransaction);
+        await _transactionHelper.updateWalletsForTransactionUpdate(
+            updatedTransaction, oldTransaction);
         return updatedTransaction;
       } catch (e) {
         print('Error updating transactions: $e');
@@ -266,5 +277,14 @@ class EditTransactionViewModel extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    noteController.dispose();
+    dateController.dispose();
+    hourController.dispose();
+    super.dispose();
   }
 }

@@ -6,18 +6,18 @@ class CustomHeader_2 extends StatelessWidget {
   final Widget? rightAction;
 
   const CustomHeader_2({
-    Key? key,
+    super.key,
     required this.title,
     this.leftAction,
     this.rightAction,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 90,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
           bottomRight: Radius.circular(30),
           bottomLeft: Radius.circular(30),
@@ -31,7 +31,7 @@ class CustomHeader_2 extends StatelessWidget {
             Center(
               child: Text(
                 title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 23,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,

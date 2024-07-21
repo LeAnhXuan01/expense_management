@@ -5,17 +5,17 @@ class CustomHeader_1 extends StatelessWidget {
   final Widget? action;
 
   const CustomHeader_1({
-    Key? key,
+    super.key,
     required this.title,
     this.action,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 80,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
           bottomRight: Radius.circular(30),
           bottomLeft: Radius.circular(30),
@@ -29,7 +29,7 @@ class CustomHeader_1 extends StatelessWidget {
             Center(
               child: Text(
                 title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 23,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -43,7 +43,7 @@ class CustomHeader_1 extends StatelessWidget {
                 onTap: () {
                   Navigator.of(context).pop();
                 },
-                child: Icon(Icons.arrow_back, color: Colors.white),
+                child: const Icon(Icons.arrow_back, color: Colors.white),
               ),
             ),
             if (action != null)

@@ -1,13 +1,13 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:expense_management/widget/custom_header_2.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../model/profile_model.dart';
+import '../../utils/language_notifier.dart';
 import '../../view_model/user/edit_profile_view_model.dart';
 import '../../widget/custom_ElevatedButton_1.dart';
 import 'edit_profile_screen.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -37,32 +37,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ? FileImage(File(viewModel.imageFile!.path))
                               : (viewModel.networkImageUrl != null
                               ? NetworkImage(viewModel.networkImageUrl!)
-                              : AssetImage('assets/images/profile.png'))
+                              : const AssetImage('assets/images/profile.png'))
                           as ImageProvider,
                         ),
-                        SizedBox(height: 5.0),
+                        const SizedBox(height: 5.0),
                         Text(
                           viewModel.displayName,
-                          style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         GestureDetector(
                           child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             child: Text(
                               tr('edit_profile'),
-                              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+                              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
                             ),
                           ),
                           onTap: () async {
                             final updatedProfile = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => EditProfileScreen(),
+                                builder: (context) => const EditProfileScreen(),
                               ),
                             );
                             if (updatedProfile != null && updatedProfile is Profile) {
@@ -70,95 +70,143 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             }
                           },
                         ),
-                        SizedBox(height: 50.0),
+                        const SizedBox(height: 50.0),
                         // Settings Section
                         Text(
                           tr('settings'),
-                          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                         ),
-                        Divider(),
+                        const Divider(),
                         ListTile(
                           onTap: () {
                             // Navigate to Change Password screen
                             Navigator.pushNamed(context, '/change-password');
                           },
-                          leading: Icon(Icons.lock),
+                          leading: const Icon(Icons.lock),
                           title: Text(tr('change_password')),
                         ),
                         ListTile(
+                          title: Text(tr('change_language')),
+                          leading: const Icon(Icons.language),
                           onTap: () {
                             // Show Language Selection Dialog
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
                                 title: Text(tr('select_language')),
-                                content: Text(tr('select_language')),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
-                                      context.setLocale(Locale('vi'));
-                                      Navigator.pop(context);
+                                      // Show Confirmation Dialog for Vietnamese
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text(tr('confirm_language_change')),
+                                          content: RichText(
+                                            text: TextSpan(
+                                              text: '${tr('confirm_language_change_to')} ',
+                                              style: const TextStyle(color: Colors.black, fontSize: 16),
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                  text: tr('vietnamese'),
+                                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                                ),
+                                                const TextSpan(
+                                                  text: '?',
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context); 
+                                              },
+                                              child: Text(
+                                                tr('no'),
+                                                style: const TextStyle(color: Colors.red),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                context.setLocale(const Locale('vi'));
+                                                languageNotifier.changeLanguage(const Locale('vi'));
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                tr('yes'),
+                                                style: const TextStyle(color: Colors.blue),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
                                     },
-                                    child: Text('Tiếng Việt'),
+                                    child: Text(tr('vietnamese'), style: const TextStyle(color: Colors.red, fontSize: 16)),
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      context.setLocale(Locale('en'));
-                                      Navigator.pop(context);
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text(tr('confirm_language_change')),
+                                          content: RichText(
+                                            text: TextSpan(
+                                              text: '${tr('confirm_language_change_to')} ',
+                                              style: const TextStyle(color: Colors.black, fontSize: 16),
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                  text: tr('english'),
+                                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                                ),
+                                                const TextSpan(
+                                                  text: '?',
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                tr('no'),
+                                                style: const TextStyle(color: Colors.red, fontSize: 18),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                context.setLocale(const Locale('en'));
+                                                languageNotifier.changeLanguage(const Locale('en'));
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                tr('yes'),
+                                                style: const TextStyle(color: Colors.blue, fontSize: 18),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
                                     },
-                                    child: Text('English'),
+                                    child: Text(tr('english'), style: const TextStyle(color: Colors.blue)),
                                   ),
                                 ],
                               ),
                             );
                           },
-                          leading: Icon(Icons.language),
-                          title: Text(tr('change_language')),
                         ),
-                        ListTile(
-                          onTap: () {
-                            // Show Currency Selection Dialog
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text(tr('select_currency')),
-                                content: Text(tr('select_currency')),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      // Set currency to VND
-                                      // ... Update currency settings
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text('VND'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      // Set currency to USD
-                                      // ... Update currency settings
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text('USD'),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                          leading: Icon(Icons.monetization_on),
-                          title: Text(tr('change_currency')),
-                        ),
-                        SizedBox(height: 20.0),
+                        const SizedBox(height: 20.0),
                         // Logout Button
-                        SizedBox(
-                          height: 50,
-                          width: double.maxFinite,
-                          child: CustomElavatedButton_1(
-                            text: tr('logout'),
+                        CustomElavatedButton_1(
+                          text: tr('logout'),
                             onPressed: () {
                               _showSignOutConfirmationDialog(context, viewModel);
                             },
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -179,16 +227,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           content: Text(tr('are_you_sure_you_want_to_logout')),
           actions: <Widget>[
             TextButton(
-              child: Text(tr('cancel'), style: TextStyle(color: Colors.red),),
+              child: Text(tr('cancel'), style: const TextStyle(color: Colors.red),),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text(tr('logout'), style: TextStyle(color: Colors.blue),),
+              child: Text(tr('logout'), style: const TextStyle(color: Colors.blue),),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                viewModel.signOut(context); // Call sign out function
+                Navigator.of(context).pop();
+                viewModel.signOut(context);
               },
             ),
           ],

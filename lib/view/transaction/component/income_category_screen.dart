@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import '../../../utils/utils.dart';
 import '../../../view_model/category/category_list_view_model.dart';
 import '../../../widget/custom_header_3.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class IncomeCategoryScreen extends StatefulWidget {
-  const IncomeCategoryScreen({Key? key}) : super(key: key);
+  const IncomeCategoryScreen({super.key});
 
   @override
   State<IncomeCategoryScreen> createState() => _IncomeCategoryScreenState();
@@ -22,14 +23,14 @@ class _IncomeCategoryScreenState extends State<IncomeCategoryScreen> {
             body: Column(
               children: [
                 CustomHeader_3(
-                  title: 'Danh mục thu nhập',
+                  title: tr('income_category_title'),
                   action: GestureDetector(
                     onTap: () {
                       setState(() {
                         viewModel.isSearching = true;
                       });
                     },
-                    child: Icon(
+                    child: const Icon(
                       Icons.search,
                       color: Colors.white,
                     ),
@@ -52,65 +53,65 @@ class _IncomeCategoryScreenState extends State<IncomeCategoryScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: viewModel.incomeCategories.isEmpty &&
-                        viewModel.isSearching
-                        ? Center(
-                      child: Text(
-                        'Không có kết quả tìm kiếm nào',
-                        style:
-                        TextStyle(fontSize: 18, color: Colors.grey),
-                      ),
-                    )
+                            viewModel.isSearching
+                        ?  Center(
+                            child: Text(
+                              tr('no_search_results'),
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.grey),
+                            ),
+                          )
                         : viewModel.incomeCategories.isEmpty
-                        ? Center(
-                      child: Text(
-                        'Không có danh mục thu nhập nào',
-                        style: TextStyle(
-                            fontSize: 18, color: Colors.grey),
-                      ),
-                    )
-                        : GridView.builder(
-                      itemCount: viewModel.incomeCategories.length,
-                      gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                      ),
-                      itemBuilder: (context, index) {
-                        final category =
-                        viewModel.incomeCategories[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context, category);
-                          },
-                          child: Column(
-                            mainAxisAlignment:
-                            MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 65,
-                                height: 65,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: parseColor(category.color),
+                            ?  Center(
+                                child: Text(
+                                  tr('no_income_categories'),
+                                  style: TextStyle(
+                                      fontSize: 18, color: Colors.grey),
                                 ),
-                                child: Icon(
-                                  parseIcon(category.icon),
-                                  color: Colors.white,
-                                  size: 40,
+                              )
+                            : GridView.builder(
+                                itemCount: viewModel.incomeCategories.length,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
                                 ),
+                                itemBuilder: (context, index) {
+                                  final category =
+                                      viewModel.incomeCategories[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.pop(context, category);
+                                    },
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          width: 65,
+                                          height: 65,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: parseColor(category.color),
+                                          ),
+                                          child: Icon(
+                                            parseIcon(category.icon),
+                                            color: Colors.white,
+                                            size: 40,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          category.name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
-                              const SizedBox(height: 3),
-                              Text(
-                                category.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
                   ),
                 ),
               ],

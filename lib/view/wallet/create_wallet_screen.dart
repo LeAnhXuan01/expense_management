@@ -3,19 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-
 import '../../utils/color_list.dart';
 import '../../utils/icon_list.dart';
 import '../../view_model/wallet/create_wallet_view_model.dart';
 import '../../widget/custom_ElevatedButton_2.dart';
 import '../../widget/custom_snackbar_2.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CreateWalletScreen extends StatefulWidget {
+  const CreateWalletScreen({super.key});
+
   @override
   State<CreateWalletScreen> createState() => _CreateWalletScreenState();
 }
 
 class _CreateWalletScreenState extends State<CreateWalletScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CreateWalletViewModel>(context, listen: false).resetFields();
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,17 +33,16 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
           return Column(
             children: [
               CustomHeader_1(
-                title: 'Tạo ví tiền',
+                title: tr('create_wallet_title'),
                 action: IconButton(
-                  icon: Icon(Icons.check, color: Colors.white),
+                  icon: const Icon(Icons.check, color: Colors.white),
                   onPressed: viewModel.enableButton
                       ? () async {
                           final newWallet = await viewModel.createWallet();
                           if (newWallet != null) {
                             await CustomSnackBar_2.show(
-                                context, 'Tạo thành công');
+                                context, tr('creation_success'));
                             Navigator.pop(context, newWallet);
-                            viewModel.resetFields();
                           }
                         }
                       : null,
@@ -49,16 +57,15 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                         Stack(
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(left: 70),
+                              padding: const EdgeInsets.only(left: 70),
                               child: TextFormField(
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(50),
                                 ],
                                 controller: viewModel.walletNameController,
-                                decoration:
-                                    InputDecoration(
-                                      labelText: 'Tên ví',
-                                    ),
+                                decoration:  InputDecoration(
+                                  labelText: tr('wallet_name_label'),
+                                ),
                                 maxLines: null,
                                 onChanged: (_) => viewModel.updateButtonState(),
                               ),
@@ -94,7 +101,7 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                                     color: viewModel.selectedColor ??
                                         Colors.blueGrey.shade200,
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     FontAwesomeIcons.question,
                                     color: Colors.white,
                                     size: 24,
@@ -103,7 +110,7 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                               ),
                           ],
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Row(
                           children: [
                             Expanded(
@@ -112,17 +119,19 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                                   LengthLimitingTextInputFormatter(15),
                                 ],
                                 controller: viewModel.initialBalanceController,
-                                decoration: InputDecoration(
-                                    labelText: 'Số dư ban đầu'),
-                                style: TextStyle(
-                                    fontSize: 28, color: Colors.green, fontWeight: FontWeight.w500),
+                                decoration:
+                                     InputDecoration(labelText: tr('initial_balance_label')),
+                                style: const TextStyle(
+                                    fontSize: 28,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.w500),
                                 keyboardType: TextInputType.number,
                                 textAlign: TextAlign.right,
                                 onChanged: (_) => viewModel.updateButtonState(),
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
+                            const Padding(
+                              padding: EdgeInsets.only(top: 20.0),
                               child: Text(
                                 '₫',
                                 style: TextStyle(fontSize: 28),
@@ -130,17 +139,17 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                             )
                           ],
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Row(
                           children: [
                             Text(
-                              'Biểu tượng',
+                              tr('icon_label'),
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.black.withOpacity(0.7),
                               ),
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             GestureDetector(
                               onTap: () {
                                 viewModel.toggleShowPlusButtonIcon();
@@ -156,10 +165,10 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                         ),
                         if (viewModel.showPlusButtonIcon)
                           GridView.builder(
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
+                                const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 4,
                               mainAxisSpacing: 10,
                               crossAxisSpacing: 10,
@@ -202,17 +211,17 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                               );
                             },
                           ),
-                        SizedBox(height: 40),
+                        const SizedBox(height: 40),
                         Row(
                           children: [
                             Text(
-                              'Màu sắc:',
+                              tr('color_label'),
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.black.withOpacity(0.7),
                               ),
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             GestureDetector(
                               onTap: () {
                                 viewModel.toggleShowPlusButtonColor();
@@ -229,9 +238,9 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                         if (viewModel.showPlusButtonColor)
                           GridView.builder(
                             shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
+                                const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 7,
                               mainAxisSpacing: 15,
                               crossAxisSpacing: 15,
@@ -250,33 +259,32 @@ class _CreateWalletScreenState extends State<CreateWalletScreen> {
                                   ),
                                   child: viewModel.selectedColor ==
                                           colors_list[index]
-                                      ? Icon(Icons.check,
-                                          color: Colors.white, size: 24)
+                                      ? const Icon(Icons.check,
+                                          color: Colors.white, size: 26)
                                       : null,
                                 ),
                               );
                             },
                           ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         SwitchListTile(
-                          title: Text('Không bao gồm trong tổng số dư'),
+                          title:  Text(tr('exclude_from_total_label')),
                           value: viewModel.excludeFromTotal,
                           onChanged: (bool value) {
                             viewModel.setExcludeFromTotal(value);
                           },
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         CustomElevatedButton_2(
-                          text: 'Tạo',
+                          text: tr('create_label'),
                           onPressed: viewModel.enableButton
                               ? () async {
                                   final newWallet =
                                       await viewModel.createWallet();
                                   if (newWallet != null) {
                                     await CustomSnackBar_2.show(
-                                        context, 'Tạo thành công');
+                                        context, tr('creation_success'));
                                     Navigator.pop(context, newWallet);
-                                    viewModel.resetFields();
                                   }
                                 }
                               : null,

@@ -10,23 +10,18 @@ import '../../utils/wallet_utils.dart';
 class TransferHistoryViewModel extends ChangeNotifier {
   final TransferService _transferService = TransferService();
   final WalletService _walletService = WalletService();
-  final TransferHelper _transferHelper = TransferHelper();
 
   List<Transfer> _transfers = [];
   Map<String, List<Transfer>> _groupedTransfers = {};
   Map<String, Wallet> _walletMap = {};
   DateTimeRange? _selectedDateRange;
-  String? _selectedWalletId;
+  List<Wallet> _selectedWallets = [];
 
   List<Transfer> get transfers => _transfers;
-
   Map<String, List<Transfer>> get groupedTransfers => _groupedTransfers;
-
   Map<String, Wallet> get walletMap => _walletMap;
-
   DateTimeRange? get selectedDateRange => _selectedDateRange;
-
-  String? get selectedWalletId => _selectedWalletId;
+  List<Wallet> get selectedWallets => _selectedWallets;
 
   TransferHistoryViewModel() {
     loadTransfers();
@@ -52,6 +47,10 @@ class TransferHistoryViewModel extends ChangeNotifier {
       try {
         List<Wallet> wallets = await _walletService.getWallets(user.uid);
         _walletMap = {for (var wallet in wallets) wallet.walletId: wallet};
+        if (_selectedWallets.isEmpty) {
+          _selectedWallets = List.from(wallets); // Chỉ gán khi rỗng
+        }
+        notifyListeners();
       } catch (e) {
         print("Error loading wallets: $e");
       }
@@ -96,9 +95,11 @@ class TransferHistoryViewModel extends ChangeNotifier {
           return false;
         }
       }
-      if (_selectedWalletId != null) {
-        if (transfer.fromWallet != _selectedWalletId &&
-            transfer.toWallet != _selectedWalletId) {
+      if (_selectedWallets.isNotEmpty) {
+        bool isInSelectedWallets = _selectedWallets.any((wallet) =>
+        transfer.fromWallet == wallet.walletId ||
+            transfer.toWallet == wallet.walletId);
+        if (!isInSelectedWallets) {
           return false;
         }
       }
@@ -112,15 +113,19 @@ class TransferHistoryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void filterByWallet(String? walletId) {
-    _selectedWalletId = walletId;
+  // void filterByWallet(String? walletId) {
+  //   _selectedWalletId = walletId;
+  //   _applyFilters();
+  //   notifyListeners();
+  // }
+  void filterByWallets(List<Wallet> wallets) {
+    _selectedWallets = List.from(wallets);
     _applyFilters();
     notifyListeners();
   }
 
   void clearFilters() {
     _selectedDateRange = null;
-    _selectedWalletId = null;
     _applyFilters();
     notifyListeners();
   }
@@ -137,10 +142,6 @@ class TransferHistoryViewModel extends ChangeNotifier {
     return _walletMap[transfer.toWallet];
   }
 
-  void _sortTransfersByDate() {
-    _transfers.sort((a, b) => b.date.compareTo(a.date));
-  }
-
   Future<void> deleteTransfer(BuildContext context, String transferId) async {
     try {
       final oldTransfer = await _transferService.getTransferById(transferId);
@@ -153,10 +154,10 @@ class TransferHistoryViewModel extends ChangeNotifier {
 
       // Hoàn lại số dư của ví nguồn và ví đích
       final transferHelper = TransferHelper();
-      await transferHelper.updateWalletBalance(oldTransfer.fromWallet,
-          oldTransfer.amount, true);
-      await transferHelper.updateWalletBalance(oldTransfer.toWallet,
-          oldTransfer.amount, false);
+      await transferHelper.updateWalletBalance(
+          oldTransfer.fromWallet, oldTransfer.amount, true);
+      await transferHelper.updateWalletBalance(
+          oldTransfer.toWallet, oldTransfer.amount, false);
 
       await _transferService.deleteTransfer(transferId);
 

@@ -11,18 +11,21 @@ import '../../view_model/budget/create_budget_view_model.dart';
 import '../../widget/custom_snackbar_2.dart';
 import '../../widget/multi_category_selection_dialog.dart';
 import '../../widget/multi_wallet_selection_dialog.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CreateBudgetScreen extends StatelessWidget {
+  const CreateBudgetScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => CreateBudgetViewModel(),
       child: Consumer<CreateBudgetViewModel>(
         builder: (context, viewModel, child) {
-          return Scaffold (
+          return Scaffold(
               body: Column(
             children: [
-              CustomHeader_1(title: 'Lập hạn mức'),
+               CustomHeader_1(title: tr('utility_budget')),
               Expanded(
                 child: SingleChildScrollView(
                   child: Padding(
@@ -39,19 +42,21 @@ class CreateBudgetScreen extends StatelessWidget {
                                     LengthLimitingTextInputFormatter(15),
                                   ],
                                   controller: viewModel.amountController,
-                                  decoration: InputDecoration(labelText: 'Số tiền'),
-                                  style: TextStyle(
+                                  decoration:
+                                       InputDecoration(labelText: tr('amount_label')),
+                                  style: const TextStyle(
                                     fontSize: 28,
                                     color: Colors.green,
                                     fontWeight: FontWeight.w500,
                                   ),
                                   textAlign: TextAlign.right,
                                   keyboardType: TextInputType.number,
-                                  onChanged: (_) => viewModel.updateButtonState(),
+                                  onChanged: (_) =>
+                                      viewModel.updateButtonState(),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20.0),
+                              const Padding(
+                                padding: EdgeInsets.only(top: 20.0),
                                 child: Text(
                                   '₫',
                                   style: TextStyle(
@@ -61,23 +66,23 @@ class CreateBudgetScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           TextFormField(
                             controller: model.nameController,
                             inputFormatters: [
                               LengthLimitingTextInputFormatter(40),
                             ],
-                            decoration: InputDecoration(
-                              labelText: 'Tên hạn mức',
+                            decoration:  InputDecoration(
+                              labelText: tr('budget_name'),
                             ),
                             onChanged: (_) => viewModel.updateButtonState(),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                             leading: SizedBox(
                               width: 60,
-                              child: Container(
+                              child: SizedBox(
                                 width: 40,
                                 height: 40,
                                 child: Stack(
@@ -86,9 +91,11 @@ class CreateBudgetScreen extends StatelessWidget {
                                       Positioned(
                                         left: 20,
                                         child: CircleAvatar(
-                                          backgroundColor: parseColor(viewModel.selectedCategories[2].color),
+                                          backgroundColor: parseColor(viewModel
+                                              .selectedCategories[2].color),
                                           child: Icon(
-                                            parseIcon(viewModel.selectedCategories[2].icon),
+                                            parseIcon(viewModel
+                                                .selectedCategories[2].icon),
                                             color: Colors.white,
                                             size: 25,
                                           ),
@@ -98,9 +105,11 @@ class CreateBudgetScreen extends StatelessWidget {
                                       Positioned(
                                         left: 10,
                                         child: CircleAvatar(
-                                          backgroundColor: parseColor(viewModel.selectedCategories[1].color),
+                                          backgroundColor: parseColor(viewModel
+                                              .selectedCategories[1].color),
                                           child: Icon(
-                                            parseIcon(viewModel.selectedCategories[1].icon),
+                                            parseIcon(viewModel
+                                                .selectedCategories[1].icon),
                                             color: Colors.white,
                                             size: 25,
                                           ),
@@ -110,9 +119,11 @@ class CreateBudgetScreen extends StatelessWidget {
                                       Positioned(
                                         left: 0,
                                         child: CircleAvatar(
-                                          backgroundColor: parseColor(viewModel.selectedCategories[0].color),
+                                          backgroundColor: parseColor(viewModel
+                                              .selectedCategories[0].color),
                                           child: Icon(
-                                            parseIcon(viewModel.selectedCategories[0].icon),
+                                            parseIcon(viewModel
+                                                .selectedCategories[0].icon),
                                             color: Colors.white,
                                             size: 25,
                                           ),
@@ -123,10 +134,12 @@ class CreateBudgetScreen extends StatelessWidget {
                               ),
                             ),
                             title: Text(
-                              viewModel.getCategoriesText(viewModel.selectedCategories, viewModel.categories),
-                              style: TextStyle(fontSize: 16),
+                              viewModel.getCategoriesText(
+                                  viewModel.selectedCategories,
+                                  viewModel.categories),
+                              style: const TextStyle(fontSize: 16),
                             ),
-                            trailing: Text(
+                            trailing: const Text(
                               '>',
                               style: TextStyle(
                                 fontSize: 18,
@@ -140,7 +153,8 @@ class CreateBudgetScreen extends StatelessWidget {
                                 builder: (context) {
                                   return MultiCategorySelectionDialog(
                                     categories: viewModel.categories,
-                                    selectedCategories: viewModel.selectedCategories,
+                                    selectedCategories:
+                                        viewModel.selectedCategories,
                                     onSelect: (List<Category> categories) {
                                       viewModel.setCategories(categories);
                                     },
@@ -149,12 +163,12 @@ class CreateBudgetScreen extends StatelessWidget {
                               );
                             },
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                             leading: SizedBox(
                               width: 60,
-                              child: Container(
+                              child: SizedBox(
                                 width: 40,
                                 height: 40,
                                 child: Stack(
@@ -163,9 +177,11 @@ class CreateBudgetScreen extends StatelessWidget {
                                       Positioned(
                                         left: 20,
                                         child: CircleAvatar(
-                                          backgroundColor: parseColor(viewModel.selectedWallets[2].color),
+                                          backgroundColor: parseColor(viewModel
+                                              .selectedWallets[2].color),
                                           child: Icon(
-                                            parseIcon(viewModel.selectedWallets[2].icon),
+                                            parseIcon(viewModel
+                                                .selectedWallets[2].icon),
                                             color: Colors.white,
                                             size: 25,
                                           ),
@@ -175,9 +191,11 @@ class CreateBudgetScreen extends StatelessWidget {
                                       Positioned(
                                         left: 10,
                                         child: CircleAvatar(
-                                          backgroundColor: parseColor(viewModel.selectedWallets[1].color),
+                                          backgroundColor: parseColor(viewModel
+                                              .selectedWallets[1].color),
                                           child: Icon(
-                                            parseIcon(viewModel.selectedWallets[1].icon),
+                                            parseIcon(viewModel
+                                                .selectedWallets[1].icon),
                                             color: Colors.white,
                                             size: 25,
                                           ),
@@ -187,9 +205,11 @@ class CreateBudgetScreen extends StatelessWidget {
                                       Positioned(
                                         left: 0,
                                         child: CircleAvatar(
-                                          backgroundColor: parseColor(viewModel.selectedWallets[0].color),
+                                          backgroundColor: parseColor(viewModel
+                                              .selectedWallets[0].color),
                                           child: Icon(
-                                            parseIcon(viewModel.selectedWallets[0].icon),
+                                            parseIcon(viewModel
+                                                .selectedWallets[0].icon),
                                             color: Colors.white,
                                             size: 25,
                                           ),
@@ -200,10 +220,11 @@ class CreateBudgetScreen extends StatelessWidget {
                               ),
                             ),
                             title: Text(
-                              viewModel.getWalletsText(viewModel.selectedWallets, viewModel.wallets),
-                              style: TextStyle(fontSize: 16),
+                              viewModel.getWalletsText(
+                                  viewModel.selectedWallets, viewModel.wallets),
+                              style: const TextStyle(fontSize: 16),
                             ),
-                            trailing: Text(
+                            trailing: const Text(
                               '>',
                               style: TextStyle(
                                 fontSize: 18,
@@ -226,33 +247,32 @@ class CreateBudgetScreen extends StatelessWidget {
                               );
                             },
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           DropdownButtonFormField<Repeat>(
                             value: model.selectedRepeat,
                             items: model.repeatOptions
                                 .map((option) => DropdownMenuItem<Repeat>(
-                              value: option,
-                              child: Text(model.getRepeatString(option)), // Convert RepeatBudget to string here
-                            ))
+                                      value: option,
+                                      child: Text(getRepeatString(
+                                          option)),
+                                    ))
                                 .toList(),
                             onChanged: (value) {
                               if (value != null) {
                                 model.setSelectedRepeat(value);
                               }
                             },
-                            decoration: InputDecoration(
-                              labelText: 'Lặp lại',
+                            decoration:  InputDecoration(
+                              labelText: tr('repeat_label'),
                             ),
                           ),
-
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           TextFormField(
                             controller: model.startDateController,
                             readOnly: true,
                             onTap: () async {
-                              final DateTime? picked =
-                              await showDatePicker(
-                                locale: const Locale('vi', 'VN'),
+                              final DateTime? picked = await showDatePicker(
+                                locale: context.locale,
                                 context: context,
                                 initialDate: viewModel.startDate,
                                 firstDate: DateTime(1999),
@@ -264,17 +284,19 @@ class CreateBudgetScreen extends StatelessWidget {
                               }
                             },
                             decoration: InputDecoration(
-                              labelText: 'Ngày bắt đầu',
+                              labelText: tr('start_day'),
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           TextFormField(
-                            controller: model.endDateController..text = model.endDateController.text.isEmpty ? 'Chưa xác định' : model.endDateController.text,
+                            controller: model.endDateController
+                              ..text = model.endDateController.text.isEmpty
+                                  ? tr('unknown')
+                                  : model.endDateController.text,
                             readOnly: true,
                             onTap: () async {
-                              final DateTime? picked =
-                              await showDatePicker(
-                                locale: const Locale('vi', 'VN'),
+                              final DateTime? picked = await showDatePicker(
+                                locale: context.locale,
                                 context: context,
                                 initialDate: viewModel.endDate,
                                 firstDate: DateTime(1999),
@@ -286,22 +308,27 @@ class CreateBudgetScreen extends StatelessWidget {
                               }
                             },
                             decoration: InputDecoration(
-                              labelText: 'Ngày kết thúc',
-                              hintText: model.endDateController.text.isEmpty ? 'Chưa xác định' : '',
+                              labelText: tr('end_day'),
+                              hintText: model.endDateController.text.isEmpty
+                                  ? tr('unknown')
+                                  : '',
                             ),
                           ),
-                          SizedBox(height: 32),
+                          const SizedBox(height: 32),
                           Center(
                             child: CustomElevatedButton_2(
-                              onPressed: viewModel.enableButton ? () async {
-                                final newBudget = await viewModel.createBudget(context);
-                                if(newBudget != null){
-                                  await CustomSnackBar_2.show(
-                                      context, 'Tạo thành công');
-                                  Navigator.pop(context, newBudget);
-                                }
-                              } : null,
-                              text: 'Lưu',
+                              onPressed: viewModel.enableButton
+                                  ? () async {
+                                      final newBudget =
+                                          await viewModel.createBudget(context);
+                                      if (newBudget != null) {
+                                        await CustomSnackBar_2.show(
+                                            context, tr('creation_success'));
+                                        Navigator.pop(context, newBudget);
+                                      }
+                                    }
+                                  : null,
+                              text: tr('save_button'),
                             ),
                           ),
                         ],

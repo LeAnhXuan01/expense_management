@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CustomHeader_5 extends StatelessWidget {
   final String title;
@@ -9,21 +10,21 @@ class CustomHeader_5 extends StatelessWidget {
   final VoidCallback onSearchClose;
 
   const CustomHeader_5({
-    Key? key,
+    super.key,
     required this.title,
     this.filterAction,
     this.searchAction,
     this.isSearching = false,
     this.onSearchChanged,
     required this.onSearchClose,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 80,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
           bottomRight: Radius.circular(30),
           bottomLeft: Radius.circular(30),
@@ -44,36 +45,36 @@ class CustomHeader_5 extends StatelessWidget {
               child: Center(
                 child: isSearching
                     ? Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TextField(
-                    onChanged: onSearchChanged,
-                    decoration: InputDecoration(
-                      hintText: 'Tìm kiếm',
-                      hintStyle: TextStyle(color: Colors.white54),
-                      border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                    ),
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500),
-                  ),
-                )
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: TextField(
+                          onChanged: onSearchChanged,
+                          decoration: InputDecoration(
+                            hintText: tr('search'),
+                            hintStyle: TextStyle(color: Colors.white54),
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                          ),
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      )
                     : Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 23,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
+                        title,
+                        style: const TextStyle(
+                          fontSize: 23,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ),
             if (isSearching)
               GestureDetector(
                 onTap: onSearchClose,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 20),
+                child: const Padding(
+                  padding: EdgeInsets.only(right: 20),
                   child: Icon(Icons.close, color: Colors.white),
                 ),
               ),

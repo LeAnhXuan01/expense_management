@@ -2,8 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_management/model/wallet_model.dart';
 import 'package:expense_management/services/wallet_service.dart';
-import 'package:intl/intl.dart';
-import '../../model/enum.dart';
 import '../../utils/utils.dart';
 
 class WalletViewModel extends ChangeNotifier {
@@ -19,7 +17,7 @@ class WalletViewModel extends ChangeNotifier {
   int loadWalletsCallCount = 0;
 
   List<Wallet> get wallets => _filteredWallets;
-  String get formattedTotalBalance => formatTotalBalance(_totalBalance);
+  String get formattedTotalBalance => formatAmount(_totalBalance);
   Wallet? get selectedWallet => _selectedWallet;
   double get totalBalance => _totalBalance;
 
@@ -58,7 +56,7 @@ class WalletViewModel extends ChangeNotifier {
     if (user != null) {
       try {
         _wallets = await _walletService.getWallets(user.uid);
-        _filteredWallets = _wallets; // Ban đầu hiển thị tất cả các ví
+        _filteredWallets = _wallets;
         _calculateTotalBalance();
         notifyListeners();
       } catch (e) {
@@ -91,7 +89,7 @@ class WalletViewModel extends ChangeNotifier {
     double total = 0;
 
     for (var wallet in _wallets) {
-      double balance = wallet.initialBalance;
+      double balance = wallet.currentBalance;
       if (!wallet.excludeFromTotal) {
         total += balance;
       }
@@ -100,7 +98,7 @@ class WalletViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void clearSearch(){
+  void clearSearch() {
     searchQuery = '';
     searchController.clear();
     filterWallets('');

@@ -25,7 +25,7 @@ class SplashService {
   }
 
   void _navigateToIntroduction() {
-    Navigator.pushReplacementNamed(context, '/onboarding');
+    Navigator.pushReplacementNamed(context, '/select-language');
   }
 
   void _navigateToLogin() {

@@ -4,8 +4,8 @@ import 'package:expense_management/view/budget/budget_list_screen.dart';
 import 'package:expense_management/view/budget/create_budget_screen.dart';
 import 'package:expense_management/view/category/category_list_screen.dart';
 import 'package:expense_management/view/home_screen.dart';
+import 'package:expense_management/view/intro/language_selection_screen.dart';
 import 'package:expense_management/view/intro/onboarding_screen.dart';
-import 'package:expense_management/view/password_retrieval_screen.dart';
 import 'package:expense_management/view/category/create_categories_screen.dart';
 import 'package:expense_management/view/transaction/component/expense_category_screen.dart';
 import 'package:expense_management/view/transaction/component/income_category_screen.dart';
@@ -27,30 +27,30 @@ import 'package:flutter/material.dart';
 
 
 Map<String, WidgetBuilder> routes = {
-  '/onboarding': (context) => OnboardingScreen(),
-  '/login': (context) =>  LoginScreen(),
+  '/select-language': (context) => const LanguageSelectionScreen(),
+  '/onboarding': (context) => const OnboardingScreen(),
+  '/login': (context) =>  const LoginScreen(),
   '/register': (context) =>  RegisterScreen(),
-  '/forgot-pass': (context) =>  ForgotPasswordScreen(),
-  '/password-retrieval': (context) =>  PasswordRetrievalScreen(),
-  '/change-password': (context) =>  ChangePasswordScreen(),
-  '/home': (context) =>  HomeScreen(),
-  '/create-categories': (context) =>  CreateCategoriesScreen(),
-  '/income-category': (context) =>  IncomeCategoryScreen(),
-  '/expense-category': (context) =>  ExpenseCategoryScreen(),
-  '/transaction-history': (context) =>  TransactionHistoryScreen(),
-  '/profile': (context) =>  ProfileScreen(),
-  '/bottom-navigator': (context) =>  BottomNavigation(),
-  '/wallets': (context) =>  WalletScreen(),
-  '/bill-list': (context) =>  BillListScreen(),
-  '/create-bill': (context) =>  CreateBillScreen(),
-  '/create-budget': (context) =>  CreateBudgetScreen(),
-  '/budget-list': (context) =>  BudgetListScreen(),
-  '/category-list': (context) =>  CategoryListScreen(),
-  '/verify-email-pass': (context) =>  VerifyEmailPassScreen(),
+  '/forgot-pass': (context) =>  const ForgotPasswordScreen(),
+  '/change-password': (context) =>  const ChangePasswordScreen(),
+  '/home': (context) =>  const HomeScreen(),
+  '/create-categories': (context) =>  const CreateCategoriesScreen(),
+  '/income-category': (context) =>  const IncomeCategoryScreen(),
+  '/expense-category': (context) =>  const ExpenseCategoryScreen(),
+  '/transaction-history': (context) =>  const TransactionHistoryScreen(),
+  '/profile': (context) =>  const ProfileScreen(),
+  '/bottom-navigator': (context) =>  const BottomNavigation(),
+  '/wallets': (context) =>  const WalletScreen(),
+  '/bill-list': (context) =>  const BillListScreen(),
+  '/create-bill': (context) =>  const CreateBillScreen(),
+  '/create-budget': (context) =>  const CreateBudgetScreen(),
+  '/budget-list': (context) =>  const BudgetListScreen(),
+  '/category-list': (context) =>  const CategoryListScreen(),
+  '/verify-email-pass': (context) =>  const VerifyEmailPassScreen(),
   '/verify-email': (context) =>  VerifyEmailScreen(),
-  '/edit-profile': (context) =>  EditProfileScreen(),
-  '/create-wallet': (context) =>  CreateWalletScreen(),
-  '/create-transfer': (context) =>  CreateTransferScreen(),
-  '/transfer-history': (context) =>  TransferHistoryScreen(),
+  '/edit-profile': (context) =>  const EditProfileScreen(),
+  '/create-wallet': (context) =>  const CreateWalletScreen(),
+  '/create-transfer': (context) =>  const CreateTransferScreen(),
+  '/transfer-history': (context) =>  const TransferHistoryScreen(),
 };
 

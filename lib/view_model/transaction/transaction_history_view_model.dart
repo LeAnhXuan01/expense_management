@@ -24,7 +24,8 @@ class TransactionHistoryViewModel extends ChangeNotifier {
   List<Transactions> filteredTransactions = [];
   Map<String, List<Transactions>> groupedTransactions = {};
   DateTimeRange? selectedDateRange;
-  String? selectedWalletId;
+  List<String> selectedWalletIds = [];
+  List<Wallet> selectedWallets = [];
   String searchQuery = "";
   bool isSearching = false;
   int _currentTabIndex = 0;
@@ -76,6 +77,10 @@ class TransactionHistoryViewModel extends ChangeNotifier {
       try {
         List<Wallet> wallets = await _walletService.getWallets(user.uid);
         walletMap = {for (var wallet in wallets) wallet.walletId: wallet};
+        if (selectedWallets.isEmpty) {
+          selectedWallets = List.from(wallets); // Chỉ gán khi rỗng
+        }
+        notifyListeners();
       } catch (e) {
         print("Error loading wallets: $e");
       }
@@ -86,8 +91,11 @@ class TransactionHistoryViewModel extends ChangeNotifier {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
-        List<Category> categories = await _categoryService.getAllCategories(user.uid);
-        categoryMap = {for (var category in categories) category.categoryId: category};
+        List<Category> categories =
+            await _categoryService.getAllCategories(user.uid);
+        categoryMap = {
+          for (var category in categories) category.categoryId: category
+        };
       } catch (e) {
         print("Error loading categories: $e");
       }
@@ -111,15 +119,15 @@ class TransactionHistoryViewModel extends ChangeNotifier {
     _applyFilters();
   }
 
-  void filterByWallet(String walletId) {
-    selectedWalletId = walletId;
+  void filterByWallets(List<Wallet> wallets) {
+    selectedWallets = List.from(wallets);
     _applyFilters();
   }
+
 
   void filterByTab(int index) {
     _currentTabIndex = index;
     _applyFilters();
-    print("Tab Index: $_currentTabIndex, Filtered Transactions: ${filteredTransactions.length}");
   }
 
   void _applyFilters() {
@@ -132,18 +140,22 @@ class TransactionHistoryViewModel extends ChangeNotifier {
       }).toList();
     }
 
-    if (selectedWalletId != null) {
+    // Lọc theo ví đã chọn
+    if (selectedWallets.isNotEmpty) {
       filteredTransactions = filteredTransactions
-          .where((transaction) => transaction.walletId == selectedWalletId)
+          .where((transaction) => selectedWallets
+          .any((wallet) => wallet.walletId == transaction.walletId))
           .toList();
     }
 
     // Lọc theo tab
-    if (_currentTabIndex == 1) { // Thu nhập
+    if (_currentTabIndex == 1) {
+      // Thu nhập
       filteredTransactions = filteredTransactions.where((transaction) {
         return transaction.type == Type.income;
       }).toList();
-    } else if (_currentTabIndex == 2) { // Chi tiêu
+    } else if (_currentTabIndex == 2) {
+      // Chi tiêu
       filteredTransactions = filteredTransactions.where((transaction) {
         return transaction.type == Type.expense;
       }).toList();
@@ -186,28 +198,39 @@ class TransactionHistoryViewModel extends ChangeNotifier {
 
   void clearFilters() {
     selectedDateRange = null;
-    selectedWalletId = null;
+    // selectedWalletId = null;
     _currentTabIndex = 0;
     filteredTransactions = transactions;
     groupTransactions();
     notifyListeners();
   }
 
-  Future<void> deleteTransaction(String transactionId, WalletViewModel walletViewModel) async {
+  Future<void> deleteTransaction(
+      String transactionId, WalletViewModel walletViewModel) async {
     try {
       // Lấy thông tin của giao dịch trước khi xóa
-      final transaction = await _transactionService.getTransactionById(transactionId);
+      final transaction =
+          await _transactionService.getTransactionById(transactionId);
       if (transaction == null) {
         print("Transaction not found");
         return;
       }
 
       // Cập nhật lại số dư ví
-      await _transactionHelper.updateWalletBalance(transaction, isCreation: false, isDeletion: true);
+      await _transactionHelper.updateWalletBalance(transaction,
+          isCreation: false, isDeletion: true);
 
       // Xóa giao dịch
       await _transactionService.deleteTransaction(transactionId);
-      transactions.removeWhere((transaction) => transaction.transactionId == transactionId);
+      transactions.removeWhere(
+          (transaction) => transaction.transactionId == transactionId);
+
+      // Cập nhật lại tổng thu nhập và chi tiêu
+      if (transaction.type == Type.income) {
+        totalIncome -= transaction.amount;
+      } else if (transaction.type == Type.expense) {
+        totalExpense -= transaction.amount;
+      }
 
       // Tải lại thông tin ví và cập nhật giao diện
       await walletViewModel.loadWallets();

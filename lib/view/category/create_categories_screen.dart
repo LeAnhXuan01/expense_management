@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../view_model/category/create_category_view_model.dart';
 import '../../widget/custom_ElevatedButton_2.dart';
 import '../../widget/custom_header_1.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CreateCategoriesScreen extends StatefulWidget {
   final int initialSelectedValue;
@@ -21,8 +22,9 @@ class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<CreateCategoryViewModel>(context, listen: false)
-        .setSelectedValue(widget.initialSelectedValue);
+    final viewModel = Provider.of<CreateCategoryViewModel>(context, listen: false);
+    viewModel.setSelectedValue(widget.initialSelectedValue);
+    viewModel.resetFields();
   }
 
   @override
@@ -33,19 +35,22 @@ class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
         return Column(
           children: [
             CustomHeader_1(
-              title: 'Tạo danh mục',
+              title: tr('create_category_title'),
               action: IconButton(
-                icon: Icon(Icons.check, color: Colors.white),
-                onPressed: viewModel.enableButton ? () async {
-                  final newCategory = await viewModel.createCategory();
-                  if (newCategory != null) {
-                    await CustomSnackBar_2.show(context, 'Tạo thành công');
-                    Navigator.pop(context, newCategory);
-                    viewModel.resetFields();
-                  } else {
-                    CustomSnackBar_1.show(context, 'Có lỗi xảy ra khi tạo danh mục');
-                  }
-                } : null,
+                icon: const Icon(Icons.check, color: Colors.white),
+                onPressed: viewModel.enableButton
+                    ? () async {
+                        final newCategory = await viewModel.createCategory();
+                        if (newCategory != null) {
+                          await CustomSnackBar_2.show(
+                              context, tr('creation_success'));
+                          Navigator.pop(context, newCategory);
+                        } else {
+                          CustomSnackBar_1.show(
+                              context, tr('create_error_message'));
+                        }
+                      }
+                    : null,
               ),
             ),
             Expanded(
@@ -58,14 +63,14 @@ class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
                       Stack(
                         children: [
                           Padding(
-                            padding: EdgeInsets.only(left: 70),
+                            padding: const EdgeInsets.only(left: 70),
                             child: TextFormField(
                               controller: viewModel.nameCategory,
                               inputFormatters: [
                                 LengthLimitingTextInputFormatter(30),
                               ],
                               decoration: InputDecoration(
-                                labelText: 'Tên danh mục',
+                                labelText: tr('category_name_label'),
                               ),
                             ),
                           ),
@@ -100,7 +105,7 @@ class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
                                   color: viewModel.selectedColor ??
                                       Colors.blueGrey.shade200,
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   FontAwesomeIcons.question,
                                   color: Colors.white,
                                   size: 24,
@@ -109,7 +114,7 @@ class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
                             ),
                         ],
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -121,13 +126,13 @@ class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
                             },
                           ),
                           Text(
-                            'Thu nhập',
+                            tr('income'),
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.black.withOpacity(0.7),
                             ),
                           ),
-                          SizedBox(width: 50),
+                          const SizedBox(width: 50),
                           Radio(
                             value: 1,
                             groupValue: viewModel.selectedValue,
@@ -136,7 +141,7 @@ class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
                             },
                           ),
                           Text(
-                            'Chi tiêu',
+                            tr('expense'),
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.black.withOpacity(0.7),
@@ -144,17 +149,17 @@ class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Row(
                         children: [
                           Text(
-                            'Biểu tượng',
+                            tr('icon_label'),
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.black.withOpacity(0.7),
                             ),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           GestureDetector(
                             onTap: () {
                               viewModel.toggleShowPlusButtonIcon();
@@ -171,13 +176,12 @@ class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
                       viewModel.showPlusButtonIcon
                           ? GridView.builder(
                               shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
+                              physics: const NeverScrollableScrollPhysics(),
                               gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 4,
                                 mainAxisSpacing: 10,
                                 crossAxisSpacing: 10,
-
                               ),
                               itemCount: viewModel.currentIconsList.length,
                               itemBuilder: (BuildContext context, int index) {
@@ -218,18 +222,18 @@ class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
                                 );
                               },
                             )
-                          : SizedBox.shrink(),
-                      SizedBox(height: 40),
+                          : const SizedBox.shrink(),
+                      const SizedBox(height: 40),
                       Row(
                         children: [
                           Text(
-                            'Màu sắc:',
+                            tr('color_label'),
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.black.withOpacity(0.7),
                             ),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           GestureDetector(
                             onTap: () {
                               viewModel.toggleShowPlusButtonColor();
@@ -246,12 +250,12 @@ class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
                       viewModel.showPlusButtonColor
                           ? GridView.builder(
                               shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
+                              physics: const NeverScrollableScrollPhysics(),
                               gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 7,
-                                mainAxisSpacing: 10,
-                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 15,
+                                crossAxisSpacing: 15,
                                 childAspectRatio: 1,
                               ),
                               itemCount: viewModel.colors.length,
@@ -261,46 +265,40 @@ class _CreateCategoriesScreenState extends State<CreateCategoriesScreen> {
                                     viewModel.setSelectedColor(
                                         viewModel.colors[index]);
                                   },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: viewModel.selectedColor ==
-                                              viewModel.colors[index]
-                                          ? Border.all(
-                                              color: Colors.black, width: 2.0)
-                                          : null,
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: Container(
+                                  child:   Container(
                                         decoration: BoxDecoration(
                                           color: viewModel.colors[index],
                                           shape: BoxShape.circle,
                                         ),
                                         child: viewModel.selectedColor ==
                                                 viewModel.colors[index]
-                                            ? Icon(Icons.check,
+                                            ? const Icon(Icons.check,
                                                 color: Colors.white, size: 24)
                                             : null,
                                       ),
-                                    ),
-                                  ),
+
+
                                 );
                               },
                             )
-                          : SizedBox.shrink(),
+                          : const SizedBox.shrink(),
+                      const SizedBox(height: 20),
                       CustomElevatedButton_2(
-                        text: 'Tạo',
-                        onPressed: viewModel.enableButton ? () async {
-                          final newCategory = await viewModel.createCategory();
-                          if (newCategory != null) {
-                            await CustomSnackBar_2.show(context, 'Tạo thành công.');
-                            Navigator.pop(context, newCategory);
-                            viewModel.resetFields();
-                          } else {
-                            CustomSnackBar_1.show(context, 'Có lỗi xảy ra khi tạo danh mục');
-                          }
-                        } : null,
+                        text: tr('create_label'),
+                        onPressed: viewModel.enableButton
+                            ? () async {
+                                final newCategory =
+                                    await viewModel.createCategory();
+                                if (newCategory != null) {
+                                  await CustomSnackBar_2.show(
+                                      context, tr('creation_success'));
+                                  Navigator.pop(context, newCategory);
+                                } else {
+                                  CustomSnackBar_1.show(context,
+                                      tr('create_error_message'));
+                                }
+                              }
+                            : null,
                       ),
                     ],
                   ),

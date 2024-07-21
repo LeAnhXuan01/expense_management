@@ -3,7 +3,6 @@ import 'package:expense_management/widget/custom_header_4.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:expense_management/model/enum.dart';
 import 'package:expense_management/widget/custom_ElevatedButton_2.dart';
 import '../../model/category_model.dart';
 import '../../utils/utils.dart';
@@ -16,6 +15,8 @@ import 'component/wallet_list_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class CreateTransactionScreen extends StatefulWidget {
+  const CreateTransactionScreen({super.key});
+
   @override
   State<CreateTransactionScreen> createState() =>
       _CreateTransactionScreenState();
@@ -33,7 +34,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
               children: [
                 CustomHeader_4(
                   leftAction: IconButton(
-                    icon: Icon(Icons.check, color: Colors.white),
+                    icon: const Icon(Icons.check, color: Colors.white),
                     onPressed: viewModel.enableButton
                         ? () async {
                             final newTransaction =
@@ -51,7 +52,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                     viewModel.updateTransactionTypeTitle(newTitle!);
                   },
                   rightAction: IconButton(
-                    icon: Icon(Icons.delete, color: Colors.white),
+                    icon: const Icon(Icons.delete, color: Colors.white),
                     onPressed: () {
                       viewModel.resetFields();
                     },
@@ -60,43 +61,46 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                               Expanded(
-                                 child: TextField(
-                                    controller: viewModel.amountController,
-                                    inputFormatters: [
-                                      LengthLimitingTextInputFormatter(15),
-                                    ],
-                                    onChanged: (value) {
-                                      viewModel.setAmount(
-                                          double.tryParse(value) ?? 0.0);
-                                    },
-                                    decoration: InputDecoration(
-                                      labelText: tr('amount_label'),
-                                    ),
-                                    keyboardType: TextInputType.number,
-                                    style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w500,
-                                      color: viewModel.isExpenseTabSelected ? Colors.red : Colors.green,
-                                    ),
-                                    textAlign: TextAlign.right,
+                              Expanded(
+                                child: TextField(
+                                  controller: viewModel.amountController,
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(15),
+                                  ],
+                                  onChanged: (value) {
+                                    viewModel.setAmount(
+                                        double.tryParse(value) ?? 0.0);
+                                  },
+                                  decoration: InputDecoration(
+                                    labelText: tr('amount_label'),
                                   ),
-                               ),
-                               Padding(
-                                 padding: const EdgeInsets.only(top: 20.0),
-                                 child: Text("₫", style: TextStyle(fontSize: 28)),
-                               )
+                                  keyboardType: TextInputType.number,
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w500,
+                                    color: viewModel.isExpenseTabSelected
+                                        ? Colors.red
+                                        : Colors.green,
+                                  ),
+                                  textAlign: TextAlign.right,
+                                ),
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.only(top: 20.0),
+                                child:
+                                    Text("₫", style: TextStyle(fontSize: 28)),
+                              )
                             ],
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                             // Để loại bỏ padding mặc định
                             leading: Container(
                               width: 50,
@@ -115,7 +119,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                       color: Colors.white,
                                       size: 30,
                                     )
-                                  : Icon(
+                                  : const Icon(
                                       Icons.category,
                                       color: Colors.white,
                                       size: 30,
@@ -126,15 +130,15 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                     viewModel.selectedCategory!.name,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(fontSize: 18),
+                                    style: const TextStyle(fontSize: 18),
                                   )
                                 : Text(
                                     tr('category_placeholder'),
-                                    style: TextStyle(fontSize: 18),
+                                    style: const TextStyle(fontSize: 18),
                                   ),
                             trailing: Text(
                               tr('all_text'),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 color: Colors.green,
                                 fontWeight: FontWeight.w500,
@@ -146,8 +150,8 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                 MaterialPageRoute(
                                   builder: (context) =>
                                       viewModel.isExpenseTabSelected
-                                          ? ExpenseCategoryScreen()
-                                          : IncomeCategoryScreen(),
+                                          ? const ExpenseCategoryScreen()
+                                          : const IncomeCategoryScreen(),
                                 ),
                               );
                               if (selectedCategory != null) {
@@ -155,12 +159,12 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                               }
                             },
                           ),
-                          Divider(),
+                          const Divider(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(tr('frequent_categories'),
-                                  style: TextStyle(fontSize: 18)),
+                                  style: const TextStyle(fontSize: 18)),
                               GestureDetector(
                                 onTap: () {
                                   viewModel.toggleShowPlusButtonCategory();
@@ -178,12 +182,11 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                             viewModel.isFrequentCategoriesLoaded
                                 ? GridView.builder(
                                     shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
+                                    physics: const NeverScrollableScrollPhysics(),
                                     gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3, // Số cột của grid
-                                      childAspectRatio:
-                                          1, // Tỷ lệ chiều rộng / chiều cao của mỗi item
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3, 
+                                      childAspectRatio: 1, // Tỷ lệ chiều rộng / chiều cao của mỗi item
                                     ),
                                     itemCount:
                                         viewModel.frequentCategories.length,
@@ -202,7 +205,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Container(
-                                              padding: EdgeInsets.all(10),
+                                              padding: const EdgeInsets.all(10),
                                               decoration: BoxDecoration(
                                                 color: isSelected
                                                     ? parseColor(category.color)
@@ -230,18 +233,17 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                               textAlign: TextAlign.center,
-                                              style: TextStyle(fontSize: 14),
+                                              style: const TextStyle(fontSize: 14),
                                             ),
                                           ],
                                         ),
                                       );
                                     },
                                   )
-                                : Center(child: CircularProgressIndicator()),
-                          Divider(),
+                                : const Center(child: CircularProgressIndicator()),
+                          const Divider(),
                           ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 0),
-                            // Để loại bỏ padding mặc định
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                             leading: Container(
                               width: 50,
                               height: 50,
@@ -258,7 +260,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                       color: Colors.white,
                                       size: 30,
                                     )
-                                  : Icon(
+                                  : const Icon(
                                       Icons.account_balance_wallet,
                                       color: Colors.white,
                                       size: 30,
@@ -267,17 +269,17 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                             title: viewModel.selectedWallet != null
                                 ? Text(
                                     viewModel.selectedWallet!.name,
-                                    style: TextStyle(fontSize: 20),
+                                    style: const TextStyle(fontSize: 20),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   )
                                 : Text(
                                     tr('wallet_placeholder'),
-                                    style: TextStyle(fontSize: 20),
+                                    style: const TextStyle(fontSize: 20),
                                   ),
                             trailing: Text(
                               tr('all_text'),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 color: Colors.green,
                                 fontWeight: FontWeight.w500,
@@ -287,7 +289,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                               final selectedWallet = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => WalletListScreen(),
+                                  builder: (context) => const WalletListScreen(),
                                 ),
                               );
                               if (selectedWallet != null) {
@@ -295,7 +297,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                               }
                             },
                           ),
-                          Divider(),
+                          const Divider(),
                           Row(
                             children: [
                               Flexible(
@@ -306,7 +308,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                   onTap: () async {
                                     final DateTime? picked =
                                         await showDatePicker(
-                                          locale: context.locale,
+                                      locale: context.locale,
                                       context: context,
                                       initialDate: viewModel.selectedDate,
                                       firstDate: DateTime(1999),
@@ -332,13 +334,14 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                         await showTimePicker(
                                       context: context,
                                       initialTime: viewModel.selectedHour,
-                                          builder: (BuildContext context, Widget? child) {
-                                            return Localizations.override(
-                                              context: context,
-                                              locale: context.locale,
-                                              child: child,
-                                            );
-                                          },
+                                      builder: (BuildContext context,
+                                          Widget? child) {
+                                        return Localizations.override(
+                                          context: context,
+                                          locale: context.locale,
+                                          child: child,
+                                        );
+                                      },
                                     );
                                     if (picked != null &&
                                         picked != viewModel.selectedHour) {
@@ -352,7 +355,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           TextField(
                             controller: viewModel.noteController,
                             inputFormatters: [
@@ -365,8 +368,9 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                               labelText: tr('note_label'),
                             ),
                             keyboardType: TextInputType.text,
+                            maxLines: null,
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -376,7 +380,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                   onPressed: () async {
                                     await viewModel.captureImage(context);
                                   },
-                                  child: Center(child: Icon(Icons.camera_alt)),
+                                  child: const Center(child: Icon(Icons.camera_alt)),
                                 ),
                               ),
                               Flexible(
@@ -386,7 +390,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                         .pickImageFromGallery(context);
                                   },
                                   child:
-                                      Center(child: Icon(Icons.photo_library)),
+                                      const Center(child: Icon(Icons.photo_library)),
                                 ),
                               ),
                             ],
@@ -394,9 +398,9 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                           if (viewModel.images.isNotEmpty)
                             GridView.builder(
                               shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
+                              physics: const NeverScrollableScrollPhysics(),
                               gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3,
                                 crossAxisSpacing: 10,
                               ),
@@ -436,11 +440,11 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                           viewModel.removeImage(imagePath);
                                         },
                                         child: Container(
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: Colors.white,
                                             shape: BoxShape.circle,
                                           ),
-                                          child: Icon(
+                                          child: const Icon(
                                             Icons.remove_circle,
                                             color: Colors.red,
                                             size: 20,
@@ -452,7 +456,7 @@ class _CreateTransactionScreenState extends State<CreateTransactionScreen> {
                                 );
                               },
                             ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           CustomElevatedButton_2(
                             onPressed: viewModel.enableButton
                                 ? () async {

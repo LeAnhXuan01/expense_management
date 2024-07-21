@@ -21,8 +21,9 @@ class CreateWalletViewModel extends ChangeNotifier {
   bool get isEmptyIcon => selectedIcon == null;
   bool get isEmptyColor => selectedColor == null;
 
+
   CreateWalletViewModel() {
-    initialBalanceController.addListener((){
+    initialBalanceController.addListener(() {
       formatAmount_3(initialBalanceController);
     });
   }
@@ -70,6 +71,7 @@ class CreateWalletViewModel extends ChangeNotifier {
         walletId: '',
         userId: user.uid,
         initialBalance: initialBalance,
+        currentBalance: initialBalance,
         name: walletNameController.text,
         icon: selectedIcon.toString(),
         color: selectedColor.toString(),
@@ -98,5 +100,12 @@ class CreateWalletViewModel extends ChangeNotifier {
     enableButton = false;
     excludeFromTotal = false;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    walletNameController.dispose();
+    initialBalanceController.dispose();
+    super.dispose();
   }
 }

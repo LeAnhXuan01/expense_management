@@ -12,8 +12,11 @@ import '../../widget/custom_header_3.dart';
 import '../transfer/transfer_history_screen.dart';
 import 'create_wallet_screen.dart';
 import 'edit_wallet_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class WalletScreen extends StatefulWidget {
+  const WalletScreen({super.key});
+
   @override
   State<WalletScreen> createState() => _WalletScreenState();
 }
@@ -29,14 +32,14 @@ class _WalletScreenState extends State<WalletScreen> {
             body: Column(
               children: [
                 CustomHeader_3(
-                  title: 'Ví tiền',
+                  title: tr('utility_wallet'),
                   action: GestureDetector(
                     onTap: () {
                       setState(() {
                         viewModel.isSearching = true;
                       });
                     },
-                    child: Icon(
+                    child: const Icon(
                       Icons.search,
                       color: Colors.white,
                     ),
@@ -55,14 +58,13 @@ class _WalletScreenState extends State<WalletScreen> {
                     });
                   },
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Column(
                     children: [
-                      SizedBox(height: 20),
                       Text(
-                        'Tổng cộng:',
+                        tr('total'),
                         style: TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.w500,
@@ -70,7 +72,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       ),
                       Text(
                         '${viewModel.formattedTotalBalance} ₫',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
                           color: Colors.green,
@@ -79,7 +81,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -89,7 +91,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    TransferHistoryScreen())).then((_) {
+                                    const TransferHistoryScreen())).then((_) {
                           // Cập nhật ví khi quay lại từ màn hình lịch sử chuyển khoản
                           final walletViewModel = Provider.of<WalletViewModel>(
                               context,
@@ -106,12 +108,12 @@ class _WalletScreenState extends State<WalletScreen> {
                               borderRadius: BorderRadius.circular(20),
                               color: Colors.green,
                             ),
-                            child: Icon(FontAwesomeIcons.clockRotateLeft,
+                            child: const Icon(FontAwesomeIcons.clockRotateLeft,
                                 color: Colors.white),
                           ),
-                          SizedBox(height: 5),
-                          Text(
-                            'Lịch sử chuyển\nkhoản',
+                          const SizedBox(height: 5),
+                           Text(
+                            tr('transfer_history'),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
@@ -126,7 +128,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         final newTransfer = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CreateTransferScreen(),
+                            builder: (context) => const CreateTransferScreen(),
                           ),
                         );
                         if (newTransfer != null && newTransfer is Transfer) {
@@ -142,12 +144,12 @@ class _WalletScreenState extends State<WalletScreen> {
                               borderRadius: BorderRadius.circular(20),
                               color: Colors.green,
                             ),
-                            child: Icon(FontAwesomeIcons.rightLeft,
+                            child: const Icon(FontAwesomeIcons.rightLeft,
                                 color: Colors.white),
                           ),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text(
-                            'Giao dịch chuyển\nkhoản mới',
+                            tr('new_transfer'),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
@@ -163,7 +165,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   child: viewModel.wallets.isEmpty && viewModel.isSearching
                       ? Center(
                           child: Text(
-                            'Không có kết quả tìm kiếm nào.',
+                            tr('no_search_results'),
                             style: TextStyle(fontSize: 18, color: Colors.grey),
                           ),
                         )
@@ -173,31 +175,27 @@ class _WalletScreenState extends State<WalletScreen> {
                             final wallet = viewModel.wallets[index];
                             return Dismissible(
                               key: Key(wallet.walletId),
-                              // Khóa duy nhất cho mỗi ví
                               direction: DismissDirection.endToStart,
-                              // Chỉ cho phép vuốt từ phải sang trái
                               confirmDismiss: (direction) async {
                                 if (wallet.isDefault) {
                                   CustomSnackBar_1.show(
-                                      context, 'Ví này không thể xóa');
+                                      context, tr('cant_delete_default_wallet'));
                                   return false;
                                 }
-                                // Hiển thị hộp thoại xác nhận
                                 return await showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: Text('Chú ý'),
+                                      title:  Text(tr('attention')),
                                       content: RichText(
                                         text: TextSpan(
-                                            text: 'Nếu bạn xóa ví này, ',
+                                            text: tr('delete_wallet_warning_part1'),
                                             style: TextStyle(
                                                 color: Colors.black,
                                                 fontSize: 16),
                                             children: [
                                               TextSpan(
-                                                text:
-                                                    'tất cả các ghi chép liên quan cũng sẽ bị xóa và không thể khôi phục',
+                                                text: tr('delete_wallet_warning_highlight'),
                                                 style: TextStyle(
                                                     color: Colors.red,
                                                     fontSize: 17,
@@ -205,34 +203,33 @@ class _WalletScreenState extends State<WalletScreen> {
                                                         FontWeight.w500),
                                               ),
                                               TextSpan(
-                                                text:
-                                                    '. Bạn có thực sự muốn xóa không?',
+                                                text: tr('delete_wallet_warning_part2'),
                                                 style: TextStyle(
                                                     color: Colors.black,
                                                     fontSize:
-                                                        16), // Màu đen cho phần văn bản bình thường
+                                                        16),
                                               ),
                                             ]),
                                       ),
                                       actions: [
                                         TextButton(
-                                          child: Text('Không',
+                                          child:  Text(tr('no'),
                                               style: TextStyle(
                                                   color: Colors.red,
                                                   fontSize: 18)),
                                           onPressed: () {
                                             Navigator.of(context)
-                                                .pop(false); // Không xóa
+                                                .pop(false);
                                           },
                                         ),
                                         TextButton(
-                                          child: Text('Có',
+                                          child: Text(tr('yes'),
                                               style: TextStyle(
                                                   color: Colors.blue,
                                                   fontSize: 18)),
                                           onPressed: () {
                                             Navigator.of(context)
-                                                .pop(true); // Xác nhận xóa
+                                                .pop(true);
                                           },
                                         ),
                                       ],
@@ -241,30 +238,26 @@ class _WalletScreenState extends State<WalletScreen> {
                                 );
                               },
                               onDismissed: (direction) async {
-                                // Xóa ví
                                 await viewModel.deleteWallet(wallet.walletId);
                                 CustomSnackBar_2.show(
-                                    context, '${wallet.name} đã bị xóa');
+                                    context, '${wallet.name}' + tr('deleted'));
                               },
                               background: Container(
                                 color: Colors.red,
                                 alignment: Alignment.centerRight,
-                                padding: EdgeInsets.symmetric(horizontal: 20),
-                                child: Icon(Icons.delete, color: Colors.white),
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: const Icon(Icons.delete, color: Colors.white),
                               ),
                               child: Card(
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: 8.0, vertical: 4.0),
+                                color: Colors.grey.shade200,
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 4.0),
                                 child: ListTile(
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 16.0, vertical: 8.0),
-                                  leading: Container(
-                                    width: 55,
-                                    height: 55,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: parseColor(wallet.color),
-                                    ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0, vertical: 4.0),
+                                  leading: CircleAvatar(
+                                    radius: 25,
+                                    backgroundColor: parseColor(wallet.color),
                                     child: Icon(
                                       parseIcon(wallet.icon),
                                       color: Colors.white,
@@ -273,24 +266,22 @@ class _WalletScreenState extends State<WalletScreen> {
                                   ),
                                   title: Text(
                                     wallet.name,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 18.0,
                                       fontWeight: FontWeight.bold,
                                     ),
                                     maxLines: 1,
-                                    // Giới hạn chỉ hiển thị tối đa 1 dòng
-                                    overflow: TextOverflow
-                                        .ellipsis, // Hiển thị dấu ba chấm khi vượt quá 1 dòng
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                   subtitle: Text(
-                                    '${formatAmount(wallet.initialBalance)} đ',
+                                    '${formatAmount(wallet.currentBalance)} đ',
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       color: Colors.grey[700],
                                     ),
                                   ),
                                   trailing: wallet.excludeFromTotal
-                                      ? Icon(Icons.remove_circle,
+                                      ? const Icon(Icons.remove_circle,
                                           color: Colors.red)
                                       : null,
                                   onTap: () async {
@@ -319,16 +310,16 @@ class _WalletScreenState extends State<WalletScreen> {
                 final newWallet = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CreateWalletScreen(),
+                    builder: (context) => const CreateWalletScreen(),
                   ),
                 );
                 if (newWallet != null && newWallet is Wallet) {
                   await viewModel.loadWallets();
                 }
               },
-              child: Icon(Icons.add, color: Colors.white),
               backgroundColor: Colors.green,
-              shape: CircleBorder(),
+              shape: const CircleBorder(),
+              child: const Icon(Icons.add, color: Colors.white),
             ),
           );
         },
