@@ -49,7 +49,7 @@ class AuthService {
     }
   }
 
-// Đổi mật khẩu
+// Xác thực lại người dùng và đổi mật khẩu
   Future<void> reauthenticateUser(User user, String currentPassword) async {
     AuthCredential credential = EmailAuthProvider.credential(
       email: user.email!,
@@ -62,7 +62,7 @@ class AuthService {
     await user.updatePassword(newPassword);
   }
 
-  // Đăng nhập bằng Google
+// Đăng nhập bằng Google
   Future<UserCredential> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
@@ -76,7 +76,7 @@ class AuthService {
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
-  // Đăng xuất
+// Đăng xuất
   Future<void> signOut() async {
     try {
       await _firebaseAuth.signOut();

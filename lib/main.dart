@@ -86,7 +86,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppProviders(
         child: MaterialApp(
-      title: tr('app_name'),
+      title: 'Quản lý chi tiêu',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),

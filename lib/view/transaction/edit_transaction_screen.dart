@@ -1,9 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:expense_management/model/category_model.dart';
 import 'package:expense_management/model/transaction_model.dart';
 import 'package:expense_management/view_model/transaction/edit_transaction_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
 import '../../utils/utils.dart';
 import '../../widget/custom_ElevatedButton_2.dart';
 import '../../widget/custom_header_4.dart';
@@ -12,7 +14,6 @@ import 'component/expense_category_screen.dart';
 import 'component/image_detail_screen.dart';
 import 'component/income_category_screen.dart';
 import 'component/wallet_list_screen.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 class EditTransactionScreen extends StatefulWidget {
   final Transactions transaction;
@@ -111,7 +112,8 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                           ),
                           const SizedBox(height: 20),
                           ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 0),
                             // Để loại bỏ padding mặc định
                             leading: Container(
                               width: 50,
@@ -198,7 +200,8 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                 viewModel.isFrequentCategoriesLoaded
                                     ? GridView.builder(
                                         shrinkWrap: true,
-                                        physics: const NeverScrollableScrollPhysics(),
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
                                         gridDelegate:
                                             const SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 3,
@@ -221,7 +224,8 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                                   MainAxisAlignment.center,
                                               children: [
                                                 Container(
-                                                  padding: const EdgeInsets.all(10),
+                                                  padding:
+                                                      const EdgeInsets.all(10),
                                                   decoration: BoxDecoration(
                                                     color: isSelected
                                                         ? parseColor(
@@ -251,8 +255,8 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                   textAlign: TextAlign.center,
-                                                  style:
-                                                      const TextStyle(fontSize: 14),
+                                                  style: const TextStyle(
+                                                      fontSize: 14),
                                                 ),
                                               ],
                                             ),
@@ -265,7 +269,8 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                           ),
                           const Divider(),
                           ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 0),
                             // Để loại bỏ padding mặc định
                             leading: Container(
                               width: 50,
@@ -312,7 +317,8 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                               final selectedWallet = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const WalletListScreen(),
+                                  builder: (context) =>
+                                      const WalletListScreen(),
                                 ),
                               );
                               if (selectedWallet != null) {
@@ -404,7 +410,8 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                   onPressed: () async {
                                     await viewModel.captureImage(context);
                                   },
-                                  child: const Center(child: Icon(Icons.camera_alt)),
+                                  child: const Center(
+                                      child: Icon(Icons.camera_alt)),
                                 ),
                               ),
                               Flexible(
@@ -413,8 +420,8 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                                     await viewModel
                                         .pickImageFromGallery(context);
                                   },
-                                  child:
-                                      const Center(child: Icon(Icons.photo_library)),
+                                  child: const Center(
+                                      child: Icon(Icons.photo_library)),
                                 ),
                               ),
                             ],

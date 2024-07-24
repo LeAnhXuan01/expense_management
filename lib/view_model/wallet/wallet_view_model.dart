@@ -49,9 +49,6 @@ class WalletViewModel extends ChangeNotifier {
   }
 
   Future<void> loadWallets() async {
-    loadWalletsCallCount++;
-    print("loadWallets called $loadWalletsCallCount times");
-
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
@@ -102,5 +99,11 @@ class WalletViewModel extends ChangeNotifier {
     searchQuery = '';
     searchController.clear();
     filterWallets('');
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 }

@@ -107,41 +107,47 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/images/income.png'),
-              SizedBox(width: 10),
-              Padding(
-                padding: const EdgeInsets.only(top:8.0),
-                child: Text(
-                    tr('total_income', namedArgs: {
-                      'amount': viewModel.formatAmount(viewModel.totalIncome)
-                    }),
-                    style: const TextStyle(
-                        color: Colors.green,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500)),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Image.asset('assets/images/income.png'),
+                SizedBox(width: 10),
+                Padding(
+                  padding: const EdgeInsets.only(top:8.0),
+                  child: Text(
+                      tr('total_income', namedArgs: {
+                        'amount': viewModel.formatAmount(viewModel.totalIncome)
+                      }),
+                      style: const TextStyle(
+                          color: Colors.green,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500)),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/images/expense.png'),
-              SizedBox(width: 10),
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  tr('total_expense', namedArgs: {
-                    'amount': viewModel.formatAmount(viewModel.totalExpense)
-                  }),
-                  style: const TextStyle(
-                      color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Image.asset('assets/images/expense.png'),
+                SizedBox(width: 10),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    tr('total_expense', namedArgs: {
+                      'amount': viewModel.formatAmount(viewModel.totalExpense)
+                    }),
+                    style: const TextStyle(
+                        color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       );
@@ -187,14 +193,15 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
   }
 
   Widget _buildTransactionList(TransactionHistoryViewModel viewModel) {
-    if (viewModel.transactions.isEmpty) {
-      return const Center(
+    if (viewModel.isLoading) {
+      return Center(
         child: CircularProgressIndicator(),
       );
     }
+
     if (viewModel.filteredTransactions.isEmpty) {
       return Center(
-        child: Text(tr('no_results')),
+        child: Text(tr('no_transaction'), style: TextStyle(fontSize: 18)),
       );
     }
     return ListView.builder(
@@ -363,7 +370,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
                 DateTimeRange? picked = await showDateRangePicker(
                   context: context,
                   firstDate: DateTime(2000),
-                  lastDate: DateTime.now(),
+                  lastDate: DateTime(2100),
                   initialDateRange: viewModel.selectedDateRange,
                 );
                 if (picked != null) {

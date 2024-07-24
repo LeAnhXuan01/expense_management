@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../data/icon_list.dart';
 import '../../model/category_model.dart';
 import '../../model/enum.dart';
 import '../../services/category_service.dart';
-import '../../utils/icon_list.dart';
-import '../../utils/color_list.dart';
+import '../../data/color_list.dart';
 import '../../utils/utils.dart';
 
 class EditCategoryViewModel extends ChangeNotifier {

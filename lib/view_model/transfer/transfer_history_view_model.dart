@@ -16,6 +16,7 @@ class TransferHistoryViewModel extends ChangeNotifier {
   Map<String, Wallet> _walletMap = {};
   DateTimeRange? _selectedDateRange;
   List<Wallet> _selectedWallets = [];
+  bool isLoading = false;
 
   List<Transfer> get transfers => _transfers;
   Map<String, List<Transfer>> get groupedTransfers => _groupedTransfers;
@@ -31,12 +32,17 @@ class TransferHistoryViewModel extends ChangeNotifier {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
+        isLoading = true;
+        notifyListeners();
         _transfers = await _transferService.getTransfers(user.uid);
         await _loadWallets();
         _applyFilters();
         notifyListeners();
       } catch (e) {
         print("Error loading transfers: $e");
+      }finally {
+        isLoading = false;
+        notifyListeners();
       }
     }
   }
@@ -113,11 +119,6 @@ class TransferHistoryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // void filterByWallet(String? walletId) {
-  //   _selectedWalletId = walletId;
-  //   _applyFilters();
-  //   notifyListeners();
-  // }
   void filterByWallets(List<Wallet> wallets) {
     _selectedWallets = List.from(wallets);
     _applyFilters();

@@ -37,6 +37,12 @@ class StatisticsViewModel with ChangeNotifier {
   String currentExpenseDateKey = '';
   TabController? tabController;
 
+  List<Transactions> selectedProfitTransactions = [];
+  List<Transactions> selectedLossTransactions = [];
+
+  Map<String, Category> categoryMap = {};
+  Map<String, Wallet> walletMap = {};
+
   double get currentIncomeTotal {
     return selectedIncomeTransactions.fold(0, (sum, item) {
       double amount = item.amount;
@@ -50,11 +56,6 @@ class StatisticsViewModel with ChangeNotifier {
       return sum + amount;
     });
   }
-
-  List<Transactions> selectedProfitTransactions = [];
-  List<Transactions> selectedLossTransactions = [];
-
-  Map<String, Category> categoryMap = {};
 
   StatisticsViewModel() {
     loadData();
@@ -158,10 +159,10 @@ class StatisticsViewModel with ChangeNotifier {
         return t.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
             t.date.isBefore(endDate!.add(const Duration(days: 1)));
       case 'week':
-        DateTime monday = t.date.subtract(Duration(days: t.date.weekday - 1));
-        return monday.year == startDate.year &&
-            monday.month == startDate.month &&
-            monday.day == startDate.day;
+        DateTime monday = startDate;
+        DateTime sunday = monday.add(const Duration(days: 6));
+        return (t.date.isAfter(monday.subtract(const Duration(days: 1)))) &&
+            (t.date.isBefore(sunday.add(const Duration(days: 1))));
       case 'month':
         return t.date.year == startDate.year && t.date.month == startDate.month;
       case 'year':
@@ -184,6 +185,12 @@ class StatisticsViewModel with ChangeNotifier {
           .map((doc) => Wallet.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
       selectedWallets = List.from(wallets); // Mặc định chọn tất cả các ví
+
+      // Tạo map walletId -> Wallet
+      walletMap = {
+        for (var wallet in wallets) wallet.walletId: wallet
+      };
+
       notifyListeners();
     }
   }
@@ -226,9 +233,14 @@ class StatisticsViewModel with ChangeNotifier {
           end = start.add(const Duration(days: 1));
           break;
         case 'week':
+        // Xác định ngày thứ Hai của tuần hiện tại
           start = now.subtract(Duration(days: now.weekday - 1));
-          end = start.add(const Duration(days: 7));
+          // Đặt thời gian là đầu ngày (00:00:00) để bao gồm cả ngày đầu tiên
+          start = DateTime(start.year, start.month, start.day);
+          // Đặt ngày Chủ Nhật là 23:59:59 để bao gồm cả ngày cuối cùng
+          end = start.add(Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
           break;
+
         case 'month':
           start = DateTime(now.year, now.month);
           end = DateTime(now.year, now.month + 1);
@@ -260,23 +272,6 @@ class StatisticsViewModel with ChangeNotifier {
     List<Transactions> transactions = transactionsSnapshot.docs
         .map((doc) => Transactions.fromMap(doc.data() as Map<String, dynamic>))
         .toList();
-
-    // Process transactions with wallet filter
-    // // Now apply category filter
-    // List<Transactions> filteredTransactions = [];
-    //
-    // if (selectedCategories.isNotEmpty) {
-    //   List<String> selectedCategoryIds =
-    //       selectedCategories.map((category) => category.categoryId).toList();
-    //
-    //   for (var transaction in transactions) {
-    //     if (selectedCategoryIds.contains(transaction.categoryId)) {
-    //       filteredTransactions.add(transaction);
-    //     }
-    //   }
-    // } else
-    //   filteredTransactions = transactions;
-    // }
 
     processTransactionData(transactions);
     //list transaction

@@ -24,6 +24,7 @@ class BudgetListViewModel extends ChangeNotifier {
   String searchQuery = "";
   Map<String, Category> categoryMap = {};
   Map<String, Wallet> walletMap = {};
+  bool isLoading = false;
 
   List<Budget> get budgets => _filteredbudgets;
 
@@ -32,30 +33,70 @@ class BudgetListViewModel extends ChangeNotifier {
   }
 
   Future<void> loadData() async {
-    loadBudgets();
-    loadCategories();
-    loadWallets();
+    isLoading = true;
+    notifyListeners();
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        // Tải dữ liệu danh mục và ví trước
+        await Future.wait([
+          loadCategories(),
+          loadWallets(),
+        ]);
+
+        // Sau khi danh mục và ví đã được tải, tải dữ liệu budgets
+        await loadBudgets();
+
+      } catch (e) {
+        print("Error loading data: $e");
+      } finally {
+        isLoading = false;
+        notifyListeners();
+      }
+    }
   }
 
   Future<void> loadBudgets() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      try{
+      try {
         _budgets = await _budgetService.getBudgets(user.uid);
+
+        // Lọc bỏ các budgets không có ví hoặc danh mục tồn tại
+        _budgets.removeWhere((budget) => !hasExistingWallet(budget));
+        _budgets.removeWhere((budget) => !hasExistingCategory(budget));
         _filteredbudgets = _budgets;
-        notifyListeners();
-      } catch (e){
+      } catch (e) {
         print("Error loading budgets: $e");
       }
     }
+  }
+
+  bool hasExistingWallet(Budget budget) {
+    for (var walletId in budget.walletId) {
+      if (getWalletById(walletId) != null) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool hasExistingCategory(Budget budget) {
+    for (var categoryId in budget.categoryId) {
+      if (getCategoryById(categoryId) != null) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void filterBudgets(String query) {
     if (query.isEmpty) {
       _filteredbudgets = _budgets;
     } else {
-      _filteredbudgets = _budgets.where((bugdet) {
-        return bugdet.name.toLowerCase().contains(query.toLowerCase());
+      _filteredbudgets = _budgets.where((budget) {
+        return budget.name.toLowerCase().contains(query.toLowerCase());
       }).toList();
     }
     notifyListeners();
@@ -64,11 +105,13 @@ class BudgetListViewModel extends ChangeNotifier {
   Future<void> loadCategories() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      try{
-        List<Category> categories = await _categoryService.getExpenseCategories(user.uid);
-        categoryMap = {for (var category in categories) category.categoryId: category};
-        notifyListeners();
-      } catch (e){
+      try {
+        List<Category> categories =
+        await _categoryService.getExpenseCategories(user.uid);
+        categoryMap = {
+          for (var category in categories) category.categoryId: category
+        };
+      } catch (e) {
         print("Error loading categories: $e");
       }
     }
@@ -77,11 +120,10 @@ class BudgetListViewModel extends ChangeNotifier {
   Future<void> loadWallets() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      try{
+      try {
         List<Wallet> wallets = await _walletService.getWallets(user.uid);
         walletMap = {for (var wallet in wallets) wallet.walletId: wallet};
-        notifyListeners();
-      } catch (e){
+      } catch (e) {
         print("Error loading wallets: $e");
       }
     }
@@ -121,6 +163,7 @@ class BudgetListViewModel extends ChangeNotifier {
 
   String getWalletsText(List<String> selectedWallets) {
     if (selectedWallets.length == 0 ||
+
         selectedWallets.length == walletMap.length) return tr('all_wallet');
     if (selectedWallets.length == 1)
       return walletMap[selectedWallets[0]]?.name ?? '';
@@ -129,6 +172,8 @@ class BudgetListViewModel extends ChangeNotifier {
     return '${walletMap[selectedWallets[0]]?.name ?? ''}, ${walletMap[selectedWallets[1]]?.name ?? ''} + ${selectedWallets.length - 2} ' + tr('wallet');
   }
 
+
+//Tính toán tổng số tiền đã chi tiêu trong một ngân sách
   Future<double> calculateSpentAmount(
       Budget budget, List<String> categoryIds, List<String> walletIds) async {
     final user = FirebaseAuth.instance.currentUser;
@@ -170,10 +215,11 @@ class BudgetListViewModel extends ChangeNotifier {
           return 0.0;
       }
 
+      //Kiểm tra chu kỳ còn hiệu lực
       while (cycleStartDate.isBefore(currentDate) && cycleStartDate.isBefore(endDate)) {
         double cycleSpent = 0.0;
         for (var transaction in transactions) {
-          if (transaction.date.isAfter(cycleStartDate.subtract(Duration(seconds: 1))) &&
+          if (transaction.date.isAfter(cycleStartDate.subtract(Duration(days: 1))) &&
               transaction.date.isBefore(cycleEndDate.add(Duration(seconds: 1))) &&
               categoryIds.contains(transaction.categoryId) &&
               walletIds.contains(transaction.walletId)) {
@@ -215,6 +261,7 @@ class BudgetListViewModel extends ChangeNotifier {
     return 0.0;
   }
 
+  //Hiển thị thời gian chu kỳ hiện tại
   String getDisplayTime(Budget budget) {
     final currentDate = DateTime.now();
     final startDate = budget.startDate;
@@ -329,6 +376,7 @@ class BudgetListViewModel extends ChangeNotifier {
     }
   }
 
+  //hiển thị số ngày còn lai
   int getDaysLeft(Budget budget) {
     final currentDate = DateTime.now();
     final startDate = budget.startDate;

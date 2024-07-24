@@ -143,7 +143,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ),
                                       );
                                     },
-                                    child: Text(tr('vietnamese'), style: const TextStyle(color: Colors.red, fontSize: 16)),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                            width: 26,
+                                            height: 26,
+                                            child: Image.asset('assets/images/vietnamese_flag.png')
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(tr('vietnamese'), style: const TextStyle(color: Colors.red, fontSize: 18)),
+                                      ],
+                                    ),
                                   ),
                                   TextButton(
                                     onPressed: () {
@@ -192,7 +202,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ),
                                       );
                                     },
-                                    child: Text(tr('english'), style: const TextStyle(color: Colors.blue)),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                            width: 26,
+                                            height: 26,
+                                            child: Image.asset('assets/images/english_flag.png')
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(tr('english'), style: const TextStyle(color: Colors.blue, fontSize: 18)),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),

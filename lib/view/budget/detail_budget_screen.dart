@@ -4,7 +4,6 @@ import 'package:expense_management/widget/custom_header_1.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-
 import '../../model/budget_model.dart';
 import '../../model/enum.dart';
 import '../../model/transaction_model.dart';
@@ -402,27 +401,13 @@ class _DetailBudgetScreenState extends State<DetailBudgetScreen> {
                                               fontWeight: FontWeight.bold),
                                         ),
                                       ),
-                                      // subtitle: Text(
-                                      //   period.isOverBudget
-                                      //       ? 'Bội chi: ${formatTotalBalance(period.remainingBudget.abs())} ₫'
-                                      //       : 'Hạn mức còn lại: ${formatTotalBalance(period.remainingBudget)} ₫',
-                                      //   style: TextStyle(
-                                      //     color: period.isOverBudget ? Colors.red : Colors.black,
-                                      //   ),
-                                      // ),
-                                      // trailing: SizedBox(
-                                      //   width: 100, // Provide a fixed width for the progress indicator
-                                      //   child: LinearProgressIndicator(
-                                      //     value: period.totalExpenditure / viewModel.budget.amount,
-                                      //     color: period.isOverBudget ? Colors.red : Colors.blue,
-                                      //   ),
-                                      // ),
                                     ),
                                   ),
                                 );
                               }).toList(),
                             ),
                           ),
+                        SizedBox(height: 10),
                         if (viewModel.filteredTransactions.isNotEmpty)
                           GestureDetector(
                             onTap: () => viewModel.toggleShowTransactions(),

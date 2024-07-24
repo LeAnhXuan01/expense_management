@@ -11,6 +11,7 @@ import '../../model/category_model.dart';
 import '../../model/enum.dart';
 import '../../model/wallet_model.dart';
 import '../../utils/previous_period.dart';
+import '../../utils/utils.dart';
 
 class DetailBudgetViewModel with ChangeNotifier {
   final TransactionService _transactionService = TransactionService();
@@ -128,11 +129,13 @@ class DetailBudgetViewModel with ChangeNotifier {
     }
   }
 
+//Lọc giao dịch theo ngân sách hiện tại
   void filterTransactionsByBudget() {
     try {
       filteredTransactions = transactions.where((transaction) {
         return budget.categoryId.contains(transaction.categoryId) &&
-            transaction.date.isAfter(_currentPeriodStart) &&
+            (transaction.date.isAfter(_currentPeriodStart) ||
+                isSameDate(transaction.date, _currentPeriodStart)) &&
             transaction.date.isBefore(_currentPeriodEnd);
       }).toList();
     } catch (e) {
@@ -140,6 +143,7 @@ class DetailBudgetViewModel with ChangeNotifier {
     }
   }
 
+//Lọc giao dịch theo các ví được chọn trong ngân sách.
   void filterTransactionsBySelectedWallets() {
     try {
       filteredTransactions = filteredTransactions.where((transaction) {
@@ -165,6 +169,7 @@ class DetailBudgetViewModel with ChangeNotifier {
     }
   }
 
+// Tính toán chi tiêu hiện tại
   void calculateExpenditures() {
     try {
       _totalExpenditure = filteredTransactions.fold(0, (sum, transaction) {
@@ -197,6 +202,7 @@ class DetailBudgetViewModel with ChangeNotifier {
     notifyListeners();
   }
 
+// Tính toán ngày kết thúc của chu kỳ hiện tại
   DateTime _calculateEndOfCurrentPeriod(DateTime startDate, Repeat repeat) {
     switch (repeat) {
       case Repeat.Daily:
@@ -221,6 +227,7 @@ class DetailBudgetViewModel with ChangeNotifier {
     }
   }
 
+// Kiểm tra và cập nhật chu kỳ ngân sách
   void checkAndUpdatePeriod() {
     try {
       final now = DateTime.now();

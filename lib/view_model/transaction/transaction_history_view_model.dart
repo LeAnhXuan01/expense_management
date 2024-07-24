@@ -11,6 +11,7 @@ import '../../services/wallet_service.dart';
 import '../../utils/utils.dart';
 import '../../utils/wallet_utils.dart';
 import '../wallet/wallet_view_model.dart';
+import 'package:unorm_dart/unorm_dart.dart' as unorm;
 
 class TransactionHistoryViewModel extends ChangeNotifier {
   final TransactionService _transactionService = TransactionService();
@@ -54,10 +55,11 @@ class TransactionHistoryViewModel extends ChangeNotifier {
   }
 
   Future<void> loadTransactions() async {
-    print('load transaction');
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
+        isLoading = true;
+        notifyListeners();
         transactions = await _transactionService.getTransaction(user.uid);
         await loadWallets();
         await loadCategories();
@@ -67,6 +69,9 @@ class TransactionHistoryViewModel extends ChangeNotifier {
         notifyListeners();
       } catch (e) {
         print("Error loading transaction: $e");
+      }finally {
+        isLoading = false;
+        notifyListeners();
       }
     }
   }
@@ -176,12 +181,25 @@ class TransactionHistoryViewModel extends ChangeNotifier {
   void searchTransactions(String query) {
     searchQuery = query.toLowerCase();
     isSearching = true;
+
+    // Hàm chuẩn hóa Unicode bằng unorm_dart
+    String normalize(String input) {
+      return unorm.nfd(input).toLowerCase(); // Chuẩn hóa thành NFD (Mẫu chuẩn hóa D) và chuyển đổi thành chữ thường
+    }
+
     if (searchQuery.isNotEmpty) {
-      filteredTransactions = filteredTransactions.where((transaction) {
+      filteredTransactions = transactions.where((transaction) {
         final category = getCategoryByTransaction(transaction);
-        final categoryName = category?.name.toLowerCase() ?? '';
-        final note = transaction.note.toLowerCase();
-        return categoryName.contains(searchQuery) || note.contains(searchQuery);
+        final categoryName = category?.name ?? '';
+        final note = transaction.note;
+
+        // Chuẩn hóa cả tên danh mục và truy vấn tìm kiếm
+        final normalizedCategoryName = normalize(categoryName);
+        final normalizedNote = normalize(note);
+        final normalizedQuery = normalize(searchQuery);
+
+        return normalizedCategoryName.contains(normalizedQuery) ||
+            normalizedNote.contains(normalizedQuery);
       }).toList();
     } else {
       _applyFilters();
@@ -198,7 +216,6 @@ class TransactionHistoryViewModel extends ChangeNotifier {
 
   void clearFilters() {
     selectedDateRange = null;
-    // selectedWalletId = null;
     _currentTabIndex = 0;
     filteredTransactions = transactions;
     groupTransactions();

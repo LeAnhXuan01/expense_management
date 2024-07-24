@@ -42,14 +42,19 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
             Expanded(
               child: Consumer<TransferHistoryViewModel>(
                 builder: (context, viewModel, child) {
-                  if (viewModel.transfers.isEmpty) {
-                    return const Center(
+                  if (viewModel.isLoading) {
+                    return Center(
                       child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (viewModel.transfers.isEmpty) {
+                    return Center(
+                      child: Text(tr('no_transaction'), style: TextStyle(fontSize: 18)),
                     );
                   }
                   if (viewModel.groupedTransfers.isEmpty) {
                     return Center(
-                      child: Text(tr('no_results')),
+                      child: Text(tr('no_results'), style: TextStyle(fontSize: 18)),
                     );
                   }
                   return ListView.builder(
@@ -236,7 +241,7 @@ class _TransferHistoryScreenState extends State<TransferHistoryScreen> {
                     DateTimeRange? picked = await showDateRangePicker(
                       context: context,
                       firstDate: DateTime(2000),
-                      lastDate: DateTime.now(),
+                      lastDate: DateTime(2100),
                       initialDateRange: viewModel.selectedDateRange,
                     );
                     if (picked != null) {

@@ -328,7 +328,7 @@ class CreateBudgetScreen extends StatelessWidget {
                                       }
                                     }
                                   : null,
-                              text: tr('save_button'),
+                              text: tr('create_label'),
                             ),
                           ),
                         ],

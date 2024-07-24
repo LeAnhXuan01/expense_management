@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_management/model/wallet_model.dart';
 import '../data/default_wallet.dart';
 import '../model/enum.dart';
+import 'budget_service.dart';
 
 class WalletService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -142,7 +143,6 @@ class WalletService {
     try {
       // Xóa tất cả các giao dịch liên quan trước khi xóa ví
       await deleteAllTransactionsRelatedToWallet(walletId);
-
       await _firestore.collection('wallets').doc(walletId).delete();
     } catch (e) {
       print("Error deleting wallet: $e");

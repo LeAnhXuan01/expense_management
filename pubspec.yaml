@@ -88,7 +88,7 @@ dependencies:
   #cơ chế lưu trữ dữ liệu
   shared_preferences: ^2.2.3
 
-  flutter_launcher_icons: ^0.13.1
+  unorm_dart: ^0.3.0
 
   get_storage: ^2.1.1
   #quản lý quyền

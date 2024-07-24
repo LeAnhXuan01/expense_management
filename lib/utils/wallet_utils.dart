@@ -43,6 +43,9 @@ class TransactionHelper {
     }
   }
 
+  //isCreation: Cờ xác định xem giao dịch là mới tạo.
+  // isDeletion: Cờ xác định xem giao dịch là bị xóa.
+  // oldTransaction: Giao dịch cũ (dùng khi cập nhật giao dịch).
   Future<void> updateWalletBalance(Transactions transaction, {required bool isCreation, required bool isDeletion, Transactions? oldTransaction}) async {
     try {
       DocumentSnapshot walletSnapshot = await _firestore.collection('wallets').doc(transaction.walletId).get();
@@ -113,7 +116,7 @@ class TransactionHelper {
 
 class TransferHelper {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+//Kiểm tra số dư ví
   Future<bool> checkBalance(String walletId, double amount) async {
     try {
       DocumentSnapshot walletSnapshot = await _firestore.collection('wallets').doc(walletId).get();

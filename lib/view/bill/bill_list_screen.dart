@@ -80,16 +80,24 @@ class _BillListScreenState extends State<BillListScreen> {
   }
 
   Widget _buildBillList(BillListViewModel viewModel) {
+    if (viewModel.isLoading) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     if (viewModel.bills.isEmpty && viewModel.isSearching) {
       return Center(
         child: Text(tr('no_search_results'),
-            style: TextStyle(fontSize: 18, color: Colors.grey)),
+            style: TextStyle(fontSize: 18)),
       );
-    } else if (viewModel.bills.isEmpty) {
+    }
+
+    if (viewModel.bills.isEmpty) {
       return  Center(
         child: Text(
           tr('no_bills_message'),
-          style: TextStyle(fontSize: 18, color: Colors.grey),
+          style: TextStyle(fontSize: 18),
         ),
       );
     }

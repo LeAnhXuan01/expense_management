@@ -140,8 +140,8 @@ class EditProfileViewModel extends ChangeNotifier {
   Future<void> signOut(BuildContext context) async {
     try {
       await _authService.signOut();
-      resetFields();
       Navigator.pushReplacementNamed(context, '/login');
+      resetFields();
     } catch (e) {
       CustomSnackBar_1.show(
           context, tr('log_out_error'));

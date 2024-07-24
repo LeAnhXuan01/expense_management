@@ -204,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisSpacing: 16.0,
         children: [
           _buildUtilityCard(
-            icon: FontAwesomeIcons.filePen,
+            icon: FontAwesomeIcons.fileInvoiceDollar,
             color: Colors.grey.shade700,
             title: tr('utility_bill'),
             onTap: () {

@@ -143,6 +143,7 @@ class StatisticsScreen extends StatelessWidget {
                                 transactions:
                                     viewModel.selectedIncomeTransactions,
                                 categoryMap: viewModel.categoryMap,
+                                walletMap: viewModel.walletMap,
                                 totalAmount: viewModel.currentIncomeTotal,
                                 type: Type.income,
                               )
@@ -153,10 +154,11 @@ class StatisticsScreen extends StatelessWidget {
                                     transactions:
                                         viewModel.selectedExpenseTransactions,
                                     categoryMap: viewModel.categoryMap,
+                                    walletMap: viewModel.walletMap,
                                     totalAmount: viewModel.currentExpenseTotal,
                                     type: Type.expense,
                                   )
-                                : Center(child: Text(tr('tap_to_see_details'))),
+                                : Text(''),
                       ),
                     ],
                   ),
@@ -294,6 +296,7 @@ class TransactionList extends StatefulWidget {
   final String title;
   final List<Transactions> transactions;
   final Map<String, Category> categoryMap;
+  final Map<String, Wallet> walletMap;
   final double totalAmount;
   final Type type;
 
@@ -301,6 +304,7 @@ class TransactionList extends StatefulWidget {
     required this.title,
     required this.transactions,
     required this.categoryMap,
+    required this.walletMap,
     required this.totalAmount,
     required this.type,
   });
@@ -313,7 +317,7 @@ class _TransactionListState extends State<TransactionList> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -329,7 +333,11 @@ class _TransactionListState extends State<TransactionList> {
                 : tr('total_expense', namedArgs: {
                     'amount': formatAmount(widget.totalAmount)
                   }),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: widget.type == Type.income ? Colors.green : Colors.red,
+            ),
           ),
           Expanded(
             child: ListView.builder(
@@ -337,6 +345,7 @@ class _TransactionListState extends State<TransactionList> {
               itemBuilder: (context, index) {
                 final transaction = widget.transactions[index];
                 final category = widget.categoryMap[transaction.categoryId];
+                final wallet = widget.walletMap[transaction.walletId];
                 final double transactionAmount = transaction.amount;
                 final double transactionPercentage =
                     (transactionAmount / widget.totalAmount) * 100;
@@ -347,9 +356,21 @@ class _TransactionListState extends State<TransactionList> {
                       backgroundColor: Colors.grey,
                       child: Icon(Icons.category, color: Colors.white),
                     ),
-                    title: Text(tr('no_category'),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(tr('no_category'),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
+                        // SizedBox(height: 3),
+                        // Text(
+                        //   wallet!.name,
+                        //   maxLines: 1,
+                        //   overflow: TextOverflow.ellipsis,
+                        //   style: TextStyle(color: Colors.grey, fontSize: 16),
+                        // ),
+                      ],
+                    ),
                     subtitle: LinearProgressIndicator(
                       value: transactionPercentage,
                       backgroundColor: Colors.grey[300],
@@ -381,10 +402,22 @@ class _TransactionListState extends State<TransactionList> {
                     backgroundColor: parseColor(category.color),
                     child: Icon(parseIcon(category.icon), color: Colors.white),
                   ),
-                  title: Text(
-                    category.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        category.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      // SizedBox(height: 3),
+                      // Text(
+                      //   wallet!.name,
+                      //   maxLines: 1,
+                      //   overflow: TextOverflow.ellipsis,
+                      //   style: TextStyle(color: Colors.grey, fontSize: 16),
+                      // ),
+                    ],
                   ),
                   subtitle: LinearProgressIndicator(
                     value: transactionPercentage / 10,

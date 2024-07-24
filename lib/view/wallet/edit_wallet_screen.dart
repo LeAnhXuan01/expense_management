@@ -1,12 +1,11 @@
 import 'package:expense_management/widget/custom_header_1.dart';
-import 'package:expense_management/widget/custom_snackbar_1.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import '../../data/icon_list.dart';
 import '../../model/wallet_model.dart';
-import '../../utils/color_list.dart';
-import '../../utils/icon_list.dart';
+import '../../data/color_list.dart';
 import '../../view_model/wallet/edit_wallet_view_model.dart';
 import '../../widget/custom_ElevatedButton_2.dart';
 import '../../widget/custom_snackbar_2.dart';
@@ -115,6 +114,7 @@ class _EditWalletScreenState extends State<EditWalletScreen> {
                                     LengthLimitingTextInputFormatter(15),
                                   ],
                                   controller: viewModel.currentBalanceController,
+                                  readOnly: true,
                                   decoration: InputDecoration(labelText: tr('current_balance_label')),
                                   style: const TextStyle(fontSize: 28, color: Colors.green, fontWeight: FontWeight.w500),
                                   keyboardType: TextInputType.number,

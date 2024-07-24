@@ -127,10 +127,6 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-  void _showErrorSnackBar(BuildContext context, String error) {
-    CustomSnackBar_1.show(context, error);
-  }
-
   void resetFields() {
     emailController.clear();
     passwordController.clear();
@@ -144,5 +140,9 @@ class LoginViewModel extends ChangeNotifier {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  void _showErrorSnackBar(BuildContext context, String error) {
+    CustomSnackBar_1.show(context, error);
   }
 }

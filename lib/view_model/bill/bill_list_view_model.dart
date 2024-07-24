@@ -13,6 +13,7 @@ class BillListViewModel extends ChangeNotifier {
   List<Bill> _filteredBills = [];
   bool isSearching = false;
   String searchQuery = '';
+  bool isLoading = false;
 
   List<Bill> get bills => _filteredBills;
 
@@ -24,11 +25,16 @@ class BillListViewModel extends ChangeNotifier {
     final user = FirebaseAuth.instance.currentUser;
     if(user != null){
       try {
+        isLoading = true;
+        notifyListeners();
         _bills = await _billService.getBills(user.uid);
         _filteredBills = _bills;
         notifyListeners();
       } catch (e) {
         print("Error loading bills: $e");
+      }finally {
+        isLoading = false;
+        notifyListeners();
       }
     }
   }

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:expense_management/model/wallet_model.dart';
 import 'package:expense_management/services/wallet_service.dart';
 import '../../utils/utils.dart';
+import '../../widget/custom_snackbar_1.dart';
 
 class EditWalletViewModel extends ChangeNotifier {
   final WalletService _walletService = WalletService();
@@ -89,7 +90,10 @@ class EditWalletViewModel extends ChangeNotifier {
   Future<Wallet?> updateWallet(String walletId, DateTime createdAt, Wallet wallet) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      final cleanedBalance = currentBalanceController.text.replaceAll('.', '');
+      // Loại bỏ dấu '.' và khoảng trắng không cần thiết
+      final cleanedBalance = currentBalanceController.text.replaceAll('.', '').replaceAll(' ', '');
+
+      print('Cleaned Balance: $cleanedBalance');
       final currentBalance = double.parse(cleanedBalance);
 
       // Kiểm tra trạng thái isDefault của ví hiện tại
@@ -111,11 +115,20 @@ class EditWalletViewModel extends ChangeNotifier {
       try {
         await _walletService.updateWallet(updatedWallet);
         return updatedWallet;
-      } catch (e) {
+      } catch (e, stackTrace) {
         print('Error updating wallet: $e');
+        print('Stack trace: $stackTrace');
         return null;
       }
     }
     return null;
+  }
+
+
+  @override
+  void dispose() {
+    walletNameController.dispose();
+    currentBalanceController.dispose();
+    super.dispose();
   }
 }

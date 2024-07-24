@@ -121,6 +121,7 @@
   "income": "Income",
   "expense": "Expense",
   "no_results": "No results match the filter.",
+  "no_transaction": "There are no transactions",
   "search_filters": "Search Filters:",
   "date_range": "Date Range",
   "wallet": "Wallet",
