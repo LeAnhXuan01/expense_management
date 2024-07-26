@@ -177,8 +177,8 @@ class _EditTransferScreenState extends State<EditTransferScreen> {
                                     locale: context.locale,
                                     context: context,
                                     initialDate: viewModel.selectedDate,
-                                    firstDate: DateTime(1999),
-                                    lastDate: DateTime(2100),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime.now(),
                                   );
                                   if (picked != null &&
                                       picked != viewModel.selectedDate) {

@@ -70,7 +70,7 @@ class CreateBillScreen extends StatelessWidget {
                                       locale: context.locale,
                                       context: context,
                                       initialDate: viewModel.selectedDate,
-                                      firstDate: DateTime(1999),
+                                      firstDate: DateTime.now(),
                                       lastDate: DateTime(2100),
                                     );
                                     if (picked != null &&

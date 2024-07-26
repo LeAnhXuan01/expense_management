@@ -9,7 +9,6 @@ import '../../model/enum.dart';
 import '../../model/transaction_model.dart';
 import '../../model/wallet_model.dart';
 import '../../view_model/statistics/statistics_view_model.dart';
-import '../../widget/multi_category_selection_dialog.dart';
 import '../../widget/multi_wallet_selection_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -33,24 +32,6 @@ class StatisticsScreen extends StatelessWidget {
                     children: [
                       CustomHeader_2(
                         title: tr('statistics'),
-                        // leftAction: IconButton(
-                        //   icon: const Icon(Icons.category, color: Colors.white),
-                        //   onPressed: () {
-                        //     showDialog(
-                        //       context: context,
-                        //       builder: (context) {
-                        //         return MultiCategorySelectionDialog(
-                        //           categories: viewModel.categories,
-                        //           selectedCategories:
-                        //               viewModel.selectedCategories,
-                        //           onSelect: (List<Category> categories) {
-                        //             viewModel.setCategories(categories);
-                        //           },
-                        //         );
-                        //       },
-                        //     );
-                        //   },
-                        // ),
                         rightAction: IconButton(
                           icon: const Icon(FontAwesomeIcons.sackDollar,
                               color: Colors.white),

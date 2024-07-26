@@ -31,16 +31,7 @@ class DetailBudgetViewModel with ChangeNotifier {
   Map<String, Category> categoryMap = {};
   List<Transactions> filteredTransactions = [];
   Map<String, List<Transactions>> groupedTransactions = {};
-
-  void toggleShowTransactions() {
-    showTransactions = !showTransactions;
-    notifyListeners();
-  }
-
-  void toggleShowPreviousPeriods() {
-    showPreviousPeriods = !showPreviousPeriods;
-    notifyListeners();
-  }
+  bool isLoading = false;
 
   int remainingDays = 0;
 
@@ -63,12 +54,14 @@ class DetailBudgetViewModel with ChangeNotifier {
 
   DetailBudgetViewModel(this.budget) {
     _currentPeriodStart = budget.startDate;
-    _currentPeriodEnd =
-        _calculateEndOfCurrentPeriod(_currentPeriodStart, budget.repeat);
+    _currentPeriodEnd = _calculateEndOfCurrentPeriod(_currentPeriodStart, budget.repeat);
     loadData();
   }
 
   Future<void> loadData() async {
+    isLoading = true;
+    notifyListeners();
+
     try {
       await Future.wait([
         loadTransactions(),
@@ -85,6 +78,8 @@ class DetailBudgetViewModel with ChangeNotifier {
     } catch (e) {
       print("Error loading data: $e");
     }
+
+    isLoading = false;
     notifyListeners();
   }
 
@@ -127,6 +122,16 @@ class DetailBudgetViewModel with ChangeNotifier {
         print("Error loading categories: $e");
       }
     }
+  }
+
+  void toggleShowTransactions() {
+    showTransactions = !showTransactions;
+    notifyListeners();
+  }
+
+  void toggleShowPreviousPeriods() {
+    showPreviousPeriods = !showPreviousPeriods;
+    notifyListeners();
   }
 
 //Lọc giao dịch theo ngân sách hiện tại
@@ -214,10 +219,14 @@ class DetailBudgetViewModel with ChangeNotifier {
             .add(const Duration(days: 7))
             .subtract(const Duration(seconds: 1));
       case Repeat.Monthly:
-        return DateTime(startDate.year, startDate.month + 1, startDate.day)
+        DateTime monthlyDate = DateTime(
+            startDate.year, startDate.month + 1, startDate.day);
+        return DateTime(monthlyDate.year, monthlyDate.month, monthlyDate.day)
             .subtract(const Duration(seconds: 1));
       case Repeat.Quarterly:
-        return DateTime(startDate.year, startDate.month + 3, startDate.day)
+        DateTime quarterlyDate = DateTime(
+            startDate.year, startDate.month + 3, startDate.day);
+        return DateTime(quarterlyDate.year, quarterlyDate.month, quarterlyDate.day)
             .subtract(const Duration(seconds: 1));
       case Repeat.Yearly:
         return DateTime(startDate.year + 1, startDate.month, startDate.day)
@@ -228,7 +237,7 @@ class DetailBudgetViewModel with ChangeNotifier {
   }
 
 // Kiểm tra và cập nhật chu kỳ ngân sách
-  void checkAndUpdatePeriod() {
+  Future<void> checkAndUpdatePeriod() async {
     try {
       final now = DateTime.now();
       if (now.isAfter(_currentPeriodEnd)) {
@@ -283,7 +292,7 @@ class DetailBudgetViewModel with ChangeNotifier {
         }
 
         // Tải lại dữ liệu mới sau khi cập nhật chu kỳ
-        loadData();
+        await loadData();
       }
     } catch (e) {
       print("Error checking and updating period: $e");

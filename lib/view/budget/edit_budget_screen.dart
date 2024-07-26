@@ -294,7 +294,7 @@ class EditBudgetScreen extends StatelessWidget {
                                   locale: context.locale,
                                   context: context,
                                   initialDate: viewModel.startDate,
-                                  firstDate: DateTime(1999),
+                                  firstDate: DateTime.now(),
                                   lastDate: DateTime(2100),
                                 );
                                 if (picked != null &&
@@ -319,7 +319,7 @@ class EditBudgetScreen extends StatelessWidget {
                                   context: context,
                                   initialDate:
                                       viewModel.endDate ?? DateTime.now(),
-                                  firstDate: DateTime(1999),
+                                  firstDate: DateTime.now(),
                                   lastDate: DateTime(2100),
                                 );
                                 if (picked != null &&

@@ -127,6 +127,7 @@ class TransferHistoryViewModel extends ChangeNotifier {
 
   void clearFilters() {
     _selectedDateRange = null;
+    _selectedWallets = walletMap.values.toList();
     _applyFilters();
     notifyListeners();
   }

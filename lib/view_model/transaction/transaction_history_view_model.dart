@@ -217,6 +217,7 @@ class TransactionHistoryViewModel extends ChangeNotifier {
   void clearFilters() {
     selectedDateRange = null;
     _currentTabIndex = 0;
+    selectedWallets = walletMap.values.toList();
     filteredTransactions = transactions;
     groupTransactions();
     notifyListeners();

@@ -58,8 +58,12 @@ class _DetailBudgetScreenState extends State<DetailBudgetScreen> {
                     },
                   ),
                 ),
-                if (viewModel.transactions.isEmpty)
-                  const Center(child: CircularProgressIndicator())
+                if (viewModel.isLoading)
+                  const Expanded(
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
                 else
                   Expanded(
                     child: ListView(

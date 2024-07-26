@@ -20,7 +20,6 @@ class SplashService {
     } else if (user == null) {
       _navigateToLogin();
     } else {
-      // await user.reload(); // Tải lại thông tin người dùng để kiểm tra trạng thái mới nhất
       if (!user.emailVerified) {
         _navigateToLogin();
       } else {

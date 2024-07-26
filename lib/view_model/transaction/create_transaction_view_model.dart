@@ -224,7 +224,6 @@ class CreateTransactionViewModel extends ChangeNotifier {
     selectedHour = TimeOfDay.now();
     selectedCategory = null;
     showPlusButtonCategory = true;
-    selectedWallet = null;
     enableButton = false;
     images = [];
     notifyListeners();

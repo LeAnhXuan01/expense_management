@@ -20,6 +20,7 @@ class BudgetListViewModel extends ChangeNotifier {
 
   List<Budget> _budgets = [];
   List<Budget> _filteredbudgets = [];
+  List<Transactions> _transactions = [];
   bool isSearching = false;
   String searchQuery = "";
   Map<String, Category> categoryMap = {};
@@ -47,7 +48,6 @@ class BudgetListViewModel extends ChangeNotifier {
 
         // Sau khi danh mục và ví đã được tải, tải dữ liệu budgets
         await loadBudgets();
-
       } catch (e) {
         print("Error loading data: $e");
       } finally {
@@ -102,6 +102,17 @@ class BudgetListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> loadTransactions() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        _transactions = await _transactionService.getTransaction(user.uid);
+      } catch (e) {
+        print("Error loading transactions: $e");
+      }
+    }
+  }
+
   Future<void> loadCategories() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -147,33 +158,7 @@ class BudgetListViewModel extends ChangeNotifier {
     return walletMap[walletId];
   }
 
-  String getCategoriesText(List<String> selectedCategories) {
-    if (selectedCategories.isEmpty ||
-        selectedCategories.length == categoryMap.length) {
-      return tr('all_expense_categories');
-    }
-    if (selectedCategories.length == 1) {
-      return categoryMap[selectedCategories[0]]?.name ?? '';
-    }
-    if (selectedCategories.length == 2) {
-      return '${categoryMap[selectedCategories[0]]?.name ?? ''}, ${categoryMap[selectedCategories[1]]?.name ?? ''}';
-    }
-    return '${categoryMap[selectedCategories[0]]?.name ?? ''}, ${categoryMap[selectedCategories[1]]?.name ?? ''} + ${selectedCategories.length - 2}' + tr('other_categories');
-  }
-
-  String getWalletsText(List<String> selectedWallets) {
-    if (selectedWallets.length == 0 ||
-
-        selectedWallets.length == walletMap.length) return tr('all_wallet');
-    if (selectedWallets.length == 1)
-      return walletMap[selectedWallets[0]]?.name ?? '';
-    if (selectedWallets.length == 2)
-      return '${walletMap[selectedWallets[0]]?.name ?? ''}, ${walletMap[selectedWallets[1]]?.name ?? ''}';
-    return '${walletMap[selectedWallets[0]]?.name ?? ''}, ${walletMap[selectedWallets[1]]?.name ?? ''} + ${selectedWallets.length - 2} ' + tr('wallet');
-  }
-
-
-//Tính toán tổng số tiền đã chi tiêu trong một ngân sách
+  //Tính toán tổng số tiền đã chi tiêu trong một ngân sách
   Future<double> calculateSpentAmount(
       Budget budget, List<String> categoryIds, List<String> walletIds) async {
     final user = FirebaseAuth.instance.currentUser;
@@ -184,6 +169,10 @@ class BudgetListViewModel extends ChangeNotifier {
       final currentDate = DateTime.now();
       final startDate = budget.startDate;
       final endDate = budget.endDate;
+
+      if (currentDate.isAfter(endDate)) {
+        return 0.0;
+      }
 
       if (currentDate.isBefore(startDate)) {
         return 0.0;
@@ -273,7 +262,7 @@ class BudgetListViewModel extends ChangeNotifier {
 
     switch (budget.repeat) {
       case Repeat.Daily:
-        // Nếu chưa đến thời gian bắt đầu hạn mức, hiển thị ngày bắt đầu hạn mức
+      // Nếu chưa đến thời gian bắt đầu hạn mức, hiển thị ngày bắt đầu hạn mức
         if (currentDate.isBefore(startDate)) {
           return DateFormat('dd/MM/yyyy').format(startDate);
         }
@@ -281,7 +270,7 @@ class BudgetListViewModel extends ChangeNotifier {
         return DateFormat('dd/MM/yyyy').format(currentDate);
 
       case Repeat.Weekly:
-        // Tính tuần bắt đầu hiện tại dựa trên ngày bắt đầu hạn mức
+      // Tính tuần bắt đầu hiện tại dựa trên ngày bắt đầu hạn mức
         final weekStartDate = startDate.add(Duration(
             days: ((currentDate.difference(startDate).inDays) ~/ 7) * 7));
         final weekEndDate = weekStartDate.add(Duration(days: 6));
@@ -297,7 +286,7 @@ class BudgetListViewModel extends ChangeNotifier {
 
       case Repeat.Monthly:
         DateTime monthStartDate =
-            DateTime(startDate.year, startDate.month, startDate.day);
+        DateTime(startDate.year, startDate.month, startDate.day);
         while (monthStartDate.isBefore(currentDate) &&
             monthStartDate.isBefore(endDate)) {
           monthStartDate = DateTime(
@@ -309,14 +298,14 @@ class BudgetListViewModel extends ChangeNotifier {
         // Nếu chưa đến thời gian bắt đầu hạn mức, hiển thị tháng bắt đầu hạn mức
         if (currentDate.isBefore(startDate)) {
           final initialMonthEndDate =
-              DateTime(startDate.year, startDate.month + 1, startDate.day)
-                  .subtract(Duration(days: 1));
+          DateTime(startDate.year, startDate.month + 1, startDate.day)
+              .subtract(Duration(days: 1));
           return '${DateFormat('dd/MM/yyyy').format(startDate)} - ${DateFormat('dd/MM/yyyy').format(initialMonthEndDate)}';
         }
         monthStartDate = DateTime(monthStartDate.year, monthStartDate.month - 1,
             startDate.day); // Move back one month
         final monthEndDate = DateTime(monthStartDate.year,
-                monthStartDate.month + 1, monthStartDate.day)
+            monthStartDate.month + 1, monthStartDate.day)
             .subtract(Duration(days: 1));
         return '${DateFormat('dd/MM/yyyy').format(monthStartDate)} - ${DateFormat('dd/MM/yyyy').format(monthEndDate)}';
 
@@ -333,8 +322,8 @@ class BudgetListViewModel extends ChangeNotifier {
         // Nếu chưa đến thời gian bắt đầu hạn mức, hiển thị quý bắt đầu hạn mức
         if (currentDate.isBefore(startDate)) {
           final initialQuarterEndDate =
-              DateTime(startDate.year, startDate.month + 3, startDate.day)
-                  .subtract(Duration(days: 1));
+          DateTime(startDate.year, startDate.month + 3, startDate.day)
+              .subtract(Duration(days: 1));
           return '${DateFormat('dd/MM/yyyy').format(startDate)} - ${DateFormat('dd/MM/yyyy').format(initialQuarterEndDate)}';
         }
         quarterStartDate = DateTime(
@@ -342,13 +331,13 @@ class BudgetListViewModel extends ChangeNotifier {
             quarterStartDate.month - 3,
             quarterStartDate.day); // Move back one quarter
         final quarterEndDate = DateTime(quarterStartDate.year,
-                quarterStartDate.month + 3, quarterStartDate.day)
+            quarterStartDate.month + 3, quarterStartDate.day)
             .subtract(Duration(days: 1));
         return '${DateFormat('dd/MM/yyyy').format(quarterStartDate)} - ${DateFormat('dd/MM/yyyy').format(quarterEndDate)}';
 
       case Repeat.Yearly:
         DateTime yearStartDate =
-            DateTime(startDate.year, startDate.month, startDate.day);
+        DateTime(startDate.year, startDate.month, startDate.day);
         while (yearStartDate.isBefore(currentDate) &&
             yearStartDate.isBefore(endDate)) {
           yearStartDate =
@@ -360,15 +349,15 @@ class BudgetListViewModel extends ChangeNotifier {
         // Nếu chưa đến thời gian bắt đầu hạn mức, hiển thị năm bắt đầu hạn mức
         if (currentDate.isBefore(startDate)) {
           final initialYearEndDate =
-              DateTime(startDate.year + 1, startDate.month, startDate.day)
-                  .subtract(Duration(days: 1));
+          DateTime(startDate.year + 1, startDate.month, startDate.day)
+              .subtract(Duration(days: 1));
           return '${DateFormat('dd/MM/yyyy').format(startDate)} - ${DateFormat('dd/MM/yyyy').format(initialYearEndDate)}';
         }
         yearStartDate = DateTime(yearStartDate.year - 1, startDate.month,
             startDate.day); // Move back one year
         final yearEndDate =
-            DateTime(yearStartDate.year + 1, startDate.month, startDate.day)
-                .subtract(Duration(days: 1));
+        DateTime(yearStartDate.year + 1, startDate.month, startDate.day)
+            .subtract(Duration(days: 1));
         return '${DateFormat('dd/MM/yyyy').format(yearStartDate)} - ${DateFormat('dd/MM/yyyy').format(yearEndDate)}';
 
       default:
@@ -442,10 +431,10 @@ class BudgetListViewModel extends ChangeNotifier {
         final quarterStartMonth = (quarter - 1) * 3 + 1;
         final nextQuarterStartMonth = quarterStartMonth + 3;
         DateTime quarterStartDate =
-            DateTime(currentDate.year, quarterStartMonth, startDate.day);
+        DateTime(currentDate.year, quarterStartMonth, startDate.day);
         DateTime quarterEndDate =
-            DateTime(currentDate.year, nextQuarterStartMonth, startDate.day)
-                .subtract(Duration(days: 1));
+        DateTime(currentDate.year, nextQuarterStartMonth, startDate.day)
+            .subtract(Duration(days: 1));
 
         if (currentDate.day < startDate.day) {
           quarterStartDate =
@@ -466,10 +455,10 @@ class BudgetListViewModel extends ChangeNotifier {
 
       case Repeat.Yearly:
         DateTime yearStartDate =
-            DateTime(currentDate.year, startDate.month, startDate.day);
+        DateTime(currentDate.year, startDate.month, startDate.day);
         DateTime yearEndDate =
-            DateTime(currentDate.year + 1, startDate.month, startDate.day)
-                .subtract(Duration(days: 1));
+        DateTime(currentDate.year + 1, startDate.month, startDate.day)
+            .subtract(Duration(days: 1));
 
         if (currentDate.isBefore(yearStartDate)) {
           yearStartDate =

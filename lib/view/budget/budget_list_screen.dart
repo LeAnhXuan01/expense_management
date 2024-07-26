@@ -1,15 +1,16 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:expense_management/utils/utils.dart';
 import 'package:expense_management/view/budget/create_budget_screen.dart';
 import 'package:expense_management/widget/custom_snackbar_2.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../model/budget_model.dart';
 import '../../model/category_model.dart';
 import '../../model/wallet_model.dart';
 import '../../view_model/budget/budget_list_view_model.dart';
 import '../../widget/custom_header_3.dart';
 import 'detail_budget_screen.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 class BudgetListScreen extends StatefulWidget {
   const BudgetListScreen({super.key});
@@ -173,107 +174,43 @@ class _BudgetListScreenState extends State<BudgetListScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      // Display selected categories
-                                      Row(
-                                        children: [
-                                          Stack(
-                                            children: [
-                                              for (int i =
-                                                  budgetCategories.take(3).length -
-                                                      1;
-                                              i >= 0;
-                                              i--)
-                                                Transform.translate(
-                                                  offset: Offset(i * 10.0, 0),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.only(
-                                                        right: 2.0),
-                                                    child: CircleAvatar(
-                                                      radius: 16,
-                                                      backgroundColor: parseColor(
-                                                          budgetCategories[i].color),
-                                                      child: Icon(
-                                                        parseIcon(
-                                                            budgetCategories[i].icon),
-                                                        color: Colors.white,
-                                                        size: 16,
+                                                Row(
+                                                  children: [
+                                                    Stack(
+                                                      children: [
+                                                        for (int i = budgetCategories.take(3).length - 1; i >= 0; i--)
+                                                          Transform.translate(
+                                                            offset: Offset(i * 10.0, 0),
+                                                            child: CircleAvatar(
+                                                                radius: 16,
+                                                                backgroundColor: parseColor(budgetCategories[i].color),
+                                                                child: Icon(
+                                                                  parseIcon(budgetCategories[i].icon),
+                                                                  color: Colors.white,
+                                                                  size: 16,
+                                                                ),
+                                                              ),
+
+                                                          ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(width: 25.0),
+                                                    Expanded(
+                                                      child: Text(
+                                                        // tr('budget_name_2') +
+                                                        //     '${budget.name}',
+                                                        tr('${budget.name}'),
+                                                        style: const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 16),
+                                                        overflow:
+                                                            TextOverflow.ellipsis,
+                                                        maxLines: 1,
                                                       ),
                                                     ),
-                                                  ),
+                                                  ],
                                                 ),
-                                            ],
-                                          ),
-                                          const SizedBox(width: 25.0),
-                                          Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(top: 5.0),
-                                              child: Text(
-                                                viewModel.getCategoriesText(
-                                                    budget.categoryId),
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.bold),
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      // Display selected wallets
-                                      Row(
-                                        children: [
-                                          Stack(
-                                            children: [
-                                              for (int i =
-                                                  budgetWallets.take(3).length - 1;
-                                              i >= 0;
-                                              i--)
-                                                Transform.translate(
-                                                  offset: Offset(i * 10.0, 0),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.only(
-                                                        right: 2.0),
-                                                    child: CircleAvatar(
-                                                      radius: 16,
-                                                      backgroundColor: parseColor(
-                                                          budgetWallets[i].color),
-                                                      child: Icon(
-                                                        parseIcon(
-                                                            budgetWallets[i].icon),
-                                                        color: Colors.white,
-                                                        size: 18,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                          const SizedBox(width: 25.0),
-                                          Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(top: 5.0),
-                                              child: Text(
-                                                viewModel.getWalletsText(
-                                                    budget.walletId),
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.bold),
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        tr('budget_name_2') + '${budget.name}',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      ),
                                       const SizedBox(height: 8),
                                       Text(
                                         tr('budget_amount') +

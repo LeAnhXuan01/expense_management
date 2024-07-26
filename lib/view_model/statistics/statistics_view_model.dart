@@ -99,12 +99,6 @@ class StatisticsViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void setCategories(List<Category> categories) {
-    selectedCategories = categories;
-    fetchData();
-    notifyListeners();
-  }
-
   void setCustomDateRange(DateTime start, DateTime end) {
     customStartDate = start;
     customEndDate = end;
@@ -115,6 +109,7 @@ class StatisticsViewModel with ChangeNotifier {
     notifyListeners();
   }
 
+//chọn các giao dịch theo loại (thu nhập hoặc chi tiêu) và một ngày cụ thể
   void setSelectedTransactions(Type type, String date) {
     print('setSelectedTransactions called với type: $type và date: $date');
     DateTime parsedDate;
@@ -148,6 +143,7 @@ class StatisticsViewModel with ChangeNotifier {
     notifyListeners();
   }
 
+  //kiểm tra xem giao dịch có nằm trong khoảng thời gian đã chọn không
   bool isTransactionInDateRange(
       Transactions t, DateTime startDate, DateTime? endDate) {
     switch (selectedTimeframe) {
@@ -186,7 +182,6 @@ class StatisticsViewModel with ChangeNotifier {
           .toList();
       selectedWallets = List.from(wallets); // Mặc định chọn tất cả các ví
 
-      // Tạo map walletId -> Wallet
       walletMap = {
         for (var wallet in wallets) wallet.walletId: wallet
       };
@@ -207,7 +202,6 @@ class StatisticsViewModel with ChangeNotifier {
           .toList();
       selectedCategories = List.from(categories);
 
-      // Tạo map categoryId -> Category
       categoryMap = {
         for (var category in categories) category.categoryId: category
       };
@@ -216,14 +210,13 @@ class StatisticsViewModel with ChangeNotifier {
     }
   }
 
+//Xác định khoảng thời gian cần lấy dữ liệu và phân loại giao dịch
   Future<void> fetchData() async {
     DateTime now = DateTime.now();
     DateTime start;
     DateTime end;
-    if (selectedTimeframe == 'custom' &&
-        isCustomDateRangeSet &&
-        customStartDate != null &&
-        customEndDate != null) {
+    if (selectedTimeframe == 'custom' && isCustomDateRangeSet &&
+        customStartDate != null && customEndDate != null) {
       start = customStartDate!;
       end = customEndDate!;
     } else {
@@ -233,7 +226,7 @@ class StatisticsViewModel with ChangeNotifier {
           end = start.add(const Duration(days: 1));
           break;
         case 'week':
-        // Xác định ngày thứ Hai của tuần hiện tại
+          // Xác định ngày thứ Hai của tuần hiện tại
           start = now.subtract(Duration(days: now.weekday - 1));
           // Đặt thời gian là đầu ngày (00:00:00) để bao gồm cả ngày đầu tiên
           start = DateTime(start.year, start.month, start.day);
@@ -284,6 +277,7 @@ class StatisticsViewModel with ChangeNotifier {
     notifyListeners();
   }
 
+  //Phân loại giao dịch, tính toán thu nhập, chi tiêu, lợi nhuận, lỗ
   void processTransactionData(List<Transactions> transactions) {
     print(
         'processTransactionData called with ${transactions.length} transactions');
